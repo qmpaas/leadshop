@@ -1,0 +1,54 @@
+{
+    "name": "yiisoft/yii2-imagine",
+    "description": "The Imagine integration for the Yii framework",
+    "keywords": ["yii2", "imagine", "image", "helper"],
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "support": {
+        "issues": "https://github.com/yiisoft/yii2-imagine/issues",
+        "forum": "http://www.yiiframework.com/forum/",
+        "wiki": "http://www.yiiframework.com/wiki/",
+        "irc": "irc://irc.freenode.net/yii",
+        "source": "https://github.com/yiisoft/yii2-imagine"
+    },
+    "authors": [
+        {
+            "name": "Antonio Ramirez",
+            "email": "amigo.cobos@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0",
+        "imagine/imagine": "^1.0"
+    },
+    "require-dev": {
+        "cweagans/composer-patches": "^1.7",
+        "phpunit/phpunit": "4.8.34"
+    },
+    "autoload": {
+        "psr-4": {
+            "yii\\imagine\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        },
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "phpunit/phpunit-mock-objects": {
+                "Fix PHP 7 and 8 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_mock_objects.patch"
+            },
+            "phpunit/phpunit": {
+                "Fix PHP 7 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php7.patch",
+                "Fix PHP 8 compatibility": "https://yiisoft.github.io/phpunit-patches/phpunit_php8.patch"
+            }
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]
+}

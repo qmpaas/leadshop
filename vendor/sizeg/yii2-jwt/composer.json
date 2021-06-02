@@ -1,0 +1,38 @@
+{
+    "name": "sizeg/yii2-jwt",
+    "description": "JWT based on Icobucci",
+	"type": "yii2-extension",
+	"keywords": ["yii2", "yii 2", "jwt"],
+	"authors": [
+        {
+            "name": "Dmitriy Demin",
+            "email": "sizemail@gmail.com",
+            "homepage": "https://sizeg.tk"
+        }
+    ],
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.6.0",
+        "lcobucci/jwt": "~3.3.0",
+        "yiisoft/yii2": "~2.0.0"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "^4.8"
+	},
+    "autoload": {
+        "psr-4": {
+            "sizeg\\jwt\\": ""
+        }
+    },
+	"autoload-dev": {
+        "psr-4": {
+            "sizeg\\jwt\\tests\\": "tests/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ]    
+}

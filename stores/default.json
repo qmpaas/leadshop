@@ -1,0 +1,64 @@
+{
+    "AppName": "leadmall",
+    "AppType": "weapp",
+    "AppID": "98c08c25f8136d590c",
+    "AppSecret": "50354456f15bc1cb2b95e72b185522e5",
+    "AppAuthorize": "MKDi7CLHyQD9mu5EpLP3pyUdFpgOXLHKbSrU9CwF557ZFGtmoiSlqbNrSjXehYMqRl-1-njvGn9uMiQl5CLYU0C0wEkukP3W6jUWd4JqT6-toPwPgQqTBpwPov31Gb-CQdyCkM1qOB1y7pRR0zwr3VsyjyLSITPjoe8K4iHtDyVdvMw-2d0aRESXaf2fTdOK-Ao_9tlmz1CTGfQvYg_guNWkJOpF8EhbqBsPc2VBr8KpKoDpF72nlLQOj0r-o_zJeq_Xqj70jIc4pMlcHTpVbgW6AZe35G8Ci7P7x2h3ST89DfVH8iS0mwJWqifuzLlYzfBt55DjQ23af8jfvjmpqA",
+    "type": "common",
+    "apply": {
+        "wechat": {
+            "name": "",
+            "type": "1",
+            "AppID": "",
+            "AppSecret": "",
+            "token": "",
+            "encodingAesKey": ""
+        },
+        "weapp": {
+            "AppID": "",
+            "AppSecret": ""
+        }
+    },
+    "appPay": {
+        "payments": ["weapp", "wechat", "alipay", "wechatH5", "balance", "huodao"],
+        "weapp": {
+            "isService": 0,
+            "name": "",
+            "appid": "",
+            "mchid": "",
+            "key": "",
+            "certPem": "",
+            "keyPem": "",
+            "serviceAppid": "",
+            "serviceMchid": "",
+            "serviceKey": "",
+            "serviceCertPem": "",
+            "serviceKeyPem": ""
+        },
+        "wechat": {
+            "isService": 0,
+            "name": "",
+            "appid": "",
+            "mchid": "",
+            "key": "",
+            "certPem": "",
+            "keyPem": "",
+            "serviceAppid": "",
+            "serviceMchid": "",
+            "serviceKey": "",
+            "serviceCertPem": "",
+            "serviceKeyPem": ""
+        },
+        "alipay": {
+            "alipayAppid": "",
+            "appPrivate_key": "",
+            "alipayPublic_key": "",
+            "appcert": "",
+            "alipayRootcert": ""
+        },
+        "wechatH5": {},
+        "balance": {},
+        "huodao": {}
+    },
+    "appOauth": {}
+}
