@@ -2,9 +2,9 @@
 /**
  * @Author: qinuoyun
  * @Last Modified by:   qinuoyun
- * @Version 1.2.5
+ * @Version 1.2.6
  */
-ini_set("display_errors", "On");
+ini_set("display_errors", "Off");
 error_reporting(E_ALL);
 //开启Session
 session_start();

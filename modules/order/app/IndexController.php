@@ -690,16 +690,78 @@ class IndexController extends BasicController
      */
     public function buildAmount($goods, $consignee_info, $merchant_id)
     {
-        $calculate      = Yii::$app->request->get('calculate', false); //判断是否是预请求
+        $freight_data   = $this->buildFreightPrice($goods, $consignee_info);
+        $goods_amount   = $freight_data['goods_amount']; //商品总金额
+        $freight_amount = $freight_data['freight_amount']; //总运费
+
+        foreach ($goods as $key => &$value) {
+            $goods_price = $value['goods_number'] * $value['goods_price'];
+
+            unset($value['freight']);
+            unset($value['package']);
+            unset($value['ft_type']);
+            unset($value['ft_price']);
+            $value['total_amount']   = $goods_price;
+            $value['pay_amount']     = $goods_price;
+            $value['coupon_reduced'] = 0;
+
+        }
+
+        $total_amount = $goods_amount + $freight_amount;
+        $return_data  = [
+            'total_amount'   => $total_amount,
+            'goods_amount'   => $goods_amount,
+            'pay_amount'     => $total_amount,
+            'freight_amount' => $freight_amount,
+            'coupon_reduced' => 0,
+            'merchant_id'    => $merchant_id,
+            'goods_data'     => $goods,
+        ];
+
+        $return_data = $this->buildReducePrice($return_data);
+
+        return $return_data;
+
+    }
+
+    /**
+     * 运费处理
+     */
+    public function buildFreightPrice($goods, $consignee_info)
+    {
+        $calculate = Yii::$app->request->get('calculate', false); //判断是否是预请求
+
         $number_amount  = 0; //商品总数
         $goods_amount   = 0; //商品总金额
         $freight_amount = 0; //总运费
 
-        $first_price_key = 0; //选择的首件所在的商品键
-        $first_price     = 0; //选择的首件价格
-        foreach ($goods as $k => &$v) {
-            $number_amount += $v['goods_number'];
+        $new_goods = [];
+        foreach ($goods as $v) {
             $goods_amount += $v['goods_price'] * $v['goods_number'];
+            $number_amount += $v['goods_number'];
+            if (isset($new_goods[$v['goods_id']])) {
+                $new_goods[$v['goods_id']]['goods_number'] += $v['goods_number'];
+            } else {
+                $new_goods[$v['goods_id']] = $v;
+            }
+        }
+
+        $goods = array_merge($new_goods);
+
+        //按商品数量高到底排序,优化运费计算
+        for ($i = 0; $i < count($goods); $i++) {
+            for ($j = $i + 1; $j < count($goods); $j++) {
+                if ($goods[$i]['goods_number'] < $goods[$j]['goods_number']) {
+                    $tem       = $goods[$j];
+                    $goods[$j] = $goods[$i];
+                    $goods[$i] = $tem;
+                }
+            }
+        }
+
+        $first_price_key = 0; //选择的首件所在的商品键
+        $first_price     = -1; //选择的首件价格
+        foreach ($goods as $k => &$v) {
             $v['freight_rules'] = []; //拿到对应的运费计算规则
             if (!empty($consignee_info) && is_array($v['freight']['freight_rules'])) {
                 foreach ($v['freight']['freight_rules'] as $freight_rules) {
@@ -747,7 +809,7 @@ class IndexController extends BasicController
             }
         }
 
-        foreach ($goods as $key => &$value) {
+        foreach ($goods as $key => $value) {
             $goods_number = $value['goods_number'];
             $goods_weight = $value['goods_number'] * $value['goods_weight'];
             $goods_price  = $value['goods_number'] * $value['goods_price'];
@@ -787,7 +849,6 @@ class IndexController extends BasicController
                             $freight += ceil($continue / $freight_rules['continue']['number']) * $freight_rules['continue']['price'];
                         }
                     }
-
 
                 }
 
@@ -829,33 +890,14 @@ class IndexController extends BasicController
                     }
                 }
             }
-            unset($value['freight']);
-            unset($value['freight_rules']);
-            unset($value['package']);
-            unset($value['ft_type']);
-            unset($value['ft_price']);
-            $value['total_amount']   = $goods_price;
-            $value['pay_amount']     = $goods_price;
-            $value['coupon_reduced'] = 0;
             $freight_amount += $freight;
 
         }
 
-        $total_amount = $goods_amount + $freight_amount;
-        $return_data  = [
-            'total_amount'   => $total_amount,
+        return [
             'goods_amount'   => $goods_amount,
-            'pay_amount'     => $total_amount,
             'freight_amount' => $freight_amount,
-            'coupon_reduced' => 0,
-            'merchant_id'    => $merchant_id,
-            'goods_data'     => $goods,
         ];
-
-        $return_data = $this->buildReducePrice($return_data);
-
-        return $return_data;
-
     }
 
     /**

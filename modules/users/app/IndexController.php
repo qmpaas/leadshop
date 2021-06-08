@@ -7,7 +7,9 @@
 
 namespace users\app;
 
+use coupon\models\Coupon;
 use framework\common\BasicController;
+use users\models\User;
 use Yii;
 
 /**
@@ -284,5 +286,34 @@ class IndexController extends BasicController
             ->withClaim('id', $id) // Configures a new claim, called "id"
             ->getToken($signer, $key); // Retrieves the generated token
         return (string) $token;
+    }
+
+    public static function register($event)
+    {
+        Yii::info('触发用户注册事件');
+        $coupons = Coupon::find()->where([
+            'AND',
+            [
+                'AppID' => Yii::$app->params['AppID'],
+                'status' => 1,
+            ],
+            ['>', 'over_num', 0],
+            ['>', 'register_limit', 0],
+        ])->all();
+        $success = [];
+        /**@var Coupon $coupon*/
+        foreach ($coupons as $coupon) {
+            try {
+                $result = Coupon::obtain($coupon, [Yii::$app->user], 4, $coupon->register_limit, 2);
+                $success = array_merge($success, $result);
+            } catch (\Exception $exception) {
+                Yii::error('==============user register error begin============');
+                Yii::error($exception->getMessage());
+                Yii::error($exception);
+                Yii::error('==============user register error end============');
+            }
+        }
+        Yii::$app->cache->set('user_register_send_' . Yii::$app->user->id . '_' . Yii::$app->params['AppID'], $success);
+        return $success;
     }
 }

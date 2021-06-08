@@ -6,6 +6,7 @@ use framework\common\CommonModels;
 use goods\models\Goods;
 use goods\models\GoodsGroup;
 use users\models\User;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%coupon}}".
@@ -25,6 +26,7 @@ use users\models\User;
  * @property int $appoint_type 适用商品 1:全场通用 2:指定商品可用 3:指定分类可用 4:指定商品不可用 5:指定分类不可用
  * @property string|null $appoint_data 指定数据
  * @property int $give_limit 每人限领 0无限制
+ * @property int $register_limit 新客领取
  * @property int $enable_share 分享设置 1开启 0关闭
  * @property int $expire_remind 到期提醒
  * @property int $enable_refund 退款设置 1开 0关
@@ -56,6 +58,7 @@ class Coupon extends CommonModels
     const appoint_type     = ['tinyint' => 1, 'notNull', 'comment' => '适用商品 1:全场通用 2:指定商品可用 3:指定分类可用 4:指定商品不可用 5:指定分类不可用'];
     const appoint_data     = ['text' => 0, 'comment' => '指定数据'];
     const give_limit       = ['tinyint' => 1, 'comment' => '每人限领 0无限制'];
+    const register_limit   = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '新客领取'];
     const enable_share     = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '分享设置 1开启 0关闭'];
     const expire_remind    = ['int' => 11, 'comment' => '到期提醒'];
     const enable_refund    = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '退款设置 1开 0关'];
@@ -82,7 +85,7 @@ class Coupon extends CommonModels
     {
         $scenarios = parent::scenarios();
         $scenarios['update'] = ['name', 'total_num', 'appoint_type', 'appoint_data',
-            'give_limit', 'enable_share', 'expire_remind', 'enable_refund', 'content', 'status'];
+            'give_limit', 'register_limit', 'enable_share', 'expire_remind', 'enable_refund', 'content', 'status'];
         $scenarios['status'] = ['status'];
         $scenarios['delete'] = ['is_deleted', 'deleted_time'];
         return $scenarios;
@@ -104,7 +107,8 @@ class Coupon extends CommonModels
             [['total_num'], 'integer', 'min' => 0, 'max' => 10000000],
             [['expire_day'], 'integer', 'min' => 1, 'max' => 2000],
             [['sub_price'], 'number', 'min' => 0.01, 'max' => 9999999],
-            [['give_limit'], 'integer', 'min' => 0, 'max' => 100],
+            [['give_limit', 'register_limit'], 'integer', 'min' => 0, 'max' => 100],
+            [['register_limit'], 'default', 'value' => 0],
             [['total_num'], function ($attribute, $params) {
                 if (!$this->isNewRecord && $this->getOldAttribute($attribute) > $this->$attribute) {
                     Error('发放总量只可增加不可减少');
@@ -155,6 +159,7 @@ class Coupon extends CommonModels
             'appoint_type' => '适用商品',
             'appoint_data' => 'Appoint Data',
             'give_limit' => '限领',
+            'register_limit' => '新客领取',
             'enable_share' => '分享开关',
             'expire_remind' => '到期提醒',
             'enable_refund' => '退款设置',
@@ -170,21 +175,38 @@ class Coupon extends CommonModels
     }
 
     /**
-     * 赠送优惠券（后台）
+     * 赠送优惠券
      * @param Coupon $coupon
      * @param array $userList
      * @param $origin
      * @param $num
+     * @param int $checkType 1发放量不足时发完为止  2发放量不足时停止发放
      * @return array
      * @throws \yii\db\Exception
      */
-    public static function obtain(Coupon $coupon, array $userList, $origin, $num)
+    public static function obtain(Coupon $coupon, array $userList, $origin, $num, $checkType = 1)
     {
-        $t = \Yii::$app->db->beginTransaction();
         $userCouponList = [];
+        $userCouponListCopy = [];
+        $t = \Yii::$app->db->beginTransaction();
+        $useCouponCount = UserCoupon::find()->where(['coupon_id' => $coupon->id, 'is_deleted' => 0])->count();
+        if ($checkType == 1) {
+            $coupon->over_num = $coupon->total_num - $useCouponCount - $num;
+            if ($coupon->over_num <= 0) {
+                Error('您来晚了,优惠券已被领完');
+            }
+        } elseif ($checkType == 2) {
+            $surplus = $coupon->total_num - $useCouponCount;
+            if ($surplus <= 0) {
+                return $userCouponList;
+            } elseif ($num > $surplus) {
+                $num = $surplus;
+            }
+        }
         /**@var User $user*/
         foreach ($userList as $user) {
             for ($i = 0; $i < $num; $i++) {
+                $userCoupon = [];
                 $userCoupon['AppID'] = \Yii::$app->params['AppID'];
                 $userCoupon['merchant_id'] = 1;
                 $userCoupon['coupon_id'] = $coupon->id;
@@ -200,6 +222,8 @@ class Coupon extends CommonModels
                 }
                 $userCoupon['created_time'] = time();
                 $userCouponList[] = $userCoupon;
+                $userCoupon['coupon'] = ArrayHelper::toArray($coupon);
+                $userCouponListCopy[] = $userCoupon;
             }
         }
         if (count($userCouponList) > 0) {
@@ -209,16 +233,11 @@ class Coupon extends CommonModels
                 $userCouponList
             )->execute();
         }
-        $useCouponCount = UserCoupon::find()->where(['coupon_id' => $coupon->id, 'is_deleted' => 0])->count();
-        $coupon->over_num = $coupon->total_num - $useCouponCount;
-        if ($coupon->over_num < 0) {
-            Error('您来晚了,优惠券已被领完');
-        }
         if (!$coupon->save()) {
             Error($coupon->getErrorMsg());
         }
         $t->commit();
-        return $userCouponList;
+        return $userCouponListCopy;
     }
 
     /**

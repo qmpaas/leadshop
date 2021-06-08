@@ -31,7 +31,8 @@ class ImageController extends BasicsModules implements Map
             }
 
             $file      = $upload->image_base64($content);
-            $url       = $file['url'];
+            $host = $upload::$upload_way == 0 ? Yii::$app->request->hostInfo : '';
+            $url       = $host . $file['url'];
             
         } elseif ($type == 2) {
 
@@ -42,7 +43,7 @@ class ImageController extends BasicsModules implements Map
             }
 
             $file = $upload->video($content);
-            $url  = $file['url'];
+            $url  = Yii::$app->request->hostInfo . $file['url'];
 
         } else {
             Error('未定义操作');
@@ -55,8 +56,6 @@ class ImageController extends BasicsModules implements Map
         $this->module->event->user_upload = ['url' => $file['url'], 'size' => $file['size'], 'AppID' => $AppID, 'merchant_id' => $merchant_id, 'UID' => $UID];
         $this->module->trigger('user_upload');
 
-        $host = Yii::$app->request->hostInfo;
-        return $host . $url;
-
+        return $url;
     }
 }

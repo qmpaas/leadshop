@@ -50,7 +50,9 @@ class CollectFactory
                     ->setIsSale($param['is_sale'])
                     ->setDownload($param['download']);
                 $res = $collect->saveGoods();
-                $successNum++;
+                if (isset($res['status']) && $res['status'] == 0) {
+                    $successNum++;
+                }
             } catch (AuthException $exception) {
                 Error($exception->getMessage());
             } catch (LimitException $exception) {

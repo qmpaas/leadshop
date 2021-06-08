@@ -60,9 +60,6 @@ $components = [
         'payment'      => [
             'class' => \app\components\Payment::class,
         ],
-        'serializer'   => [
-            'class' => \app\components\Serializer::class,
-        ],
         'sms'          => [
             'class' => \app\components\Sms::class,
         ],

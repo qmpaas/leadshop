@@ -49,6 +49,9 @@ class IndexController extends BasicController
         }
     }
 
+    /**
+     * 商品详情页订单滚动
+     */
     public function goods_order()
     {
         $goods_id = Yii::$app->request->get('goods_id', false);
@@ -81,6 +84,9 @@ class IndexController extends BasicController
         return '占位方法';
     }
 
+    /**
+     * 装修组件商品列表
+     */
     public function fitment()
     {
         $goods_id = Yii::$app->request->get('goods_id', '');
@@ -110,6 +116,9 @@ class IndexController extends BasicController
         return $list;
     }
 
+    /**
+     * 推广商品
+     */
     public function recommend()
     {
         $AppID = Yii::$app->params['AppID'];

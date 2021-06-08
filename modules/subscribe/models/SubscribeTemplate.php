@@ -33,7 +33,7 @@ class SubscribeTemplate extends CommonModels
      */
     public static function tableName()
     {
-        return 'he_subscribe_template';
+        return '{{%subscribe_template}}';
     }
 
     /**

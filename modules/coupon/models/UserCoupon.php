@@ -37,7 +37,7 @@ class UserCoupon extends CommonModels
     const order_sn        = ['varchar' => 50, 'comment' => '使用订单号'];
     const origin_order_sn = ['varchar' => 50, 'comment' => '来源订单号'];
     const goods_id        = ['bigint' => 20, 'comment' => '订单商品id,用于退款后失效'];
-    const origin          = ['tinyint' => 1, 'notNull', 'comment' => '来源  1:自己领取 2:商家发放 3:下单赠送'];
+    const origin          = ['tinyint' => 1, 'notNull', 'comment' => '来源  1:自己领取 2:商家发放 3:下单赠送 4:新客发放'];
     const status          = ['tinyint' => 1, 'default' => 0, 'comment' => '状态  0未使用  1已使用 2已失效'];
     const use_data        = ['text' => 0, 'comment' => '已使用的优惠券数据'];
     const begin_time      = ['bigint' => 10, 'comment' => '有效期开始时间'];

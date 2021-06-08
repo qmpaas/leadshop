@@ -48,6 +48,8 @@ abstract class BaseCollect extends BaseObject
      */
     protected $log;
 
+    protected $hasError = 0;
+
     /**
      * 采集器名称
      * @return mixed
@@ -264,8 +266,8 @@ abstract class BaseCollect extends BaseObject
         $model->group = $this->cats;
         $model->AppID = \Yii::$app->params['AppID'];
         $model->merchant_id = 1;
-        $model->status = 0;
-        $model->is_sale = $this->isSale;
+        $model->status = $this->hasError;
+        $model->is_sale = !$this->hasError ? $this->isSale : 0;
         $model->ft_price = 0;
         $model->param_type = $goods->param_type;
         $model->stocks = $goods->stocks;
@@ -296,7 +298,7 @@ abstract class BaseCollect extends BaseObject
                 if ($param_res && $body_res && $batch_res) {
                     $this->saveCollectGoodsId($goods_id, 1);
                     $transaction->commit(); //事务执行
-                    return ['id' => $model->attributes['id'], 'status' => 1];
+                    return ['id' => $model->attributes['id'], 'status' => $this->hasError];
                 } else {
                     $this->saveCollectGoodsId($goods_id, 0);
                     $transaction->rollBack(); //事务回滚
@@ -341,7 +343,7 @@ abstract class BaseCollect extends BaseObject
     public function saveCollectGoodsId($goods_id, $status)
     {
         $this->log->goods_id = $goods_id ?? 0;
-        $this->log->status = $status;
+        $this->log->status = $this->hasError ? 2 : $status;
         $this->log->save();
     }
 
@@ -351,18 +353,16 @@ abstract class BaseCollect extends BaseObject
             return true;
         }
         if (count($this->goods->attr['goodsParam']) > 3) {
-            $this->saveCollectGoodsId(0, 2);
-            Error('规格不符合规范x1');
+            $this->hasError = 1;
         }
         foreach ($this->goods->attr['goodsParam'] as $item) {
             if (count($item['value']) > 20) {
-                $this->saveCollectGoodsId(0, 2);
-                Error('规格不符合规范x2');
+                $this->hasError = 1;
             }
         }
         $checkName = array_column($this->goods->attr['goodsData'], 'param_value');
         if (count($checkName) != count(array_unique($checkName))) {
-            Error('规格不符合规范x3');
+            $this->hasError = 1;
         }
     }
 }

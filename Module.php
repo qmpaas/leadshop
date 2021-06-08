@@ -52,6 +52,8 @@ class Module extends BasicModule
         $this->on('refunded', ["\coupon\api\IndexController", 'invalidateUserCoupon']); //退款后失效优惠券
         
         $this->on('send_sms', ["\sms\app\IndexController", 'sendSms']); //发送短信
-        
+
+        $this->on('user_register', ["\users\app\IndexController", 'register']); //用户注册事件
+
     }
 }

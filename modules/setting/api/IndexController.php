@@ -95,7 +95,7 @@ class IndexController extends BasicController
             }
             return str2url($data);
         } else {
-            Error('设置不存在');
+            return null;
         }
     }
 

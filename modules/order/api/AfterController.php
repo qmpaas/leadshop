@@ -43,7 +43,7 @@ class AfterController extends BasicController
 
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
-        $where       = ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID];
+        $where       = ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID, 'after.is_deleted' => 0];
 
         //申请类型
         $type = $keyword['type'] ?? false;
@@ -193,10 +193,10 @@ class AfterController extends BasicController
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
         if (empty($where)) {
-            $where = ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID];
+            $where = ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID, 'after.is_deleted' => 0];
         } else {
 
-            $where = ['and', $where, ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID]];
+            $where = ['and', $where, ['after.merchant_id' => $merchant_id, 'after.AppID' => $AppID, 'after.is_deleted' => 0]];
         }
 
         //申请类型

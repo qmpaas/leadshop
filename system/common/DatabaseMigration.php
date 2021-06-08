@@ -3,11 +3,12 @@
  * @Author: qinuoyun
  * @Date:   2020-08-20 13:46:09
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-01-05 10:17:03
+ * @Last Modified time: 2021-06-02 14:40:51
  */
 namespace framework\common;
 
 use yii\db\Migration;
+use yii\db\Schema;
 
 class DatabaseMigration extends Migration
 {
@@ -17,6 +18,8 @@ class DatabaseMigration extends Migration
 
     public $tableFidlds = [];
 
+    public $createIndexList = [];
+
     public function up()
     {
         $tableOptions = null;
@@ -24,10 +27,16 @@ class DatabaseMigration extends Migration
             $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
         }
         $fields = array();
+
         foreach ($this->tableFidlds as $key => $value) {
-            $fields[$key] = $this->__circularArray($value);
+            $fields[$key] = $this->__circularArray($value, $key);
         }
-        return $this->createTable($this->tableName, $fields, $tableOptions);
+        $table = $this->createTable($this->tableName, $fields, $tableOptions);
+        //遍历创建索引
+        foreach ($this->createIndexList as $key => $value) {
+            $this->createIndex($value[1], $this->tableName, $value[0]);
+        }
+        return $table;
     }
 
     /**
@@ -36,7 +45,7 @@ class DatabaseMigration extends Migration
     public function addFidld()
     {
         foreach ($this->tableFidlds as $key => $value) {
-            $field = $this->__circularArray($value);
+            $field = $this->__circularArray($value, $key);
             $this->addColumn($this->tableName, $key, $field);
         }
     }
@@ -46,14 +55,17 @@ class DatabaseMigration extends Migration
      * @param  string $value [description]
      * @return [type]        [description]
      */
-    public function __circularArray($array = '')
+    public function __circularArray($array = '', $field)
     {
-
         $that = $this;
         foreach ($array as $key => $value) {
             $action = $key ? $this->__getType($key) : false;
             if ($action) {
                 $that = $that->$action($value);
+            } elseif ($key === "index") {
+                $length                  = isset($array['length']) ? $array['length'] : false;
+                $fieldKey                = $length ? $field . "({$length})" : $field;
+                $this->createIndexList[] = [$fieldKey, $value, $key];
             } else {
                 $action = $value ? $this->__getType($value) : false;
                 $allow  = ['notNull', 'unique', 'unsigned'];
@@ -119,6 +131,7 @@ class DatabaseMigration extends Migration
             case 'text':
                 return 'text';
                 break;
+            //长文本
             case 'longtext':
                 return 'longtext';
                 break;
@@ -182,7 +195,6 @@ class DatabaseMigration extends Migration
             case 'money':
                 return "money";
                 break;
-
             default:
                 return false;
                 break;
@@ -199,4 +211,5 @@ class DatabaseMigration extends Migration
     {
         return $this->getDb()->getSchema()->createColumnSchemaBuilder("longtext");
     }
+
 }

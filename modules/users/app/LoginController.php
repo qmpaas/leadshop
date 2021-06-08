@@ -33,6 +33,7 @@ abstract class LoginController extends BasicController
 
     public function actionCreateorupdate()
     {
+        $register = false;
         $t        = \Yii::$app->db->beginTransaction();
         $userInfo = $this->getUserInfo();
         $user     = User::find()->alias('u')->joinWith(['oauth as o'])->where([
@@ -41,6 +42,7 @@ abstract class LoginController extends BasicController
             'o.oauthID'    => $userInfo->openId,
         ])->one();
         if (!$user) {
+            $register = true;
             $user               = new User();
             $user->created_time = time();
             $user->updated_time = time();
@@ -68,6 +70,19 @@ abstract class LoginController extends BasicController
         $t->commit();
         $res          = ArrayHelper::toArray($user);
         $res['token'] = $this->getToken($user->id);
+        $res['register'] = ['coupon_list' => []];
+        if ($register) {
+            //先登录用户
+            Yii::$app->user->login($user);
+            $this->module->event->param = $user;
+            $this->module->trigger('user_register');
+            $cacheKey = 'user_register_send_' . Yii::$app->user->id . '_' . Yii::$app->params['AppID'];
+            $couponList = Yii::$app->cache->get($cacheKey);
+            if ($couponList && count($couponList) > 0) {
+                $res['register']['coupon_list'] = $couponList;
+                \Yii::$app->cache->delete($cacheKey);
+            }
+        }
         return $res;
     }
 

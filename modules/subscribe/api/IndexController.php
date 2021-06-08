@@ -204,7 +204,7 @@ class IndexController  extends BasicController
             }
             if ($flag) {
                 try {
-                    $res = $wechat->addTemplate($item['id'], $item['keyword_id_list'], '添加订阅模板');
+                    $res = $wechat->addTemplate($item['id'], $item['keyword_id_list'], '添加模板by-leadshop');
                     $templateIdList[] = [
                         'tpl_desc' => $item['title'],
                         'tpl_name' => $index,

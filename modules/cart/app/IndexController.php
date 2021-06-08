@@ -95,6 +95,8 @@ class IndexController extends BasicController
             'normal'  => [], //正常的
             'failure' => [], //失效的
         ];
+
+        $normal_number = 0;
         foreach ($data as $v) {
             $price            = 0;
             $goods_sn         = '';
@@ -141,11 +143,20 @@ class IndexController extends BasicController
             if ($v['failure_reason']) {
                 array_push($return_data['failure'], $v);
             } else {
+                $normal_number += $v['goods_number'];
                 array_push($return_data['normal'], $v);
             }
 
         }
-        return str2url($return_data);
+        $behavior = Yii::$app->request->get('behavior', '');
+        if ($behavior == 'number') {
+            if ($normal_number > 99) {
+                $normal_number = '99+';
+            }
+            return $normal_number;
+        } else {
+            return str2url($return_data);
+        }
     }
 
     /**
@@ -236,7 +247,7 @@ class IndexController extends BasicController
 
                     $result['price']            = $goods_data[$result['goods_param']]['price'];
                     $result['goods_sn']         = $goods_data[$result['goods_param']]['goods_sn'];
-                    $result['stocks']          = $goods_data[$result['goods_param']]['stocks'];
+                    $result['stocks']           = $goods_data[$result['goods_param']]['stocks'];
                     $result['min_number']       = $info['min_number'];
                     $result['limit_buy_status'] = $info['limit_buy_status'];
                     $result['limit_buy_value']  = $info['limit_buy_value'];

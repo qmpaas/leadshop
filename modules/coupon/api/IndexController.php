@@ -266,6 +266,7 @@ class IndexController extends BasicController
         $newCoupon['end_time']      = $coupon['end_time'];
         $newCoupon['appoint_type']  = $coupon['appoint_type'];
         $newCoupon['give_limit']    = $coupon['give_limit'];
+        $newCoupon['register_limit']= $coupon['register_limit'];
         $newCoupon['expire_remind'] = $coupon['expire_remind'];
         $newCoupon['enable_share']  = $coupon['enable_share'];
         $newCoupon['enable_refund'] = $coupon['enable_refund'];

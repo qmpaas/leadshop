@@ -6,7 +6,7 @@ use framework\common\CommonModels;
 use goods\models\Goods;
 
 /**
- * This is the model class for table "he_collect_log".
+ * This is the model class for table "{{%collect_log}}".
  *
  * @property int $id ID
  * @property int $type 采集类型 1阿里巴巴、2淘宝、3京东、4拼多多、5天猫
