@@ -293,7 +293,8 @@ class AfterController extends BasicController
 
         $list = $data->getModels();
         foreach ($list as $key => &$value) {
-            $value['images'] = to_array($value['images']);
+            $value['images']                = to_array($value['images']);
+            $value['merchant_freight_info'] = to_array($value['merchant_freight_info']);
         }
         //将所有返回内容中的本地地址代替字符串替换为域名
         $list = str2url($list);
@@ -361,10 +362,13 @@ class AfterController extends BasicController
                 $model = $this->refund();
                 break;
             case 'salesreturn': //退货退款
-                $model = $this->salesreturn();
+                $model = $this->salesReturn();
                 break;
             case 'salesexchange': //换货
-                $model = $this->salesexchange();
+                $model = $this->salesExchange();
+                break;
+            case 'exchangefreight': //换货物流
+                $model = $this->exchangeFreight();
                 break;
             default:
                 Error('未定义操作');
@@ -534,7 +538,7 @@ class AfterController extends BasicController
      * 退货退款
      * @return [type] [description]
      */
-    public function salesreturn()
+    public function salesReturn()
     {
         $id            = Yii::$app->request->get('id', false);
         $actual_refund = Yii::$app->request->post('actual_refund', false);
@@ -598,7 +602,7 @@ class AfterController extends BasicController
      * 换货
      * @return [type] [description]
      */
-    public function salesexchange()
+    public function salesExchange()
     {
         $id    = Yii::$app->request->get('id', false);
         $model = $this->modelClass::findOne($id);
@@ -639,6 +643,25 @@ class AfterController extends BasicController
             return $model;
         } else {
             Error('操作失败');
+        }
+    }
+
+    /**
+     * 修改换货物流
+     */
+    public function exchangeFreight()
+    {
+        $id    = Yii::$app->request->get('id', false);
+        $model = $this->modelClass::findOne($id);
+        if (empty($model)) {
+            Error('售后订单不存在');
+        }
+        $merchant_freight_info        = Yii::$app->request->post('merchant_freight_info', []);
+        $model->merchant_freight_info = to_json($merchant_freight_info);
+        if ($model->save()) {
+            return $model;
+        } else {
+            Error('修改失败');
         }
     }
 

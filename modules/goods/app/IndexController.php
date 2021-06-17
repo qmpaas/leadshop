@@ -413,7 +413,7 @@ class IndexController extends BasicController
      */
     public static function addStocks($event)
     {
-        foreach ($event->order_goods as $value) {
+        foreach ($event->cancel_order_goods as $value) {
             M('goods', 'GoodsData')::updateAllCounters(['stocks' => $value['goods_number']], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
             M()::updateAllCounters(['stocks' => $value['goods_number']], ['id' => $value['goods_id']]);
         }

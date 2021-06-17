@@ -31,7 +31,15 @@ class IndexController extends BasicController
 
     public function actionUpdate()
     {
-        return '占位方法';
+        $merchant_id = 1;
+        $AppID       = Yii::$app->params['AppID'];
+        $where       = [
+            'merchant_id' => $merchant_id,
+            'AppID'       => $AppID,
+            'keyword'=>'web_setting'
+        ];
+        $data = M()::find()->where($where)->select('keyword,content')->asArray()->one();
+        return str2url(to_array($data['content']));
     }
 
     public function actionDelete()

@@ -156,8 +156,9 @@ class GroupController extends BasicController
                 }
                 $name = Yii::$app->request->post('name', false);
                 if ($name) {
-                    $type  = Yii::$app->request->post('type', false);
-                    $check = $this->modelClass::find()->where(['and', ['<>', 'id', $id], ['name' => $name, 'is_deleted' => 0, 'merchant_id' => 1, 'type' => $type, 'parent_id' => $post['parent_id']]])->exists();
+                    $type      = Yii::$app->request->post('type', false);
+                    $parent_id = Yii::$app->request->post('parent_id', false);
+                    $check     = $this->modelClass::find()->where(['and', ['<>', 'id', $id], ['name' => $name, 'is_deleted' => 0, 'merchant_id' => 1, 'type' => $type, 'parent_id' => $parent_id]])->exists();
                     if (!empty($check)) {
                         Error('分组名已存在');
                     }

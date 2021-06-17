@@ -3,7 +3,7 @@
  * @Author: qinuoyun
  * @Date:   2020-08-20 13:46:09
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-06-02 14:40:51
+ * @Last Modified time: 2021-06-15 10:34:55
  */
 namespace framework\common;
 
@@ -24,7 +24,7 @@ class DatabaseMigration extends Migration
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE=InnoDB';
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB';
         }
         $fields = array();
 

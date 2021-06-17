@@ -37,18 +37,19 @@ class PosterController extends BasicsModules implements Map
         $type     = Yii::$app->request->get('type', 1);
         $goods_id = Yii::$app->request->get('goods_id', false);
         if ($goods_id) {
-            return $this->goods($type,$goods_id);
+            return $this->goods($type, $goods_id);
         }
 
         $coupon_id = Yii::$app->request->get('coupon_id', false);
         if ($coupon_id) {
-            return $this->coupon($type,$coupon_id);
+            return $this->coupon($type, $coupon_id);
         }
-        
+
     }
 
-    public function coupon($type,$coupon_id){
-        $model = M('coupon','Coupon')::findOne($coupon_id);
+    public function coupon($type, $coupon_id)
+    {
+        $model    = M('coupon', 'Coupon')::findOne($coupon_id);
         $mpConfig = isset(Yii::$app->params['apply']['weapp']) ? Yii::$app->params['apply']['weapp'] : null;
         if (!$mpConfig || !$mpConfig['AppID'] || !$mpConfig['AppSecret']) {
             Error('渠道参数不完整。');
@@ -63,11 +64,10 @@ class PosterController extends BasicsModules implements Map
             $model = $model->toArray();
 
             if ($model['expire_type'] == 1) {
-                $time = '可用时间：领取当日起'.$model['expire_day'].'天内';
+                $time = '可用时间：领取当日起' . $model['expire_day'] . '天内';
             } else {
-                $time = '可用时间：'.date("Y.m.d",$model['begin_time']).' - '.date("Y.m.d",$model['end_time']);
+                $time = '可用时间：' . date("Y.m.d", $model['begin_time']) . ' - ' . date("Y.m.d", $model['end_time']);
             }
-            
 
             //图片转换
             $config = array(
@@ -103,8 +103,8 @@ class PosterController extends BasicsModules implements Map
                         'lineation' => 0,
                     ),
                     array(
-                        'text'      => $model['min_price']*1>0?'满'.$model['min_price'].'可用':'无门槛',
-                        'left'      => 168+(mb_strlen($model['sub_price']) * 28),
+                        'text'      => $model['min_price'] * 1 > 0 ? '满' . $model['min_price'] . '可用' : '无门槛',
+                        'left'      => 168 + (mb_strlen($model['sub_price']) * 28),
                         'top'       => 265,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
                         'fontSize'  => 22, //字号
@@ -143,8 +143,8 @@ class PosterController extends BasicsModules implements Map
                         'lineation' => 0,
                     ),
                     array(
-                        'text'      => $type == 1 ?'长按识别二维码':'长按识别小程序码',
-                        'left'      => $type == 1?305:295,
+                        'text'      => $type == 1 ? '长按识别二维码' : '长按识别小程序码',
+                        'left'      => $type == 1 ? 305 : 295,
                         'top'       => 735,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
                         'fontSize'  => 16, //字号
@@ -196,8 +196,9 @@ class PosterController extends BasicsModules implements Map
         }
     }
 
-    public function goods($type,$goods_id){
-        $model    = M('goods', 'Goods')::find()->where(['id' => $goods_id])->one();
+    public function goods($type, $goods_id)
+    {
+        $model = M('goods', 'Goods')::find()->where(['id' => $goods_id])->one();
 
         $mpConfig = isset(Yii::$app->params['apply']['weapp']) ? Yii::$app->params['apply']['weapp'] : null;
         if (!$mpConfig || !$mpConfig['AppID'] || !$mpConfig['AppSecret']) {
@@ -211,10 +212,12 @@ class PosterController extends BasicsModules implements Map
 
         if ($model) {
             $model = $model->toArray();
+
+            $sales = $model['sales'] + $model['virtual_sales'];
             //图片信息转换
             $model = str2url($model);
             //获取商品ID
-            $img        = to_array($model['slideshow']);
+            $img = to_array($model['slideshow']);
             //图片转换
             $config = array(
                 'text'       => array(
@@ -240,8 +243,8 @@ class PosterController extends BasicsModules implements Map
                     ),
                     array(
                         'text'      => '¥' . $model['line_price'],
-                        'left'      => 95 + (mb_strlen($model['price']) * 30),
-                        'top'       => 806,
+                        'left'      => 64,
+                        'top'       => 845,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
                         'fontSize'  => 20, //字号
                         'fontColor' => '153,153,153', //字体颜色
@@ -249,11 +252,21 @@ class PosterController extends BasicsModules implements Map
                         'lineation' => 1,
                     ),
                     array(
+                        'text'      => $sales > 0 ? '已售' . $sales : '',
+                        'left'      => 64 + (mb_strlen('¥' . $model['line_price']) * 19),
+                        'top'       => 845,
+                        'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
+                        'fontSize'  => 20, //字号
+                        'fontColor' => '153,153,153', //字体颜色
+                        'angle'     => 0,
+                        'lineation' => 0,
+                    ),
+                    array(
                         'text'      => mb_strlen($model['name']) > 12 ? mb_substr($model['name'], 0, 12) : $model['name'],
                         'left'      => 64,
-                        'top'       => 860,
+                        'top'       => 885,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
-                        'fontSize'  => 24, //字号
+                        'fontSize'  => 22, //字号
                         'fontColor' => '0,0,0', //字体颜色
                         'angle'     => 0,
                         'lineation' => 0,
@@ -262,9 +275,9 @@ class PosterController extends BasicsModules implements Map
                     array(
                         'text'      => mb_strlen($model['name']) > 12 ? (mb_strlen($model['name']) > 24 ? mb_substr($model['name'], 12, 10) . "..." : mb_substr($model['name'], 12)) : "",
                         'left'      => 64,
-                        'top'       => 903,
+                        'top'       => 923,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
-                        'fontSize'  => 24, //字号
+                        'fontSize'  => 22, //字号
                         'fontColor' => '0,0,0', //字体颜色
                         'angle'     => 0,
                         'lineation' => 0,
@@ -272,7 +285,7 @@ class PosterController extends BasicsModules implements Map
                     array(
                         'text'      => $setting_data['store_setting']['name'],
                         'left'      => 130,
-                        'top'       => 958,
+                        'top'       => 968,
                         'fontPath'  => realpath('../system/static/PingFang.ttf'), //字体文件
                         'fontSize'  => 18, //字号
                         'fontColor' => '102,102,102', //字体颜色
@@ -308,7 +321,7 @@ class PosterController extends BasicsModules implements Map
                     array(
                         'url'     => $setting_data['store_setting']['logo'],
                         'left'    => 66,
-                        'top'     => 926,
+                        'top'     => 936,
                         'right'   => 0,
                         'stream'  => 0,
                         'bottom'  => 0,

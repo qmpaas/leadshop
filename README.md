@@ -32,7 +32,7 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 <a href="https://forum.leadshop.vip/thread/35" target="_blank"> **查看常见问题/安装教程** </a>
 
 ## 下期更新计划
-* <a href="https://forum.leadshop.vip/thread/347" target="_blank"> **点击查看更新预告** </a>
+* <a href="https://forum.leadshop.vip/thread/401" target="_blank"> **点击查看更新预告** </a>
 
  <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/06/08/ywuZAhdyTIXc0KFGURsjR2SSgE3acDtKKgiYHkSa.png">
 
@@ -149,6 +149,9 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 * 加群管理员进Leadshop官方交流群
 
  <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/06/03/CGAUS3jcr3K3BfQYwnzalpR6OvWkjDcrc9hC2wUy.png">
+
+## Ladshop用户案例
+<a href="https://forum.leadshop.vip/category/10?search_ids=10" target="_blank"> **点击查看更多Leadshop用户案例** </a>
 
 ## Ladshop功能简介
 ![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/1.png)

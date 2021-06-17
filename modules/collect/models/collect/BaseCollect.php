@@ -198,9 +198,9 @@ abstract class BaseCollect extends BaseObject
     {
         $upload = new Upload();
         $file = $upload->image_base64($base64);
-        $url = URL_STRING . $file['url'];
+        $url = $upload::$upload_way == 0 ? URL_STRING . $file['url'] : $file['url'];
         $thumbnail = $upload->image_compress($file['url']);
-        $thumbUrl = URL_STRING . $thumbnail;
+        $thumbUrl = $upload::$upload_way == 0 ? URL_STRING . $thumbnail : $thumbnail;
         $name = explode('.', ltrim(strrchr($file['url'], '/'), '/'));
         $title = $name[0];
         $gallery = new Gallery();

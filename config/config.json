@@ -8,6 +8,7 @@
     "siteid": "",
     "admin": "qm73x0exg9nwb1hogg",
     "accessWhitelist": [
+        "leadmall/api/setting/update",
         "leadmall/api/install/index",
         "leadmall/app/poster/index",
         "leadmall/api/install/create",

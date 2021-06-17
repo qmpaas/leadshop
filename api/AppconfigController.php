@@ -123,7 +123,8 @@ class AppconfigController extends BasicsModules implements Map
     {
         $file = $_FILES['file'];
         if (move_uploaded_file($file['tmp_name'], Yii::$app->basePath . '/web/' . $file['name'])) {
-            return true;
+            $url             = Yii::$app->request->hostInfo;
+            return $url.'/'.$file['name'];
         } else {
             Error('上传失败');
         }

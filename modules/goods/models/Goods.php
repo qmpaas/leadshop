@@ -63,7 +63,7 @@ class Goods extends CommonModels
         return [
             //基本信息设置
             [['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID'], 'required', 'message' => '{attribute}不能为空'],
-            [['video', 'video_cover'], 'required',
+            [['video'], 'required',
                 'when' => function ($model) {
                     return $model->is_video === 1 ? true : false;
                 }, 'message' => '{attribute}不能为空'],

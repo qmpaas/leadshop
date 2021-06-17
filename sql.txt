@@ -1,1 +1,0 @@
-ALTER TABLE `heshop_initialize_prefix_coupon` ADD COLUMN `register_limit`  tinyint(1) NOT NULL DEFAULT 0 COMMENT '新客领取' AFTER `over_num`;

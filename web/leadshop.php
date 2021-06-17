@@ -1,7 +1,9 @@
 <?php
 /**
  * @Author: qinuoyun
+ * @Date:   2021-05-27 09:55:15
  * @Last Modified by:   qinuoyun
+ * @Last Modified time: 2021-06-16 16:39:17
  * @Version 1.2.6
  */
 ini_set("display_errors", "Off");
@@ -111,8 +113,12 @@ class leadshops
                     $_SESSION['local_version'] = $version;
                     if (!isset($_SESSION['version'])) {
                         list($need_upgrade, $self_replaced, $remote_version) = $this->DoSelfUpdate();
-                        //保存版本号
-                        $_SESSION['version'] = $remote_version;
+                        if (isset($_GET['remote_version']) && $_GET['remote_version']) {
+                            //保存版本号
+                            $_SESSION['version'] = $_GET['remote_version'];
+                        } else {
+                            $_SESSION['version'] = $remote_version;
+                        }
                     }
                     //判断版本号是否相同
                     if ($_SESSION['version'] == $version) {
@@ -152,35 +158,12 @@ class leadshops
                     // P(['updatePlan', $_SESSION['updatePlan']]);
                     // P(['updateStep', $_SESSION['updateStep']]);
                     //获取更新验证文件
-                    if (!$_SESSION['updateFile'] && $_SESSION['updateTotal'] === 0 && $_SESSION['updatePlan'] === 0 && $_SESSION['updateStep'] === 0) {
-                        $data = [
-                            "code"    => 0,
-                            "step"    => 1,
-                            "message" => "无可更新文件",
-                            "data"    => [
-                                'total' => $_SESSION['updateTotal'],
-                                'plan'  => $_SESSION['updatePlan'],
-                                'step'  => $_SESSION['updateStep'],
-                            ],
-                        ];
-                        //处理新的版本号
-                        $versionData = [
-                            "version" => $_SESSION['version'],
-                        ];
-                        //处理版本号更新问题
-                        $this->ToMkdir(__DIR__ . "/version.json", json_encode($versionData, JSON_UNESCAPED_UNICODE), true, true);
-                        $_SESSION = [];
-                        echo json_encode($data, JSON_UNESCAPED_UNICODE);
-                        exit();
-                    }
-                    //获取更新验证文件
                     if ($_SESSION['updateFile'] && $_SESSION['updateTotal'] && $_SESSION['updatePlan'] > 0 && $_SESSION['updateStep'] === 0) {
                         $data = [
                             "code"    => 0,
                             "step"    => 1,
                             "message" => "等待更新执行",
                             "data"    => [
-                                'file'  => '',
                                 'total' => $_SESSION['updateTotal'],
                                 'plan'  => $_SESSION['updatePlan'],
                                 'step'  => $_SESSION['updateStep'],
@@ -198,21 +181,30 @@ class leadshops
                         $first = array_shift($_SESSION['updateFile']);
                         $dir1  = dirname(__DIR__);
                         //拼接URL地址信息
-                        $url  = "https://qmxq.oss-cn-hangzhou.aliyuncs.com/V{$version}" . $first['path'];
-                        $data = $this->DownloadFile($url);
-                        // P(strpos($data, base64url_decode("Tm9TdWNoS2V5")));
+                        $url    = "https://qmxq.oss-cn-hangzhou.aliyuncs.com/V{$_SESSION['version']}" . $first['path'];
+                        $data   = $this->DownloadFile($url);
+                        $status = -1;
+                        $snull  = base64url_decode("Tm9TdWNoS2V5");
                         //判断OSS中文件是否存在
-                        if (strpos($data, base64url_decode("Tm9TdWNoS2V5")) === false) {
-                            $path = $dir1 . $first['path'];
-                            $this->ToMkdir($path, $data, true, true);
-                        }
+                        $path = $dir1 . $first['path'];
+                        //执行数据写入 f09cb7eae8785c1a40287eaea6303c02
+                        // if (strpos($data, $snull) === false) {
+                        //     $path   = $dir1 . $first['path'];
+                        //     $status = $this->ToMkdir($path, $data, true, true);
+                        // }
+                        $path   = $dir1 . $first['path'];
+                        $status = $this->ToMkdir($path, $data, true, true);
                         //反馈执行结果
                         $data = [
                             "code"    => 0,
                             "step"    => 1,
+                            "status"  => $status,
                             "message" => "等待更新执行",
                             "data"    => [
                                 'file'  => $first['path'],
+                                'path'  => $path,
+                                'url'   => $url,
+                                'oss'   => strpos($data, $snull),
                                 'total' => $_SESSION['updateTotal'],
                                 'plan'  => $_SESSION['updatePlan'],
                                 'step'  => $_SESSION['updateStep'],
@@ -252,6 +244,30 @@ class leadshops
                             "code"    => 0,
                             "step"    => 0,
                             "message" => "更新完成",
+                            "data"    => [
+                                'file'  => '',
+                                'total' => $_SESSION['updateTotal'],
+                                'plan'  => $_SESSION['updatePlan'],
+                                'step'  => $_SESSION['updateStep'],
+                            ],
+                        ];
+                        //处理新的版本号
+                        $versionData = [
+                            "version" => $_SESSION['version'],
+                        ];
+                        //处理版本号更新问题
+                        $this->ToMkdir(__DIR__ . "/version.json", json_encode($versionData, JSON_UNESCAPED_UNICODE), true, true);
+                        $_SESSION = [];
+                        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+                        exit();
+                    }
+                    //处理验证
+                    if ($_SESSION['updateTotal'] === 0 && $_SESSION['updatePlan'] === 0 && $_SESSION['updateStep'] === 0) {
+                        //反馈执行结果
+                        $data = [
+                            "code"    => 0,
+                            "step"    => 0,
+                            "message" => "当前版本已是最新",
                             "data"    => [
                                 'file'  => '',
                                 'total' => $_SESSION['updateTotal'],
@@ -987,7 +1003,7 @@ function check_mysql_connection($host, $username, $password)
         list($host, $port) = explode(":", $host);
     }
     try {
-        $conn = "mysql:host = $host;port = $port;charset = utf8mb4";
+        $conn = "mysql:host=$host;port=$port;charset=utf8mb4";
         return new PDO($conn, $username, $password);
     } catch (PDOException $e) {
         if ($e->getCode() === 2002) {
@@ -1010,23 +1026,23 @@ function check_mysql_connection($host, $username, $password)
  */
 function check_mysql_database($host, $username, $password, $database)
 {
-    $_host = $host;
-    $port  = 3306;
+
+    $port = 3306;
     if (strpos($host, ":") !== false) {
         list($host, $port) = explode(":", $host);
     }
 
     //用于检查端口号
 
-    $pdo = check_mysql_connection($_host, $username, $password);
-    $res = $pdo->prepare("show global variables like 'port'"); //准备查询语句
-    $res->execute();
-    $result = $res->fetchAll(PDO::FETCH_ASSOC);
-    if ($result && $result[0]['Value']) {
-        if ($port !== $result[0]['Value']) {
-            return "监测到端口为[" . $result[0]['Value'] . "],请正确填写端口号";
-        }
-    }
+    // $pdo = check_mysql_connection($host, $username, $password);
+    // $res = $pdo->prepare("show global variables like 'port'"); //准备查询语句
+    // $res->execute();
+    // $result = $res->fetchAll(PDO::FETCH_ASSOC);
+    // if ($result && $result[0]['Value']) {
+    //     if ($port !== $result[0]['Value']) {
+    //         return "监测到端口为[" . $result[0]['Value'] . "],请正确填写端口号";
+    //     }
+    // }
 
     $database = addslashes($database);
     $pdo      = check_mysql_connection($host, $username, $password);
@@ -1084,14 +1100,10 @@ function check_mysql_version($host, $username, $password)
             }
         }
     }
-    if ($q = $pdo->query("SELECT@@global  . innodb_default_row_format")) {
+    if ($q = $pdo->query("SELECT @@global.innodb_default_row_format")) {
         $rowformat = $q->fetchColumn();
         if ($rowformat != "dynamic") {
             return "MySQL配置不正确，请确认innodb_default_row_format配置为dynamic";
-        }
-        $large_prefix = $pdo->query("SELECT@@global  . innodb_large_prefix")->fetchColumn();
-        if ($large_prefix != 1) {
-            return "MySQL配置不正确，请确认innodb_large_prefix配置为on";
         }
     } else {
         return "MySQL版本太低，请使用MySQL5.6.50版本以上或MariaDB10.2以上";
@@ -1102,13 +1114,12 @@ function check_mysql_version($host, $username, $password)
 function install_database($host, $username, $password, $prefix, $database, $inuser = null)
 {
     try {
-        $host = "localhost";
         $port = 3306;
         if (stripos($host, ':') !== false) {
             list($host, $port) = explode(':', $host, 2);
         }
         $dbms = 'mysql';
-        $dsn  = "$dbms:host = $host;port = $port;dbname = $database";
+        $dsn  = "$dbms:host=$host;port=$port;dbname=$database";
 
         $pdo = new PDO($dsn, $username, $password); //初始化一个PDO对象
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
