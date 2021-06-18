@@ -261,6 +261,13 @@ class AccountController extends BasicController
 
     public function changePwd()
     {
+        $host = Yii::$app->request->hostInfo;
+        if ($host == "http://demo.leadshop.vip") {
+            return true;
+        }
+        if ($host == "https://demo.leadshop.vip") {
+            return true;
+        }
         $pass     = Yii::$app->request->post('old_password');
         $newPass1 = Yii::$app->request->post('new_password1');
         $newPass2 = Yii::$app->request->post('new_password2');

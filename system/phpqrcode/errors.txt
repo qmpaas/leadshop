@@ -1,1 +1,0 @@
-2021-04-26 13:51:46: file_put_contents(/Users/mac/HESHOP/leadshop/server/system/phpqrcode/cache/frame_3.dat): failed to open stream: No such file or directory

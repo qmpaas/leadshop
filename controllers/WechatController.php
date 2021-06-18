@@ -26,6 +26,11 @@ class WechatController extends Controller
 
         $param = ["AppAsset" => $AppAsset, 'industry' => $industry, 'alias' => $alias];
 
+        $cacheKey = 'WECHAT_TABBAR_98c08c25f8136d590c';
+        $list = \Yii::$app->cache->get($cacheKey);
+        if ($list) {
+            return $this->render('index', $list);
+        }
         $data = Fitment::find()->where(['AppID' => '98c08c25f8136d590c', 'keyword' => 'tabbar'])->select('keyword,content')->asArray()->one();
         if ($data) {
             $tabBar = str2url(to_array($data['content']));
@@ -63,6 +68,7 @@ class WechatController extends Controller
             $param['tabBar'] = $newBar;
         }
         $param['title'] = "Leadshop";
+        \Yii::$app->cache->set($cacheKey, $param, 60 * 60 * 2);
         return $this->render('index', $param);
     }
 

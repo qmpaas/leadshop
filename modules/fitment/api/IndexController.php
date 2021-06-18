@@ -19,7 +19,7 @@ class IndexController extends BasicController
      */
     public function actions()
     {
-        $actions           = parent::actions();
+        $actions = parent::actions();
         unset($actions['create']);
         unset($actions['update']);
         return $actions;
@@ -29,7 +29,6 @@ class IndexController extends BasicController
     {
         return '占位方法';
     }
-
 
     public function actionDelete()
     {
@@ -43,7 +42,7 @@ class IndexController extends BasicController
     public function actionIndex()
     {
         $AppID = Yii::$app->params['AppID'];
-        $data   = M()::find()->where(['AppID' => $AppID])->asArray()->all();
+        $data  = M()::find()->where(['AppID' => $AppID])->asArray()->all();
         foreach ($data as &$value) {
             $value['content'] = to_array($value['content']);
         }
@@ -56,10 +55,10 @@ class IndexController extends BasicController
      */
     public function actionSearch()
     {
-        $keyword = Yii::$app->request->post('keyword',false);
-        $AppID = Yii::$app->params['AppID'];
+        $keyword = Yii::$app->request->post('keyword', false);
+        $AppID   = Yii::$app->params['AppID'];
 
-        $data = M()::find()->where(['AppID' => $AppID,'keyword'=>$keyword])->select('keyword,content')->asArray()->one();
+        $data = M()::find()->where(['AppID' => $AppID, 'keyword' => $keyword])->select('keyword,content')->asArray()->one();
 
         if ($data) {
             return str2url($data);
@@ -79,7 +78,7 @@ class IndexController extends BasicController
         }
         $post = Yii::$app->request->post();
         if ($post['keyword'] == 'tabbar') {
-            $arr = [];
+            $arr     = [];
             $content = to_array($post['content']);
             foreach ($content['data'] as $v) {
                 if (in_array($v['text'], $arr)) {
@@ -89,18 +88,22 @@ class IndexController extends BasicController
                 }
             }
         }
-        $post = url2str($post);
+        $post  = url2str($post);
         $AppID = Yii::$app->params['AppID'];
-        $model = M()::find()->where(['AppID' => $AppID,'keyword'=>$post['keyword']])->one();
+        $model = M()::find()->where(['AppID' => $AppID, 'keyword' => $post['keyword']])->one();
 
         if (empty($model)) {
-            $model = M('fitment','Fitment',true);
+            $model          = M('fitment', 'Fitment', true);
             $model->keyword = $post['keyword'];
-            $model->AppID = $AppID;
+            $model->AppID   = $AppID;
         }
 
         $model->content = $post['content'];
         if ($model->save()) {
+            if ($post['keyword'] == 'tabbar') {
+                $cacheKey = 'WECHAT_TABBAR_98c08c25f8136d590c';
+                Yii::$app->cache->delete($cacheKey);
+            }
             return true;
         } else {
             Error('保存失败');
