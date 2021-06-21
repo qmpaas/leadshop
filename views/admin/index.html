@@ -109,16 +109,16 @@
     <link href="/assets/admin/js/chunk-fbb46a96.bd6b6ff1.js" rel="prefetch">
     <link href="/assets/admin/js/chunk-fd765414.2fbcc59a.js" rel="prefetch">
     <link href="/assets/admin/js/chunk-fe6dde0c.ca7f3747.js" rel="prefetch">
-    <link href="/assets/admin/css/app.5c529e4a.css" rel="preload" as="style">
-    <link href="/assets/admin/js/app.504402cd.js" rel="preload" as="script">
+    <link href="/assets/admin/css/app.067ff9aa.css" rel="preload" as="style">
+    <link href="/assets/admin/js/app.03599ac3.js" rel="preload" as="script">
     <link href="/assets/admin/js/chunk-vendors.c6a9a8da.js" rel="preload" as="script">
-    <link href="/assets/admin/css/app.5c529e4a.css" rel="stylesheet">
+    <link href="/assets/admin/css/app.067ff9aa.css" rel="stylesheet">
 </head>
 
 <body><noscript><strong>We're sorry but finish doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript>
     <div id="app"></div>
     <script src="/assets/admin/js/chunk-vendors.c6a9a8da.js"></script>
-    <script src="/assets/admin/js/app.504402cd.js"></script>
+    <script src="/assets/admin/js/app.03599ac3.js"></script>
 </body>
 
 </html>
