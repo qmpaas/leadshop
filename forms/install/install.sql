@@ -905,3 +905,37 @@ CREATE TABLE `heshop_initialize_prefix_goods_param_template` (
   `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `heshop_initialize_prefix_live_goods` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(1024) NOT NULL DEFAULT '' COMMENT '商品名称',
+  `cover` varchar(4096) NOT NULL DEFAULT '' COMMENT '商品封面',
+  `price_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '价格类型',
+  `price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '价格',
+  `price2` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '价格2',
+  `link` varchar(256) NOT NULL DEFAULT '' COMMENT '小程序路径',
+  `audit_id` varchar(255) NOT NULL DEFAULT '' COMMENT '审核单号',
+  `goods_id` int(11) NOT NULL DEFAULT '0' COMMENT '商品id',
+  `AppID` varchar(50) NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL DEFAULT '1' COMMENT '商户ID',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `gid` int(11) NOT NULL DEFAULT '0' COMMENT 'leadshop商品id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_live_room` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `room_id` bigint(11) NOT NULL COMMENT '商品名称',
+  `anchor_wechat` varchar(128) NOT NULL COMMENT '主播微信号',
+  `sub_wechat` varchar(128) NOT NULL DEFAULT '' COMMENT '副手微信号',
+  `AppID` varchar(50) NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL DEFAULT '1' COMMENT '商户ID',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

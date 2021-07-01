@@ -41,10 +41,10 @@ class CommonWechat extends BaseObject
             throw new \Exception('渠道参数不完整。');
         }
         $this->wechat = &load_wechat('Accesstoken',[
-            'token'          => $mpConfig['token'], // 填写你设定的key
+            'token'          => $mpConfig['token'] ?? '', // 填写你设定的key
             'appid'          => $mpConfig['AppID'], // 填写高级调用功能的app id, 请在微信开发模式后台查询
             'appsecret'      => $mpConfig['AppSecret'], // 填写高级调用功能的密钥
-            'encodingaeskey' => $mpConfig['encodingAesKey'], // 填写加密用的EncodingAESKey（可选，接口传输选择加密时必需）
+            'encodingaeskey' => $mpConfig['encodingAesKey'] ?? '', // 填写加密用的EncodingAESKey（可选，接口传输选择加密时必需）
         ]);
         return $this->wechat;
     }

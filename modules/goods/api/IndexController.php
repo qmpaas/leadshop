@@ -552,63 +552,71 @@ class IndexController extends BasicController
         $post['goods_data'] = to_array($post['goods_data']);
 
         $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
+
+        //规格存储
+        $param               = M('goods', 'GoodsParam')::find()->where(['goods_id' => $id])->one();
+        $param->param_data   = to_json($post['param_data']);
+        $param->updated_time = time();
+        $param_res           = $param->save();
+
+        //规格商品批量插入处理
+        M('goods', 'GoodsData')::deleteAll(['goods_id' => $id]); //批量插入前先删除之前数据
+        $row         = [];
+        $col         = [];
+        $price       = null;
+        foreach ($post['goods_data'] as $v) {
+            if ($v['price'] > 9999999 || $v['cost_price'] > 9999999) {
+                $transaction->rollBack(); //事务回滚
+                Error('金额不能超过9999999');
+            }
+            if ($v['stocks'] > 9999999) {
+                $transaction->rollBack(); //事务回滚
+                Error('库存不能超过9999999');
+            }
+            if ($v['weight'] > 9999999) {
+                $transaction->rollBack(); //事务回滚
+                Error('重量不能超过9999999');
+            }
+            if ($price === null || $v['price'] < $price) {
+                $price = $v['price'];
+            }
+            $v = [
+                "param_value" => $v['param_value'],
+                "price"       => $v['price'],
+                "stocks"      => $v['stocks'],
+                "cost_price"  => $v['cost_price'],
+                "weight"      => $v['weight'],
+                "goods_sn"    => $v['goods_sn'],
+            ];
+            $v['goods_id']     = $id;
+            $v['created_time'] = time();
+            array_push($row, array_values($v));
+            if (empty($col)) {
+                $col = array_keys($v);
+            }
+        }
+
         $model->setScenario('param_setting');
+        $post['price']       = $price;
         $model->setAttributes($post);
         if ($model->validate()) {
             $res = $model->save();
-
-            //规格存储
-            $param               = M('goods', 'GoodsParam')::find()->where(['goods_id' => $id])->one();
-            $param->param_data   = to_json($post['param_data']);
-            $param->updated_time = time();
-            $param_res           = $param->save();
-
-            //规格商品批量插入处理
-            M('goods', 'GoodsData')::deleteAll(['goods_id' => $id]); //批量插入前先删除之前数据
-            $row = [];
-            $col = [];
-            foreach ($post['goods_data'] as $v) {
-                if ($v['price'] > 9999999 || $v['cost_price'] > 9999999) {
-                    $transaction->rollBack(); //事务回滚
-                    Error('金额不能超过9999999');
-                }
-                if ($v['stocks'] > 9999999) {
-                    $transaction->rollBack(); //事务回滚
-                    Error('库存不能超过9999999');
-                }
-                if ($v['weight'] > 9999999) {
-                    $transaction->rollBack(); //事务回滚
-                    Error('重量不能超过9999999');
-                }
-                $v = [
-                    "param_value" => $v['param_value'],
-                    "price"       => $v['price'],
-                    "stocks"      => $v['stocks'],
-                    "cost_price"  => $v['cost_price'],
-                    "weight"      => $v['weight'],
-                    "goods_sn"    => $v['goods_sn'],
-                ];
-                $v['goods_id']     = $id;
-                $v['created_time'] = time();
-                array_push($row, array_values($v));
-                if (empty($col)) {
-                    $col = array_keys($v);
-                }
-            }
-            $prefix     = Yii::$app->db->tablePrefix;
-            $table_name = $prefix . 'goods_data';
-            $batch_res  = Yii::$app->db->createCommand()->batchInsert($table_name, $col, $row)->execute();
-
-            if ($res && $param_res && $batch_res) {
-                $transaction->commit(); //事务执行
-                return ['id' => $model->id, 'status' => $model->status];
-            } else {
-                $transaction->rollBack(); //事务回滚
-                Error('保存失败');
-            }
-
+        } else {
+            $transaction->rollBack(); //事务回滚
+            return $model;
         }
-        return $model;
+
+        $prefix     = Yii::$app->db->tablePrefix;
+        $table_name = $prefix . 'goods_data';
+        $batch_res  = Yii::$app->db->createCommand()->batchInsert($table_name, $col, $row)->execute();
+        if ($res && $param_res && $batch_res) {
+            $transaction->commit(); //事务执行
+            return ['id' => $model->id, 'status' => $model->status];
+        } else {
+            $transaction->rollBack(); //事务回滚
+            Error('保存失败');
+        }
+
     }
 
     /**

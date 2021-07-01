@@ -31,6 +31,14 @@ trait HttpRequest
         ]);
     }
 
+    protected function postJson($url, $params = [], $headers = [])
+    {
+        return $this->request('POST', $url, [
+            'headers' => $headers,
+            'json' => $params,
+        ]);
+    }
+
     public function request($method, $url, $options = [])
     {
         $client = $this->getClient($this->getBaseOptions());

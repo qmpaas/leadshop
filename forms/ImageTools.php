@@ -71,4 +71,40 @@ trait ImageTools
             ->save($output,
                 ['quality' => 80]);
     }
+
+    private function base64EncodeImage($image_file)
+    {
+        if (!$image_file) {
+            return '';
+        }
+        $cacheKey = 'LIVE_IMAGE_' . $image_file;
+        $img = \Yii::$app->cache->get($cacheKey);
+        if ($img) {
+            return $img;
+        }
+        $content = file_get_contents($image_file);
+        $type = getimagesize($image_file);//取得图片的大小，类型等
+        switch ($type[2]) {//判读图片类型
+            case 1:
+                $img_type = "gif";
+                break;
+            case 2:
+                $img_type = "jpg";
+                break;
+            case 3:
+                $img_type = "png";
+                break;
+        }
+        $temp = \Yii::$app->basePath . '/web/temp/';
+        if (!is_dir($temp)) {
+            mkdir($temp);
+        }
+        $imageName = 'live_' . md5($image_file) . '.' . $img_type;
+        if (!file_exists($temp . $imageName)) {
+            file_put_contents($temp . $imageName, $content);
+        }
+        $img = \Yii::$app->request->hostInfo . \Yii::$app->request->baseUrl . '/temp/' . $imageName;
+        \Yii::$app->cache->set($cacheKey, $img, 60 * 60 * 24 * 7);
+        return $img;
+    }
 }

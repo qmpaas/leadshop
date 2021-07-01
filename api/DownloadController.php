@@ -13,6 +13,7 @@ class DownloadController extends BasicController
 
     public function actionIndex()
     {
+        $enableLive = \Yii::$app->request->get('enable_live', 0);
         $appSrcFile = \Yii::$app->basePath . '/applet/app.zip';
         $appSrcFile = str_replace('\\', '/', $appSrcFile);
         if (!file_exists($appSrcFile)) {
@@ -42,6 +43,22 @@ EOF;
         $zipArchive = new \ZipArchive();
         $zipArchive->open($appSrcFile);
         $zipArchive->addFromString('siteinfo.js', $siteInfoContent);
+        $appJson = $zipArchive->getFromName('app.json');
+        $appJson = json_decode($appJson, true);
+        if (!is_array($appJson)) {
+            Error('无法解析app.json的内容。');
+        }
+        if (!$enableLive) {
+            unset($appJson['plugins']);
+        } else {
+            $live = [
+                'live-player-plugin' => [
+                    'version' => '1.3.0',
+                    'provider' => 'wx2b03c6e691cd7370'
+                ]
+            ];
+            $appJson['plugins'] = $live;
+        }
 
         $data = Fitment::find()->where(['AppID' => $AppID, 'keyword' => 'tabbar'])->select('keyword,content')->asArray()->one();
         if ($data) {
@@ -91,8 +108,6 @@ EOF;
             $newItem["text"] = $item["text"];
             $newBar["list"][] = $newItem;
         }
-        $appJson = $zipArchive->getFromName('app.json');
-        $appJson = json_decode($appJson, true);
         $appJson['tabBar'] = $newBar;
         $appJson = json_encode($appJson, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $zipArchive->addFromString('app.json', $appJson);

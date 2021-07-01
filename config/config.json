@@ -43,7 +43,7 @@
         "leadmall/app/coupon/index",
         "leadmall/app/coupon/view",
         "leadmall/api/reset/create",
-        "leadmall/app/reset/create"
-
+        "leadmall/app/reset/create",
+        "leadmall/app/live/index"
     ]
 }
