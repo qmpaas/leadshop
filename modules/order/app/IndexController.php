@@ -149,7 +149,7 @@ class IndexController extends BasicController
                 ])->where($w)->count();
         }
 
-        $data_list['orderafter'] = M('order', 'OrderAfter')::find()->where(['UID' => $UID, 'status' => [100, 102, 111, 121, 122, 131, 132, 133]])->count();
+        $data_list['orderafter'] = M('order', 'OrderAfter')::find()->where(['UID' => $UID, 'is_deleted' => 0, 'status' => [100, 102, 111, 121, 122, 131, 132, 133]])->count();
 
         return $data_list;
     }
