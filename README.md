@@ -154,16 +154,15 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 <a href="https://www.leadshop.vip/category/10?search_ids=10" target="_blank"> **点击查看更多Leadshop用户案例** </a>
 
 ## Leadshop功能简介
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/1.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/3.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/4.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/5.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/6.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/7.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/8.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/9.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/10.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210522/11.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/1.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/2.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/3.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/4.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/5.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/6.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/7.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/8.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/9.png)
 
 ## 使用须知
 
