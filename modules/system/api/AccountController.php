@@ -6,9 +6,9 @@
  */
 namespace system\api;
 
+use framework\common\AccessToken;
 use framework\common\BasicController;
 use Yii;
-use \framework\common\TokenHttpException;
 
 /**
  * 后台用户管理器
@@ -30,8 +30,9 @@ class AccountController extends BasicController
             //删除用户密码字段
             unset($data['password']);
             //获取Token数据
-            $token         = $this->getToken($data['id']);
-            $data['token'] = $token;
+            $data['token_type']    = 'Bearer';
+            $data['access_token']  = AccessToken::getToken($data['id']);
+            $data['refresh_token'] = AccessToken::getToken($data['id'], 2);
             return $data;
         } else {
             Error('用户不存在或密码错误');
@@ -44,15 +45,7 @@ class AccountController extends BasicController
      */
     public function actionLogout()
     {
-        $post = Yii::$app->request->post();
-        $data = $this->modelClass::find()->where(['mobile' => $post['mobile'], 'password' => $post['password']])->one();
-        if ($data) {
-            $token         = $this->getToken($data['id']);
-            $data['token'] = $token;
-            return $data;
-        } else {
-            return null;
-        }
+        return null;
     }
 
     /**
@@ -88,43 +81,17 @@ class AccountController extends BasicController
         //调用模型
         $model    = new $this->modelClass();
         $postData = Yii::$app->request->post();
-        $token    = $postData['token'] ? $postData['token'] : "";
-        $token    = Yii::$app->jwt->getParser()->parse((string) $token);
-        $data     = Yii::$app->jwt->getValidationData();
-        $AppID    = Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '';
-        $host     = Yii::$app->request->hostInfo;
-        $origin   = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-        $data->setIssuer($host);
-        $data->setAudience($origin);
-        $data->setId($AppID);
-        $data->setCurrentTime(time());
-        if ($token->validate($data)) {
-            $id = $token->getClaim('id');
-            if ($id) {
-                $data          = $model::findOne($id)->toArray();
-                $data['token'] = (string) $token;
-                return $data;
-            } else {
-                return null;
-            }
+        $token    = $postData['refresh_token'] ? $postData['refresh_token'] : "";
+        $token    = AccessToken::resetToken($token, 2);
+        $id       = $token->getClaim('id');
+        if ($id) {
+            $data                  = $model::findOne($id)->toArray();
+            $data['token_type']    = 'Bearer';
+            $data['access_token']  = AccessToken::getToken($data['id']);
+            $data['refresh_token'] = AccessToken::getToken($data['id'], 2);
+            return $data;
         } else {
-            if ($token->getClaim('jti') !== $AppID) {
-                throw new TokenHttpException('Leadshop应用ID验证错误', 419);
-            } else {
-                $data->setCurrentTime(time() - 26500);
-                if ($token->validate($data)) {
-                    $id = $token->getClaim('id');
-                    if ($id) {
-                        $data          = $model::findOne($id)->toArray();
-                        $data['token'] = (string) $this->getToken($id);
-                        return $data;
-                    } else {
-                        return null;
-                    }
-                } else {
-                    throw new TokenHttpException('Token validation timeout', 419);
-                }
-            }
+            return null;
         }
     }
 

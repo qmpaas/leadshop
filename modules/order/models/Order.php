@@ -16,7 +16,10 @@ class Order extends CommonModels
     const order_sn        = ['varchar' => 50, 'notNull', 'comment' => '订单号'];
     const UID             = ['bigint' => 20, 'notNull', 'comment' => '买家ID'];
     const total_amount    = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '总计价格'];
-    const pay_amount      = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '实际支付'];
+    const pay_amount      = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '支付价格'];
+    const score_amount    = ['bigint' => 10, 'notNull', 'default' => 0, 'comment' => '积分支付'];
+    const total_score     = ['bigint' => 10, 'notNull', 'default' => 0, 'comment' => '积分统计'];
+    const type            = ['varchar' => 255, 'default' => '', 'comment' => '订单类型 base 基础订单 task 任务订单'];
     const goods_amount    = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '商品金额'];
     const goods_reduced   = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '商品减少'];
     const freight_amount  = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '物流金额'];
@@ -86,7 +89,7 @@ class Order extends CommonModels
     public function scenarios()
     {
         $scenarios           = parent::scenarios();
-        $scenarios['create'] = ['order_sn', 'status', 'UID', 'total_amount', 'pay_amount', 'goods_amount', 'coupon_reduced', 'freight_amount', 'merchant_id', 'cancel_time', 'source', 'AppID'];
+        $scenarios['create'] = ['order_sn', 'status', 'type', 'UID', 'total_amount', 'task_amount', 'pay_amount', 'goods_amount', 'coupon_reduced', 'freight_amount', 'merchant_id', 'cancel_time', 'source', 'AppID', 'score_amount', 'total_score'];
 
         return $scenarios;
     }
@@ -109,7 +112,14 @@ class Order extends CommonModels
 
     public function getUser()
     {
-        return $this->hasOne('users\models\User', ['id' => 'UID'])->select('id,nickname,mobile,avatar');
+        $User = 'users\models\User';
+        return $this->hasOne($User::className(), ['id' => 'UID'])->from(['u' => $User::tableName()]);
+    }
+
+    public function getOauth()
+    {
+        $Oauth = 'users\models\Oauth';
+        return $this->hasOne($Oauth::className(), ['UID' => 'UID'])->from(['t' => $Oauth::tableName()]);
     }
 
     /**
@@ -134,7 +144,11 @@ class Order extends CommonModels
      */
     public function getGoods()
     {
-        return $this->hasMany('order\models\OrderGoods', ['order_sn' => 'order_sn'])->select('id,order_sn,freight_sn,goods_id,goods_name,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales')->with('after');
+        $Oauth = 'order\models\OrderGoods';
+        return $this->hasMany($Oauth::className(), ['order_sn' => 'order_sn'])
+            ->select('id,order_sn,freight_sn,goods_id,goods_name,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount')
+            ->with('after')
+            ->from(['u' => $Oauth::tableName()]);
     }
 
 }

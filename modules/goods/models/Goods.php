@@ -180,6 +180,18 @@ class Goods extends CommonModels
         return $this->hasOne('goods\models\GoodsParam', ['goods_id' => 'id'])->with(['goods_data'])->select('id,goods_id,param_data');
     }
 
+    public function getSpecs()
+    {
+        return $this->hasOne('goods\models\GoodsData', ['goods_id' => 'id']);
+    }
+
+    public function getTask()
+    {
+        $TaskGoods = 'plugins\task\models\TaskGoods';
+        //->select('name,keyword,icon,type,total,acquiremaximumz,maximum,remark,url,status,extend');
+        return $this->hasOne($TaskGoods::className(), ['goods_id' => 'id'])->from(['t' => $TaskGoods::tableName()]);
+    }
+
     public function getData()
     {
         return $this->hasOne('goods\models\GoodsData', ['goods_id' => 'id'])->select('id,goods_id,goods_sn');
@@ -198,6 +210,11 @@ class Goods extends CommonModels
     public function getPackage()
     {
         return $this->hasOne('logistics\models\PackageFreeRules', ['id' => 'pfr_id'])->select('id,name,type,free_area');
+    }
+
+    public function getTaskgoods()
+    {
+        return $this->hasOne('plugins\task\models\TaskGoods', ['goods_id' => 'id']);
     }
 
     public function getFreight()

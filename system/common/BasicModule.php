@@ -3,10 +3,11 @@
  * @Author: qinuoyun
  * @Date:   2020-08-20 13:46:09
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-01-05 10:17:04
+ * @Last Modified time: 2021-05-29 15:21:56
  */
 namespace framework\common;
 
+use Yii;
 use yii\base\Module;
 
 class BasicModule extends Module

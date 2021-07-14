@@ -4,7 +4,7 @@
  * @Author: qinuoyun
  * @Date:   2020-09-09 15:12:15
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-05-18 08:53:52
+ * @Last Modified time: 2021-07-05 15:39:18
  */
 
 if (!function_exists('import')) {
@@ -16,6 +16,34 @@ if (!function_exists('import')) {
     function import($value = '')
     {
         P("加载");
+    }
+}
+
+if (!function_exists('readDirList')) {
+    /**
+     * 读取目录列表
+     * 不包括 . .. 文件 三部分
+     * @param string $path 路径
+     * @return array 数组格式的返回结果
+     */
+    function readDirList($path)
+    {
+        if (is_dir($path)) {
+            $handle   = @opendir($path);
+            $dir_list = array();
+            if ($handle) {
+                while (false !== ($dir = readdir($handle))) {
+                    if ($dir != '.' && $dir != '..' && is_dir($path . '/' . $dir)) {
+                        $dir_list[] = $dir;
+                    }
+                }
+                return $dir_list;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }
 
@@ -57,7 +85,7 @@ if (!function_exists('createPoster')) {
         $backgroundWidth  = imagesx($background); //背景宽度
         $backgroundHeight = imagesy($background); //背景高度
         $imageRes         = imagecreatetruecolor($backgroundWidth, $backgroundHeight);
-        $color            = imagecolorallocatealpha($imageRes, 0, 0, 0,127);
+        $color            = imagecolorallocatealpha($imageRes, 0, 0, 0, 127);
         imagefill($imageRes, 0, 0, $color);
         // imageColorTransparent($imageRes, $color);  //颜色透明
         imagecopyresampled($imageRes, $background, 0, 0, 0, 0, imagesx($background), imagesy($background), imagesx($background), imagesy($background));
@@ -65,17 +93,23 @@ if (!function_exists('createPoster')) {
         //处理了图片
         if (!empty($config['image'])) {
             foreach ($config['image'] as $key => $val) {
-                $val = array_merge($imageDefault, $val);
-
+                $val      = array_merge($imageDefault, $val);
+                $img_type = "";
                 if ($val['stream']) {
                     //如果传的是字符串图像流
                     $info     = getimagesizefromstring($val['url']);
                     $function = 'imagecreatefromstring';
                 } else {
                     $info     = getimagesize($val['url']);
-                    $function = 'imagecreatefrom' . image_type_to_extension($info[2], false);
+                    $img_type = image_type_to_extension($info[2], false);
+                    $function = 'imagecreatefrom' . $img_type;
                 }
                 $res = $function($val['url']);
+
+                if ($img_type == 'png') {
+                    imagesavealpha($res, true);
+                }
+
                 //根据尺寸居中裁剪 获取图形信息
                 $target_w = $val['width'];
                 $target_h = $val['height'];
@@ -90,18 +124,39 @@ if (!function_exists('createPoster')) {
                 $start_y  = !$judge ? ($resize_h - $target_h) / 2 : 0;
                 /* 绘制居中缩放图像 */
                 $canvas = imagecreatetruecolor($resize_w, $resize_h);
+                /* 设置透明 */
+                $color = imagecolorallocate($canvas, 255, 255, 255);
+                imagecolortransparent($canvas, $color);
+                imagefill($canvas, 0, 0, $color);
+
                 imagecopyresampled($canvas, $res, 0, 0, 0, 0, $resize_w, $resize_h, $source_w, $source_h);
                 $target_img = imagecreatetruecolor($target_w, $target_h);
+                /* 设置透明 */
+                $color = imagecolorallocate($target_img, 255, 255, 255);
+                imagecolortransparent($target_img, $color);
+                imagefill($target_img, 0, 0, $color);
+
+                /* 图层拷贝 */
                 imagecopy($target_img, $canvas, 0, 0, $start_x, $start_y, $resize_w, $resize_h);
 
                 //处理图片圆角问题
-                $canvas = radius_img($canvas, $val['width'], $val['height'], $val['radius'], $val['color']);
+                // if ($val['radius'] > 0) {
+                //     $canvas = radius_img($target_img, $val['width'], $val['height'], $val['radius'], $val['color']);
+                // }
+
+                //一下注释的为了测试用
+                // if ($img_type == 'png') {
+                //     imagepng($canvas); //在浏览器上显示
+                //     imagedestroy($canvas);
+                //     exit();
+                // }
 
                 //关键函数，参数（目标资源，源，目标资源的开始坐标x,y, 源资源的开始坐标x,y,目标资源的宽高w,h,源资源的宽高w,h）
                 $val['left'] = $val['left'] < 0 ? $backgroundWidth - abs($val['left']) - $val['width'] : $val['left'];
                 $val['top']  = $val['top'] < 0 ? $backgroundHeight - abs($val['top']) - $val['height'] : $val['top'];
-                //放置图像
-                imagecopymerge($imageRes, $canvas, $val['left'], $val['top'], $val['right'], $val['bottom'], $val['width'], $val['height'], $val['opacity']); //左，上，右，下，宽度，高度，透明度
+                //放置图像 左，上，右，下，宽度，高度，透明度
+                imagecopymerge($imageRes, $canvas, $val['left'], $val['top'], $val['right'], $val['bottom'], $val['width'], $val['height'], $val['opacity']); //
+
             }
         }
         //处理文字
@@ -184,6 +239,7 @@ if (!function_exists('radius_img')) {
                 }
             }
         }
+        imagesavealpha($img, true);
         return $img;
     }
 }
@@ -432,6 +488,26 @@ if (!function_exists('Error')) {
     }
 }
 
+if (!function_exists('is_object')) {
+    /**
+     * [is_object description]
+     * @param string $value [description]
+     */
+    function is_object($array = [])
+    {
+        if (empty($array)) {
+            return false;
+        }
+        if (count($array) == count($array, 1)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+
+//用于直接写入
+
 if (!function_exists('getDirList')) {
     /**
      * 获取文件目录
@@ -519,6 +595,20 @@ if (!function_exists('P')) {
                 break;
         }
 
+    }
+}
+
+if (!function_exists('P2')) {
+    /**
+     * 打印输出数据
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-07
+     * @param    [type]     $name [description]
+     * @param    integer    $type [description]
+     */
+    function P2($name, $type = 1)
+    {
+        echo "<pre>" . print_r($name, true) . "</pre>";
     }
 }
 

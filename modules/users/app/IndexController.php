@@ -36,6 +36,10 @@ class IndexController extends BasicController
             case 'visit': //用户设置
                 return $this->visit();
                 break;
+            case 'info': //用户设置
+                $UID = Yii::$app->user->identity->id;
+                return $this->modelClass::find()->where(['id' => $UID])->one();
+                break;
             default:
                 Error('未定义操作');
                 break;
@@ -127,6 +131,22 @@ class IndexController extends BasicController
     }
 
     /**
+     * 设置用户信息
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    public function setting()
+    {
+        $UID   = Yii::$app->user->identity->id;
+        $post  = Yii::$app->request->post();
+        $model = M('users', 'User')::findOne($UID);
+        $model->setScenario('setting');
+        $model->setAttributes($post);
+        $this->plugins("task", ["score", ["perfect", 1, $UID]]);
+        return $model->save();
+    }
+
+    /**
      * 解绑手机
      * @return [type] [description]
      */
@@ -138,7 +158,6 @@ class IndexController extends BasicController
         if (empty($model)) {
             Error('用户不存在');
         }
-
         $model->mobile = null;
         return $model->save();
     }
@@ -294,7 +313,7 @@ class IndexController extends BasicController
         $coupons = Coupon::find()->where([
             'AND',
             [
-                'AppID' => Yii::$app->params['AppID'],
+                'AppID'  => Yii::$app->params['AppID'],
                 'status' => 1,
             ],
             ['>', 'over_num', 0],
@@ -304,7 +323,7 @@ class IndexController extends BasicController
         /**@var Coupon $coupon*/
         foreach ($coupons as $coupon) {
             try {
-                $result = Coupon::obtain($coupon, [Yii::$app->user], 4, $coupon->register_limit, 2);
+                $result  = Coupon::obtain($coupon, [Yii::$app->user], 4, $coupon->register_limit, 2);
                 $success = array_merge($success, $result);
             } catch (\Exception $exception) {
                 Yii::error('==============user register error begin============');

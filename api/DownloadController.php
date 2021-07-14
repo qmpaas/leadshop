@@ -23,21 +23,9 @@ class DownloadController extends BasicController
             . rtrim(\Yii::$app->request->baseUrl, '/');
         $apiRoot = str_replace('http://', 'https://', $apiRoot) . '/index.php';
         $AppID = \Yii::$app->params['AppID'];
-        $data = Fitment::find()->where(['AppID' => $AppID, 'keyword' => 'themeColor'])->select('keyword,content')->asArray()->one();
-        if ($data) {
-            $theme = trim($data['content'], '"');
-        } else {
-            $theme = 'red_theme';
-        }
         $siteInfoContent = <<<EOF
 module.exports  = {
-    "uniacid": "3",
-    "acid": "3",
-    "multiid": "0",
-    "version": "2",
     "siteroot":"{$apiRoot}",
-    "theme": "{$theme}", // red_theme purple_theme blue_theme green_theme orange_theme golden_theme
-    "design_method": "3"
 }
 EOF;
         $zipArchive = new \ZipArchive();
@@ -48,16 +36,24 @@ EOF;
         if (!is_array($appJson)) {
             Error('无法解析app.json的内容。');
         }
-        if (!$enableLive) {
+        if (empty($appJson['plugins'])) {
             unset($appJson['plugins']);
-        } else {
-            $live = [
-                'live-player-plugin' => [
-                    'version' => '1.3.0',
-                    'provider' => 'wx2b03c6e691cd7370'
-                ]
-            ];
-            $appJson['plugins'] = $live;
+        }
+        if (!empty($appJson['subPackages'])) { // 处理分包的插件
+            foreach ($appJson['subPackages'] as &$package) {
+                if ($package['root'] == 'pages/live') {
+                    if (!$enableLive) {
+                        unset($package['plugins']);
+                    } else {
+                        $package['plugins'] = [
+                            'live-player-plugin' => [
+                                'version' => '1.3.0',
+                                'provider' => 'wx2b03c6e691cd7370'
+                            ]
+                        ];
+                    }
+                }
+            }
         }
 
         $data = Fitment::find()->where(['AppID' => $AppID, 'keyword' => 'tabbar'])->select('keyword,content')->asArray()->one();

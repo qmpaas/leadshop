@@ -15,6 +15,12 @@ use Yii;
 class BasicsController extends BasicController
 {
     /**
+     * 处理接口白名单
+     * @var array
+     */
+    public $whitelists = [];
+
+    /**
      * 重写父类
      * @return [type] [description]
      */
@@ -61,4 +67,5 @@ class BasicsController extends BasicController
         Yii::$app->params['runModule'] = true;
         return $controller->runAction($action, $params);
     }
+
 }

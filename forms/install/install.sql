@@ -939,3 +939,140 @@ CREATE TABLE `heshop_initialize_prefix_live_room` (
   `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE `heshop_initialize_prefix_goods_data`
+ADD COLUMN `task_stock` int(10) NOT NULL COMMENT '兑换库存',
+ADD COLUMN `task_number` bigint(10) NOT NULL COMMENT '兑换积分',
+ADD COLUMN `task_price` decimal(10,2) DEFAULT NULL COMMENT '兑换价格',
+ADD COLUMN `task_limit` bigint(5) DEFAULT NULL COMMENT '兑换限制',
+ADD COLUMN `task_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否上架：0 下架 1 上架';
+
+
+ALTER TABLE `heshop_initialize_prefix_goods_group`
+ADD COLUMN `is_show`  tinyint(1) DEFAULT 1 COMMENT '是否显示 0不显示  1显示' ;
+
+
+ALTER TABLE `heshop_initialize_prefix_order`
+ADD COLUMN `score_amount` bigint(10) NOT NULL DEFAULT '0' COMMENT '积分支付',
+ADD COLUMN `total_score` bigint(10) NOT NULL DEFAULT '0' COMMENT '积分统计',
+ADD COLUMN `type` varchar(255) DEFAULT '' COMMENT '订单类型 base 基础订单 task 任务订单';
+
+
+ALTER TABLE `heshop_initialize_prefix_order_after`
+ADD COLUMN `return_score` bigint(20) NOT NULL DEFAULT '0' COMMENT '退款积分',
+ADD COLUMN `actual_score` bigint(20) DEFAULT NULL COMMENT '实际退还积分',
+ADD COLUMN `order_type` varchar(255) DEFAULT 'base' COMMENT '订单类型',
+ADD COLUMN `return_score_type` tinyint(1) DEFAULT '0' COMMENT '0不退积分 1退积分';
+
+
+
+ALTER TABLE `heshop_initialize_prefix_order_goods`
+ADD COLUMN `goods_score` bigint(10) NOT NULL DEFAULT '0' COMMENT '商品积分',
+ADD COLUMN `score_amount` bigint(10) DEFAULT '0' COMMENT '总计积分';
+
+ALTER TABLE `heshop_initialize_prefix_user`
+ADD COLUMN `birthday` varchar(50) DEFAULT NULL COMMENT '生日',
+ADD COLUMN `area` varchar(255) DEFAULT NULL COMMENT '地区',
+ADD COLUMN `wechat` varchar(50) DEFAULT NULL COMMENT '微信号';
+
+CREATE TABLE `heshop_initialize_prefix_task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(255) DEFAULT NULL COMMENT '任务名称',
+  `keyword` varchar(255) DEFAULT NULL COMMENT '任务标识符',
+  `formula` varchar(255) DEFAULT NULL COMMENT '计算公式',
+  `icon` varchar(255) DEFAULT NULL COMMENT '任务图标',
+  `type` varchar(3) DEFAULT 'add' COMMENT '任务类型',
+  `total` varchar(10) DEFAULT '1' COMMENT '累计次数',
+  `acquire` bigint(10) DEFAULT '1' COMMENT '获取积分',
+  `maximum` bigint(10) DEFAULT '1' COMMENT '最大值',
+  `remark` varchar(255) DEFAULT NULL COMMENT '积分说明',
+  `url` varchar(255) DEFAULT NULL COMMENT '跳转链接',
+  `status` tinyint(1) DEFAULT '0' COMMENT '任务状态 0关闭 1开启',
+  `extend` text COMMENT '扩展配置',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  `prompt` varchar(255) DEFAULT NULL COMMENT '积分提示说明',
+  `extra` varchar(255) DEFAULT NULL COMMENT '第三个说明',
+  `page_tips` varchar(255) DEFAULT NULL COMMENT '微页面说明',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
+
+
+BEGIN;
+INSERT INTO `heshop_initialize_prefix_task` VALUES (1, '购买商品', 'goods', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_goods_icon.png', '1', '0.02', 10, NULL, '消费%s元，获得%s积分', '/pages/goods/list', 1, '[]', 0, 1624552148, 1626170393, 0, '每日最多%s次', NULL, '消费%s元，获得%s积分');
+INSERT INTO `heshop_initialize_prefix_task` VALUES (2, '完成下单', 'order', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_order_icon.png', '1', '2', 77, NULL, '每下%s笔订单，获得%s积分', '/pages/goods/list', 1, '[]', 0, 1624552148, 1626170393, 0, '每日最多%s次', '再购买%s单，即可获得积分', '每下%5笔订单，获得%s积分');
+INSERT INTO `heshop_initialize_prefix_task` VALUES (3, '每日签到', 'signin', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_signin_icon.png', '1', '1', 1000, 10, '每日签到，获得%s积分', '/plugins/task/index', 1, '[]', 0, 1624552148, 1626170393, 0, NULL, NULL, '每日签到，获得%s积分');
+INSERT INTO `heshop_initialize_prefix_task` VALUES (4, '连续签到', 'sustain', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_signin_icon.png', '1', '2', 20, 100, '连续签到%s天，获得额外%s积分', '/plugins/task/index', 1, '[]', 0, 1624552148, 1626170393, 0, NULL, NULL, NULL);
+INSERT INTO `heshop_initialize_prefix_task` VALUES (5, '分享转发', 'share', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_share_icon.png', '1', '2', 6, 6, '每日分享转发%s次及以上，获得%s积分', '/pages/index/index', 1, '[]', 0, 1624552148, 1626170393, 0, '再分享转发%s次，即可获得积分', NULL, '每日转发%s次，获得%s积分');
+INSERT INTO `heshop_initialize_prefix_task` VALUES (6, '浏览商品', 'browse', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_browse_icon.png', '1', '2', 10, 6, '每日浏览商品%s件及以上，获得%s积分', '/pages/goods/search-list?task_browse=1', 1, '[]', 0, 1624552149, 1626170393, 0, '再浏览%s件商品，即可获得积分', NULL, NULL);
+INSERT INTO `heshop_initialize_prefix_task` VALUES (7, '邀请好友', 'invite', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_invite_icon.png', '1', '3', 6, 19, '每邀请好友%s人，获得%s积分', '/pages/index/index', 1, '[]', 0, 1624552149, 1626170393, 0, '再邀请%s人，即可获得积分', NULL, NULL);
+INSERT INTO `heshop_initialize_prefix_task` VALUES (8, '完善信息', 'perfect', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_perfect_icon.png', '2', '1', 123, 20, '完善个人信息，获得%s积分', '/plugins/task/userinfo', 1, '[\"realname\",\"avatar\",\"gender\",\"wechat\"]', 0, 1624552149, 1626170393, 0, NULL, NULL, NULL);
+INSERT INTO `heshop_initialize_prefix_task` VALUES (9, '绑定手机号', 'binding', NULL, 'http://qmxq.oss-cn-hangzhou.aliyuncs.com/task/icon/task_binding_icon.png', '2', '1', 11, 20, '绑定手机号，获得%s积分', '/pages/user/index', 1, '[\"phone\"]', 0, 1624552149, 1626170393, 0, NULL, NULL, NULL);
+COMMIT;
+
+CREATE TABLE `heshop_initialize_prefix_task_goods` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `goods_id` bigint(20) NOT NULL COMMENT '商品ID',
+  `task_stock` bigint(10) NOT NULL COMMENT '兑换库存',
+  `task_number` bigint(10) NOT NULL COMMENT '兑换积分',
+  `task_price` decimal(10,2) DEFAULT NULL COMMENT '兑换价格',
+  `task_limit` bigint(5) DEFAULT NULL COMMENT '兑换限制',
+  `goods_is_sale` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否上架：0 下架 1 上架',
+  `is_recycle` tinyint(1) DEFAULT '0' COMMENT '是否在回收站',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  `task_status` tinyint(1) DEFAULT '0' COMMENT '兑换状态',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_task_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `task_id` bigint(20) NOT NULL COMMENT '任务ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `start_time` bigint(10) NOT NULL DEFAULT '0' COMMENT '开始时间',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '任务装填： 0 未完成 1 已完成',
+  `number` bigint(10) NOT NULL DEFAULT '1' COMMENT '积分分值',
+  `extend` text COMMENT '扩展信息处理',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=705 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_task_score` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `task_id` bigint(20) NOT NULL COMMENT '任务ID',
+  `order_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '订单ID',
+  `order_sn` varchar(50) DEFAULT NULL COMMENT '订单号',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `start_time` bigint(10) NOT NULL DEFAULT '0' COMMENT '开始时间',
+  `status` tinyint(3) NOT NULL DEFAULT '1' COMMENT '任务装填： 0 未完成 1 已完成',
+  `number` bigint(10) NOT NULL DEFAULT '1' COMMENT '积分分值',
+  `remark` varchar(255) DEFAULT NULL COMMENT '收支说明',
+  `identifier` varchar(30) DEFAULT NULL COMMENT '标识符',
+  `type` varchar(3) NOT NULL DEFAULT 'add' COMMENT '收支类型：add 增加 del 减少',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=455 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_task_user` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `number` bigint(10) DEFAULT '0' COMMENT '积分值',
+  `total` bigint(10) DEFAULT '0' COMMENT '积分累计',
+  `consume` bigint(10) DEFAULT '0' COMMENT '已消费积分',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4;

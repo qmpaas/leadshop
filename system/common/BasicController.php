@@ -3,10 +3,11 @@
  * @Author: qinuoyun
  * @Date:   2020-08-20 13:46:09
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-05-11 17:07:44
+ * @Last Modified time: 2021-07-08 18:05:14
  */
 namespace framework\common;
 
+use ReflectionClass;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\CompositeAuth;
@@ -21,6 +22,7 @@ class BasicController extends StoreController
      */
     public function init()
     {
+
         if ($this->modelClass === null) {
             $tree    = get_parent_class(get_class($this));
             $info    = explode("\\", $tree);
@@ -61,9 +63,43 @@ class BasicController extends StoreController
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+
+        //解决桥接问题
         if (isset(Yii::$app->params['runModule'])) {
             Yii::error(Yii::$app->params['runModule']);
             return $behaviors;
+        }
+
+        //插件部分全过滤
+        if (get_class($this) == 'leadmall\app\PluginController') {
+            return $behaviors;
+        }
+        if (get_class($this) == 'leadmall\api\PluginController') {
+            return $behaviors;
+        }
+        if (get_class($this) == 'leadmall\api\PluginController') {
+            return $behaviors;
+        }
+        //处理插件白名单问题
+        $classArray = explode("\\", get_class($this));
+
+        //Yii::info(to_json($classArray));
+
+        if ($classArray[0] == 'plugins') {
+            if ($classArray[2] == 'common') {
+                return $behaviors;
+            }
+            /**
+             * 如下备注用于测试
+             */
+            // if (get_class($this) == 'plugins\task\common') {
+            //     P($this->whitelists);
+            //     P(Yii::$app->controller->action->id);
+            //     exit();
+            // }
+            if (in_array(Yii::$app->controller->action->id, $this->whitelists)) {
+                return $behaviors;
+            }
         }
 
         //获取白名单
@@ -73,24 +109,6 @@ class BasicController extends StoreController
         if (in_array(Yii::$app->requestedRoute, $accessWhitelist)) {
             $whitelist = explode("/", Yii::$app->requestedRoute);
             $optional  = end($whitelist);
-        }
-        if (isset(Yii::$app->params['runModule'])) {
-            Yii::error(Yii::$app->params['runModule']);
-        }
-
-        if ($optional === '__qmpaas_white__') {
-            if (WE7_URL) {
-                $users      = \system\models\Account::find()->one();
-                $controller = (new \system\api\AccountController($this->id, $this->module));
-                $token      = $controller->getToken($users->id);
-                Yii::$app->request->getHeaders()->set("Authorization", "Bearer " . $token);
-            } else {
-                //解决微擎兼容问题
-                if (!Yii::$app->request->getHeaders()->get('Authorization') && Yii::$app->request->getHeaders()->get('token')) {
-                    $token = Yii::$app->request->getHeaders()->get('token');
-                    Yii::$app->request->getHeaders()->set("Authorization", $token);
-                }
-            }
         }
 
         $behaviors['authenticator'] = [
@@ -120,8 +138,8 @@ class BasicController extends StoreController
         header("Access-Control-Allow-Origin: {$url}");
         header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
         header('Access-Control-Allow-Credentials: true');
-        header('Access-Control-Expose-Headers: Authorization,token,QM-APP-TYPE,QM-APP-ID,QM-APP-SECRET,X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count');
-        header("Access-Control-Allow-Headers: Authorization,token,QM-APP-TYPE,QM-APP-ID,QM-APP-SECRET,Content-Type,Accept,Origin,X-Pagination-Per-Page");
+        header('Access-Control-Expose-Headers: Authorization,token,QM-APP-TYPE,QM-APP-ID,QM-APP-SECRET,Content-Page,X-Pagination-Current-Page,X-Pagination-Page-Count,X-Pagination-Per-Page,X-Pagination-Total-Count');
+        header("Access-Control-Allow-Headers: Authorization,token,QM-APP-TYPE,QM-APP-ID,QM-APP-SECRET,Content-Page,Content-Type,Accept,Origin,X-Pagination-Per-Page");
         //判断是否为预请求接口
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             Yii::$app->response->setStatusCode(204);
@@ -272,5 +290,89 @@ class BasicController extends StoreController
     final public function Authorization()
     {
 
+    }
+
+    /**
+     * 插件专用功能
+     * 获取清单
+     * manifest() 标识所有清代所有数据
+     * manifest(<key>) 表示获取谋一个清单值数据
+     * manifest(<key1.key2>) 多维数组嵌套的清单数据值获取
+     * manifest(<key1>,<val>) 表示修改某人清单数据值
+     * manifest(<key1.key2>,<val>) 表示多维数组清单的值修改
+     * @return [type] [description]
+     */
+    public function plugins($plugin, $keyword = "", $value = "")
+    {
+        if ($plugin) {
+            $manifest_dir = Yii::$app->basePath . "/plugins/" . $plugin . "/manifest.json";
+            //如果第二个参数为数组，则执行方法
+            if (is_array($keyword)) {
+                $class = '\plugins\task\common';
+                if (class_exists($class)) {
+                    $class  = new $class($this->id, $this->module);
+                    $action = array_shift($keyword);
+                    $param  = empty($keyword) ? [] : array_shift($keyword);
+                    //通过反射获取参数名称
+                    $reflect    = new ReflectionClass($class);
+                    $Parameters = $reflect->getMethod('action' . strtolower($action))->getParameters();
+                    $params     = [];
+                    //循环设置参数
+                    foreach ($Parameters as $key => $value) {
+                        if (is_array($param) && !empty($param)) {
+                            $params[$value->name] = array_shift($param);
+                        } else {
+                            if (isset($param) && !empty($param)) {
+                                $params[$value->name] = $param ?? "";
+                            }
+
+                        }
+                    }
+                    //执行插件公共方法-专门用于内调
+                    return $class->runAction($action, $params);
+                } else {
+                    Error("{$plugin}插件公共方法不存在，请检查插件是否正常安装");
+                }
+            } else {
+                if (file_exists($manifest_dir)) {
+                    $manifest_body  = file_get_contents($manifest_dir);
+                    $manifest_array = json_decode($manifest_body, true);
+                    if (json_last_error() == JSON_ERROR_NONE) {
+                        if ($keyword) {
+                            $keyword_array = explode(".", $keyword);
+                            //判断如果参数存在，则需要修改
+                            if ($value) {
+                                $end_key = end($keyword_array);
+                                $data    = &$manifest_array;
+                                if (count($keyword_array)) {
+                                    foreach ($keyword_array as $key) {
+                                        if ($key == $end_key) {
+                                            $data[$key] = $value;
+                                        } else {
+                                            $data = &$data[$key];
+                                        }
+                                    }
+                                }
+                                return file_put_contents($manifest_dir, to_json($manifest_array));
+                            } else {
+                                //标识获取参数值
+                                $data = $manifest_array;
+                                foreach ($keyword_array as $key) {
+                                    $data = $data[$key];
+                                }
+                                return $data;
+                            }
+                        } else {
+                            return $manifest_array;
+                        }
+                    } else {
+                        Error("manifest.json解析失败，请检查插件是否正常安装");
+                    }
+                } else {
+                    Error("找不到manifest.json，请检查插件是否正常安装");
+                }
+            }
+        }
+        return false;
     }
 }

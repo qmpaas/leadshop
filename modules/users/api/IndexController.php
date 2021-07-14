@@ -196,15 +196,30 @@ class IndexController extends BasicController
 
         $AppID = Yii::$app->params['AppID'];
         $where = ['user.AppID' => $AppID];
-        $with  = [
-            'statistical as statistical',
-            'oauth as oauth',
-            'labellog as labellog' => function ($q) {
-                $q->with(['label' => function ($query) {
-                    $query->select('id,name');
-                }]);
-            },
-        ];
+
+        //判断插件已经安装，则执行
+        if ($this->plugins("task", "status")) {
+            $with = [
+                'statistical as statistical',
+                'oauth as oauth',
+                'taskuser as taskuser',
+                'labellog as labellog' => function ($q) {
+                    $q->with(['label' => function ($query) {
+                        $query->select('id,name');
+                    }]);
+                },
+            ];
+        } else {
+            $with = [
+                'statistical as statistical',
+                'oauth as oauth',
+                'labellog as labellog' => function ($q) {
+                    $q->with(['label' => function ($query) {
+                        $query->select('id,name');
+                    }]);
+                },
+            ];
+        }
 
         //关键词搜索
         $search = $keyword['search'] ?? false;
@@ -309,9 +324,21 @@ class IndexController extends BasicController
     {
         $id = Yii::$app->request->get('id', false);
 
-        $result = M('users', 'User')::find()
-            ->where(['id' => $id])
-            ->with([
+        //判断插件已经安装，则执行 taskuser
+        if ($this->plugins("task", "status")) {
+            $with = [
+                'statistical',
+                'oauth',
+                'taskuser',
+                'labellog' => function ($query) {
+                    $query->where(['is_deleted' => 0])->with(['label' => function ($query) {
+                        $query->select('id,name');
+                    }]);
+                },
+
+            ];
+        } else {
+            $with = [
                 'statistical',
                 'oauth',
                 'labellog' => function ($query) {
@@ -319,7 +346,12 @@ class IndexController extends BasicController
                         $query->select('id,name');
                     }]);
                 },
-            ])
+            ];
+        }
+
+        $result = M('users', 'User')::find()
+            ->where(['id' => $id])
+            ->with($with)
             ->asArray()
             ->one();
 
@@ -365,7 +397,7 @@ class IndexController extends BasicController
             }
         }
 
-        $result['coupon'] = M('coupon','UserCoupon')::find()->where(['UID'=>$id,'is_deleted'=>0])->count('id');
+        $result['coupon'] = M('coupon', 'UserCoupon')::find()->where(['UID' => $id, 'is_deleted' => 0])->count('id');
 
         return $result;
     }

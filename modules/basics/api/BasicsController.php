@@ -15,11 +15,20 @@ use Yii;
 class BasicsController extends BasicController
 {
     /**
+     * 处理接口白名单
+     * @var array
+     */
+    public $whitelists = [];
+
+    /**
      * 重写父类
      * @return [type] [description]
      */
     public function actions()
     {
+        if (Yii::$app->request->post()) {
+            $_POST = Yii::$app->request->post();
+        }
         $actions = parent::actions();
         unset($actions['index']);
         unset($actions['create']);

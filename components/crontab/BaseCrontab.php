@@ -24,6 +24,12 @@ abstract class BaseCrontab extends BaseObject
     public $enable = true;
 
     /**
+     * 限流 默认60s
+     * @var int
+     */
+    public $limit = 60;
+
+    /**
      * 定时任务名称
      * @return mixed
      */

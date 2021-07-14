@@ -76,7 +76,7 @@ abstract class BaseCollect extends BaseObject
 
     public function init()
     {
-        $this->setTimeout('10');
+        $this->setTimeout('30');
         $this->name = $this->getName();
         $this->goods = new Goods();
         $model = Setting::findOne(['AppID' => \Yii::$app->params['AppID'], 'merchant_id' => 1, 'keyword' => 'apikey_99']);

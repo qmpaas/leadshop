@@ -19,9 +19,9 @@ class Event extends BasicEvent
     public $pay_order_sn       = null; //支付订单编号
     public $pay_uid            = null; //支付用户
     public $refunded           = [
-        "order_sn"      => null,
-        "order_goods_id"      => null,
-        "return_number" => null,
+        "order_sn"       => null,
+        "order_goods_id" => null,
+        "return_number"  => null,
     ]; //退款事件信息
     public $sms = [
         'type'   => '',

@@ -9,7 +9,6 @@ namespace sms\app;
 
 use framework\common\BasicController;
 use Overtrue\EasySms\Message;
-use sms\models\SmsLog;
 use Yii;
 
 class IndexController extends BasicController
@@ -48,12 +47,12 @@ class IndexController extends BasicController
         if ($model->validate()) {
             if ($model->save()) {
                 $this->module->event->sms = [
-                    'type' => 'captcha',
-                    'debug' => true,
+                    'type'   => 'captcha',
+                    'debug'  => true,
                     'mobile' => [$post['mobile']],
                     'params' => [
-                        'code' => $post['code']
-                    ]
+                        'code' => $post['code'],
+                    ],
                 ];
                 try {
                     $this->module->trigger('send_sms');
@@ -89,7 +88,7 @@ class IndexController extends BasicController
         Yii::info('触发短信事件');
         try {
             $smsConfig = [];
-            $model = M('setting', 'Setting')::find()->where(['keyword' => 'sms_setting', 'merchant_id' => 1, 'AppID' => Yii::$app->params['AppID']])->select('content')->asArray()->one();
+            $model     = M('setting', 'Setting')::find()->where(['keyword' => 'sms_setting', 'merchant_id' => 1, 'AppID' => Yii::$app->params['AppID']])->select('content')->asArray()->one();
             if ($model) {
                 $smsConfig = json_decode($model['content'], true);
             }
@@ -111,19 +110,19 @@ class IndexController extends BasicController
             }
             $message = new Message([
                 'template' => $smsConfig[$event->sms['type']]['template_id'],
-                'data' => $data
+                'data'     => $data,
             ]);
             if (!is_array($event->sms['mobile'])) {
                 $event->sms['mobile'] = [$event->sms['mobile']];
             }
-            $res = false;
+            $res      = false;
             $errorMsg = '';
             foreach ($event->sms['mobile'] as $mobile) {
                 try {
                     $res = Yii::$app->sms->module('industry', [
-                        'access_key_id' => $smsConfig['access_key_id'],
+                        'access_key_id'     => $smsConfig['access_key_id'],
                         'access_key_secret' => $smsConfig['access_key_secret'],
-                        'template_name' => $smsConfig['template_name'],
+                        'template_name'     => $smsConfig['template_name'],
                     ])->send($mobile, $message);
                 } catch (\Exception $e) {
                     $errorMsg = $e->getMessage();

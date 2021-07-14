@@ -5,7 +5,7 @@ namespace subscribe\api;
 use framework\common\BasicController;
 use subscribe\models\SubscribeTemplate;
 
-class IndexController  extends BasicController
+class IndexController extends BasicController
 {
     /**
      * 重写父类
@@ -26,7 +26,7 @@ class IndexController  extends BasicController
             Error('请选择平台');
         }
         $AppID = \Yii::$app->params['AppID'];
-        $list =  SubscribeTemplate::find()->where(['AppID' => $AppID, 'platform' => $behavior, 'is_deleted' => 0])->all();
+        $list  = SubscribeTemplate::find()->where(['AppID' => $AppID, 'platform' => $behavior, 'is_deleted' => 0])->all();
         if ($list) {
             $list = array_column($list, null, 'tpl_name');
         }
@@ -39,7 +39,7 @@ class IndexController  extends BasicController
             }
         }
         return [
-            'form' => $newList
+            'form' => $newList,
         ];
     }
 
@@ -66,30 +66,30 @@ class IndexController  extends BasicController
 
     private function save($platform)
     {
-        $t = \Yii::$app->db->beginTransaction();
+        $t     = \Yii::$app->db->beginTransaction();
         $AppID = \Yii::$app->params['AppID'];
         SubscribeTemplate::updateAll([
             'deleted_time' => time(),
-            'is_deleted' => 1
+            'is_deleted'   => 1,
         ], [
-            'AppID' => $AppID,
-            'platform' => $platform,
-            'is_deleted' => 0
+            'AppID'      => $AppID,
+            'platform'   => $platform,
+            'is_deleted' => 0,
         ]);
         $default = array_keys(\subscribe\api\IndexController::getSetting());
-        $post = [];
+        $post    = [];
         foreach ($default as $item) {
             $post[$item] = \Yii::$app->request->post($item);
         }
         $list = [];
         foreach ($post as $key => $item) {
-            $newItem['AppID'] = $AppID;
-            $newItem['tpl_id'] = $item;
-            $newItem['tpl_name'] = $key;
-            $newItem['platform'] = $platform;
+            $newItem['AppID']        = $AppID;
+            $newItem['tpl_id']       = $item;
+            $newItem['tpl_name']     = $key;
+            $newItem['platform']     = $platform;
             $newItem['created_time'] = time();
             $newItem['updated_time'] = time();
-            $list[] = $newItem;
+            $list[]                  = $newItem;
         }
         if (count($list) > 0) {
             $res = \Yii::$app->db->createCommand()->batchInsert(
@@ -108,71 +108,84 @@ class IndexController  extends BasicController
 
     public static function getSetting()
     {
-        return  [
-            'order_pay' => [
-                'id' => '4616',
+        return [
+            'order_pay'         => [
+                'id'              => '4616',
                 'keyword_id_list' => [2, 4, 6, 8],
-                'title' => '付款成功通知',
-                'categoryId' => '307', // 类目id
-                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
-                'data' => [
-                    'amount2' => '',
-                    'date4' => '',
-                    'thing6' => '',
+                'title'           => '付款成功通知',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
+                    'amount2'           => '',
+                    'date4'             => '',
+                    'thing6'            => '',
                     'character_string8' => '',
-                ]
+                ],
             ],
-            'order_send' => [
-                'id' => '855',
+            'order_send'        => [
+                'id'              => '855',
                 'keyword_id_list' => [7, 4, 11, 1],
-                'title' => '订单发货通知',
-                'categoryId' => '307', // 类目id
-                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
-                'data' => [
-                    'thing7' => '',
+                'title'           => '订单发货通知',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
+                    'thing7'            => '',
                     'character_string4' => '',
-                    'thing11' => '',
+                    'thing11'           => '',
                     'character_string1' => '',
-                ]
+                ],
             ],
             'order_sale_verify' => [
-                'id' => '5049',
+                'id'              => '5049',
                 'keyword_id_list' => [6, 8, 7],
-                'title' => '售后状态通知',
-                'categoryId' => '307', // 类目id
-                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
-                'data' => [
-                    'thing6' => '',
+                'title'           => '售后状态通知',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
+                    'thing6'            => '',
                     'character_string8' => '',
-                    'amount7' => ''
-                ]
+                    'amount7'           => '',
+                ],
             ],
-            'order_refund_tpl' => [
-                'id' => '7517',
+            'order_refund_tpl'  => [
+                'id'              => '7517',
                 'keyword_id_list' => [6, 2, 3, 7],
-                'title' => '退款成功通知',
-                'categoryId' => '307', // 类目id
-                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
-                'data' => [
-                    'amount6' => '',
+                'title'           => '退款成功通知',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
+                    'amount6'           => '',
                     'character_string2' => '',
-                    'thing3' => '',
-                    'time7' => '',
-                ]
+                    'thing3'            => '',
+                    'time7'             => '',
+                ],
             ],
-            'coupon_expire' => [
-                'id' => '1202',
+            'coupon_expire'     => [
+                'id'              => '1202',
                 'keyword_id_list' => [5, 3, 1, 9],
-                'title' => '优惠券到期提醒',
-                'categoryId' => '307', // 类目id
-                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
-                'data' => [
+                'title'           => '优惠券到期提醒',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
                     'thing5' => '',
-                    'time3' => '',
+                    'time3'  => '',
                     'thing1' => '',
                     'thing9' => '',
-                ]
-            ]
+                ],
+            ],
+            'task_refund_tpl'   => [
+                'id'              => '310',
+                'keyword_id_list' => [1, 2, 3, 4],
+                'title'           => '积分变更提醒',
+                'categoryId'      => '307', // 类目id
+                'type'            => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data'            => [
+                    'character_string1' => '',
+                    'character_string2' => '',
+                    'thing3'            => '',
+                    'time4'             => '',
+                ],
+            ],
         ];
     }
 
@@ -186,8 +199,8 @@ class IndexController  extends BasicController
             'appid'     => $mpConfig['AppID'], // 填写高级调用功能的app id, 请在微信开发模式后台查询
             'appsecret' => $mpConfig['AppSecret'], // 填写高级调用功能的密钥
         ]);
-        $list = $wechat->getTemplateList();
-        $newList = $list['data'];
+        $list           = $wechat->getTemplateList();
+        $newList        = $list['data'];
         $templateIdList = [];
         foreach ($templateList as $index => $item) {
             $flag = true;
@@ -196,7 +209,7 @@ class IndexController  extends BasicController
                     $templateIdList[] = [
                         'tpl_desc' => $item['title'],
                         'tpl_name' => $index,
-                        'tpl_id' => $value['priTmplId']
+                        'tpl_id'   => $value['priTmplId'],
                     ];
                     $flag = false;
                     break;
@@ -204,11 +217,11 @@ class IndexController  extends BasicController
             }
             if ($flag) {
                 try {
-                    $res = $wechat->addTemplate($item['id'], $item['keyword_id_list'], '添加模板by-leadshop');
+                    $res              = $wechat->addTemplate($item['id'], $item['keyword_id_list'], '添加模板by-leadshop');
                     $templateIdList[] = [
                         'tpl_desc' => $item['title'],
                         'tpl_name' => $index,
-                        'tpl_id' => $res['priTmplId']
+                        'tpl_id'   => $res['priTmplId'],
                     ];
                 } catch (\Exception $exception) {
                     continue;

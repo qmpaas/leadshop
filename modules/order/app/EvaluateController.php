@@ -90,15 +90,15 @@ class EvaluateController extends BasicController
         }
 
         $data = [
-            'UID'             => $UID,
-            'order_sn'        => $order_goods['order_sn'],
-            'goods_id'        => $order_goods['goods_id'],
-            'goods_name'      => $order_goods['goods_name'],
-            'goods_image'     => $order_goods['goods_image'],
+            'UID'              => $UID,
+            'order_sn'         => $order_goods['order_sn'],
+            'goods_id'         => $order_goods['goods_id'],
+            'goods_name'       => $order_goods['goods_name'],
+            'goods_image'      => $order_goods['goods_image'],
             'show_goods_param' => $order_goods['show_goods_param'],
-            'goods_param'     => $order_goods['goods_param'],
-            'AppID'           => $AppID,
-            'merchant_id'     => $merchant_id,
+            'goods_param'      => $order_goods['goods_param'],
+            'AppID'            => $AppID,
+            'merchant_id'      => $merchant_id,
         ];
         $value['images'] = $value['images'] ?? [];
         $value['images'] = to_json($value['images']);

@@ -10,8 +10,10 @@ namespace order\api;
 
 use app\components\subscribe\OrderRefundMessage;
 use app\components\subscribe\OrderSaleVerifyMessage;
+use app\components\subscribe\TaskSendMessage;
 use framework\common\BasicController;
 use order\models\OrderAfter;
+use sms\app\IndexController as smsController;
 use Yii;
 use yii\data\ActiveDataProvider;
 
@@ -209,6 +211,12 @@ class AfterController extends BasicController
         $source = $keyword['source'] ?? false;
         if ($source) {
             $where = ['and', $where, ['after.source' => $source]];
+        }
+
+        //订单类型
+        $order_type = $keyword['order_type'] ?? '';
+        if ($order_type) {
+            $where = ['and', $where, ['after.order_type' => $order_type]];
         }
 
         //时间区间
@@ -478,7 +486,9 @@ class AfterController extends BasicController
     {
         $id            = Yii::$app->request->get('id', false);
         $actual_refund = Yii::$app->request->post('actual_refund', false);
+        $actual_score  = Yii::$app->request->post('actual_score', 0);
         $model         = $this->modelClass::findOne($id);
+
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -490,6 +500,12 @@ class AfterController extends BasicController
             Error('退款金额异常');
         }
 
+        if ($actual_score) {
+            if ($actual_score < 0 || $actual_score > $model->return_score) {
+                Error('退还积分异常');
+            }
+        }
+
         $order_info   = M('order', 'Order')::find()->where(['order_sn' => $model->order_sn])->select('pay_amount,pay_number,source')->asArray()->one();
         $return_order = [
             'order_sn'   => $order_info['pay_number'],
@@ -497,13 +513,16 @@ class AfterController extends BasicController
             'source'     => $order_info['source'],
         ];
         $return_sn = get_sn('rsn');
-        return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $return_sn) {
-            $time                 = time();
-            $model->actual_refund = $actual_refund;
-            $model->return_sn     = $return_sn;
-            $model->status        = 200;
-            $model->return_time   = $time;
-            $model->finish_time   = $time;
+
+        return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
+            $time                     = time();
+            $model->actual_refund     = $actual_refund;
+            $model->actual_score      = $actual_score;
+            $model->return_score_type = $this->plugins("task", "config.integral_return");
+            $model->return_sn         = $return_sn;
+            $model->status            = 200;
+            $model->return_time       = $time;
+            $model->finish_time       = $time;
 
             $process = to_array($model->process);
             array_unshift($process, ['label' => '卖家', 'content' => '退款' . date('Y-m-d H:i:s', $time)]);
@@ -523,10 +542,14 @@ class AfterController extends BasicController
                     }
                     $order_model->save();
                 }
-                $this->orderFinishCheck($model->order_sn);
 
+                $this->orderFinishCheck($model->order_sn);
                 $this->module->event->refunded = ['order_sn' => $model->order_sn, 'order_goods_id' => $model->order_goods_id, 'return_number' => $model->return_number];
                 $this->module->trigger('refunded');
+
+                //处理任务中心积分退还问题
+                $this->onReturnScore($model);
+
                 return $model;
             } else {
                 Error('操作失败');
@@ -535,14 +558,98 @@ class AfterController extends BasicController
     }
 
     /**
+     * 执行积分退还
+     * @param  string $model [description]
+     * @return [type]        [description]
+     */
+    public function onReturnScore($model)
+    {
+        //判断是否安装
+        $task_status = $this->plugins("task", "status");
+        $task_return = $this->plugins("task", "config.integral_return");
+        //用于判断积分可退
+        if ($model->order_type == 'task' && $task_status && $task_return) {
+            $ScoreModel = '\plugins\task\models\TaskScore';
+            //预下单积分处理
+            $ScoreClass             = (new $ScoreModel());
+            $ScoreClass->task_id    = 0;
+            $ScoreClass->UID        = $model->UID;
+            $ScoreClass->start_time = time();
+            $ScoreClass->status     = 1;
+            $ScoreClass->order_sn   = $model->order_sn;
+            $ScoreClass->type       = 'add';
+            $ScoreClass->number     = $model->actual_score;
+            $ScoreClass->remark     = "订单退款退积分";
+            $ScoreClass->insert();
+            //积分返回用户账户
+            $balance = $this->onUserNumer($model->UID, $model->actual_score);
+
+            //读取用户信息
+            $UserData = \users\models\User::find()->where(["id" => $model->UID])->one();
+
+            //处理执行消息订阅
+            \Yii::$app->subscribe
+                ->setUser($model->UID)
+                ->setPage('plugins/task/index')
+                ->send(new TaskSendMessage([
+                    'number'  => $model->actual_score,
+                    'balance' => $balance,
+                    'remark'  => "订单退款退积分",
+                    'time'    => date("Y年m月d日 H:m", time()),
+                ]));
+
+            //判断手机号是否存在
+            if ($UserData && $UserData->mobile) {
+                //处理短信模板
+                $event      = array('sms' => []);
+                $event      = json_decode(json_encode($event));
+                $event->sms = array(
+                    'type'   => 'score_changes',
+                    'mobile' => [$UserData->mobile],
+                    'params' => [
+                        'name1' => '变动',
+                        'name2' => $model->actual_score,
+                        'name3' => $balance,
+                    ],
+                );
+                //执行短信发送
+                (new smsController($this->id, $this->module))->sendSms($event);
+            }
+
+        }
+    }
+
+    /**
+     * 处理积分返回用户账号
+     * @param  string $UID    [description]
+     * @param  [type] $number [description]
+     * @return [type]         [description]
+     */
+    public function onUserNumer($UID = '', $number)
+    {
+        //获取用户信息
+        $UserModel = '\plugins\task\models\TaskUser';
+        $UserClass = $UserModel::find()->where(["UID" => $UID])->one();
+        //处理用户积分信息
+        $UserClass->number += $number;
+        $UserClass->total += $number;
+        //执行积分数据写入
+        $returned = $UserClass->save();
+        return $UserClass->number;
+    }
+
+    /**
      * 退货退款
      * @return [type] [description]
      */
     public function salesReturn()
     {
+
         $id            = Yii::$app->request->get('id', false);
         $actual_refund = Yii::$app->request->post('actual_refund', false);
+        $actual_score  = Yii::$app->request->post('actual_score', 0);
         $model         = $this->modelClass::findOne($id);
+
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -554,6 +661,12 @@ class AfterController extends BasicController
             Error('退款金额异常');
         }
 
+        if ($actual_score) {
+            if ($actual_score < 0 || $actual_score > $model->return_score) {
+                Error('退还积分异常');
+            }
+        }
+
         $order_info   = M('order', 'Order')::find()->where(['order_sn' => $model->order_sn])->select('pay_amount,pay_number,source')->asArray()->one();
         $return_order = [
             'order_sn'   => $order_info['pay_number'],
@@ -561,13 +674,15 @@ class AfterController extends BasicController
             'source'     => $order_info['source'],
         ];
         $return_sn = get_sn('rsn');
-        return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $return_sn) {
-            $time                 = time();
-            $model->actual_refund = $actual_refund;
-            $model->return_sn     = $return_sn;
-            $model->status        = 200;
-            $model->return_time   = $time;
-            $model->finish_time   = $time;
+        return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
+            $time                     = time();
+            $model->actual_refund     = $actual_refund;
+            $model->actual_score      = $actual_score;
+            $model->return_score_type = $this->plugins("task", "config.integral_return");
+            $model->return_sn         = $return_sn;
+            $model->status            = 200;
+            $model->return_time       = $time;
+            $model->finish_time       = $time;
 
             $process = to_array($model->process);
             array_unshift($process, ['label' => '卖家', 'content' => '确认收货并退款' . date('Y-m-d H:i:s', $time)]);
@@ -591,6 +706,9 @@ class AfterController extends BasicController
 
                 $this->module->event->refunded = ['order_sn' => $model->order_sn, 'order_goods_id' => $model->order_goods_id, 'return_number' => $model->return_number];
                 $this->module->trigger('refunded');
+
+                //处理任务中心积分退还问题
+                $this->onReturnScore($model);
                 return $model;
             } else {
                 Error('操作失败');

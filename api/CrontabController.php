@@ -23,7 +23,7 @@ class CrontabController extends BasicsModules implements Map
     public function actionCreate()
     {
         $behavior = \Yii::$app->request->get('behavior');
-        $name = \Yii::$app->request->post('name');
+        $name     = \Yii::$app->request->post('name');
         $name && \Yii::$app->crontab->getCrontab($name);
         $setting = Setting::findOne(['AppID' => \Yii::$app->params['AppID'], 'merchant_id' => 1, 'keyword' => 'crontab_access_token']);
         if (!$setting || $behavior == 'reset') {
@@ -31,7 +31,7 @@ class CrontabController extends BasicsModules implements Map
         } else {
             $accessToken = $setting['content'];
         }
-        $url = \Yii::$app->request->hostInfo . \Yii::$app->request->baseUrl .'/index.php?q=api/leadmall/crontab&access_token=' . $accessToken . '&appid=' . \Yii::$app->params['AppID'];
+        $url = \Yii::$app->request->hostInfo . \Yii::$app->request->baseUrl . '/index.php?q=api/leadmall/crontab&access_token=' . $accessToken . '&appid=' . \Yii::$app->params['AppID'];
         if ($name) {
             return $url . '&name=' . $name;
         }
@@ -43,11 +43,11 @@ class CrontabController extends BasicsModules implements Map
         if (!$setting) {
             $setting = new Setting();
         }
-        $accessToken = \Yii::$app->security->generateRandomString(16);
-        $setting->AppID = \Yii::$app->params['AppID'];
+        $accessToken          = \Yii::$app->security->generateRandomString(16);
+        $setting->AppID       = \Yii::$app->params['AppID'];
         $setting->merchant_id = 1;
-        $setting->keyword = 'crontab_access_token';
-        $setting->content = $accessToken;
+        $setting->keyword     = 'crontab_access_token';
+        $setting->content     = $accessToken;
         if (!$setting->save()) {
             Error($setting->getErrorMsg());
         }
@@ -67,7 +67,7 @@ class CrontabController extends BasicsModules implements Map
 
     private function checkAccessToken()
     {
-        $appid =  \Yii::$app->request->get('appid');
+        $appid = \Yii::$app->request->get('appid');
         if (!$appid) {
             Error('店铺AppID不存在');
         }
@@ -76,7 +76,7 @@ class CrontabController extends BasicsModules implements Map
             Error('店铺不存在');
         }
         \Yii::$app->params = json_decode(file_get_contents($file), true);
-        $accessToken = \Yii::$app->request->get('access_token');
+        $accessToken       = \Yii::$app->request->get('access_token');
         if (!$accessToken) {
             Error('定时任务access_token不存在');
         }

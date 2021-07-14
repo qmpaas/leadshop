@@ -24,9 +24,9 @@ class WechatSubscribe extends Common
         $api = "https://api.weixin.qq.com/wxaapi/newtmpl/addtemplate?access_token={$this->access_token}";
 
         $result = Tools::httpPost($api, Tools::json_encode([
-            'tid' => $tid,
-            'kidList' => $kidList,
-            'sceneDesc' => $sceneDesc
+            'tid'       => $tid,
+            'kidList'   => $kidList,
+            'sceneDesc' => $sceneDesc,
         ]), true);
         if ($result) {
             $json = json_decode($result, true);
@@ -52,7 +52,7 @@ class WechatSubscribe extends Common
         if (!$this->access_token && !$this->getAccessToken()) {
             return false;
         }
-        $api = "https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxaapi/newtmpl/deltemplate?access_token={$this->access_token}";
         $result = Tools::httpPost($api, Tools::json_encode([
             'priTmplId' => $priTmplId,
         ]));
@@ -79,7 +79,7 @@ class WechatSubscribe extends Common
         if (!$this->access_token && !$this->getAccessToken()) {
             return false;
         }
-        $api = "https://api.weixin.qq.com/wxaapi/newtmpl/getcategory?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxaapi/newtmpl/getcategory?access_token={$this->access_token}";
         $result = Tools::httpGet($api);
         if ($result) {
             $json = json_decode($result, true);
@@ -105,7 +105,7 @@ class WechatSubscribe extends Common
         if (!$this->access_token && !$this->getAccessToken()) {
             return false;
         }
-        $api = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatekeywords?access_token={$this->access_token}";
         $result = Tools::httpGet($api . '&tid=' . $tid);
         if ($result) {
             $json = json_decode($result, true);
@@ -136,7 +136,7 @@ class WechatSubscribe extends Common
         if ($limit >= 30) {
             $limit = 30;
         }
-        $api = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxaapi/newtmpl/getpubtemplatetitles?access_token={$this->access_token}";
         $result = Tools::httpGet($api);
         if ($result) {
             $json = json_decode($result, true);
@@ -161,7 +161,7 @@ class WechatSubscribe extends Common
         if (!$this->access_token && !$this->getAccessToken()) {
             return false;
         }
-        $api = "https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxaapi/newtmpl/gettemplate?access_token={$this->access_token}";
         $result = Tools::httpGet($api);
         if ($result) {
             $json = json_decode($result, true);
@@ -245,7 +245,7 @@ class WechatSubscribe extends Common
         if (!$this->access_token && !$this->getAccessToken()) {
             return false;
         }
-        $api = "https://api.weixin.qq.com/wxa/generatescheme?access_token={$this->access_token}";
+        $api    = "https://api.weixin.qq.com/wxa/generatescheme?access_token={$this->access_token}";
         $result = Tools::httpPost($api, Tools::json_encode($args));
         if ($result) {
             $json = json_decode($result, true);

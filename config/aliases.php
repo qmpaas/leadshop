@@ -2,8 +2,8 @@
 /**
  * @Author: qinuoyun
  * @Date:   2021-01-05 10:39:18
- * @Last Modified by:   wiki
- * @Last Modified time: 2021-02-01 18:30:46
+ * @Last Modified by:   qinuoyun
+ * @Last Modified time: 2021-06-28 13:30:49
  */
 
 return [
@@ -59,5 +59,9 @@ return [
     '@subscribe/models'   => '@leadmall/modules/subscribe/models',
     '@coupon/models'      => '@leadmall/modules/coupon/models',
     '@collect/models'     => '@leadmall/modules/collect/models',
+
+    '@basics/common'      => '@leadmall/modules/basics/common',
+
     '@live/models'        => '@leadmall/modules/live/models',
+
 ];

@@ -193,8 +193,10 @@ class IndexController extends BasicController
     {
         $post      = Yii::$app->request->post();
         $calculate = Yii::$app->request->get('calculate', false);
-        $list      = $this->build(); //预创建订单
 
+        $list = $this->build(); //预创建订单
+
+        //先是指向预请求
         if ($calculate == 'calculate') {
             //订单预提交页面信息
             $return_data = $list[1];
@@ -210,11 +212,17 @@ class IndexController extends BasicController
         $AppID  = Yii::$app->params['AppID'];
         $source = Yii::$app->params['AppType'];
 
-        $transaction      = Yii::$app->db->beginTransaction(); //启动数据库事务
-        $order_list       = [];
-        $pay_total_amount = 0; //拆单时统一支付金额
+        $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
+        $order_list  = [];
+        //拆单时统一支付金额
+        $pay_total_amount = 0;
+        //新增积分任务统计总支付积分
+        $score_total_amount = 0;
+
         foreach ($list as $order_data) {
             $pay_total_amount += $order_data['pay_amount'];
+            //统计积分总支出
+            $score_total_amount += $order_data['total_score'] ?? 0;
 
             $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $order_data['merchant_id'], 'AppID' => $AppID])->select('content')->asArray()->one();
             if ($setting_data) {
@@ -236,7 +244,14 @@ class IndexController extends BasicController
             $order_data['type']     = $post['type'] ?? '';
             $order_data['status']   = 100;
             $order_data['source']   = $source ?? '';
-            $model                  = M('order', 'Order', true);
+
+            /**
+             * 添加积分统计
+             */
+            //@增加积分商品订单字段
+            $order_data['score_amount'] = $score_total_amount;
+
+            $model = M('order', 'Order', true);
             $model->setScenario('create');
             $model->setAttributes($order_data);
             if ($model->validate()) {
@@ -334,9 +349,59 @@ class IndexController extends BasicController
 
         $return_data['pay_total_amount'] = $pay_total_amount;
 
+        if ($model->type == "task") {
+            //判断积分够不够
+            $TaskUserModel = '\plugins\task\models\TaskUser';
+            $TaskUser      = $TaskUserModel::find()->where(["UID" => $UID])->one();
+
+            if (!$TaskUser || $TaskUser->number < $pay_total_amount) {
+                Error("当前积分余额：" . $TaskUser->number, 416);
+            }
+        }
+
         //执行下单事件
         $this->module->event->order_goods = $post['goods_data'];
-        $this->module->trigger('add_order');
+
+        //执行下单减库存
+        if ($this->is_task()) {
+            //插件模式下事件问题还没解决暂时直接写
+            foreach ($post['goods_data'] as $value) {
+                $GoodsData     = 'goods\models\GoodsData';
+                $taskGoodsData = 'plugins\task\models\TaskGoods';
+                $GoodsData::updateAllCounters(['task_stock' => (0 - $value['goods_number'])], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
+                $taskGoodsData::updateAllCounters(['task_stock' => (0 - $value['goods_number'])], ['id' => $value['goods_id']]);
+            }
+        } else {
+            //普通订单这里处理
+            $this->module->trigger('add_order');
+        }
+
+        // //判断插件已经安装，则执行
+        // if ($this->plugins("task", "status")) {
+        //     //判断是否积分订单
+        //     if ($score_total_amount > 0) {
+        //         //执行下单操作减积分操作
+        //         $this->plugins("task", ["order", [
+        //             $score_total_amount,
+        //             $UID,
+        //             $return_data['order_sn'],
+        //             "order",
+        //         ]]);
+        //     }
+
+        //     //执行下单操作
+        //     $this->plugins("task", ["score", [
+        //         "goods",
+        //         $pay_total_amount,
+        //         $UID,
+
+        //     ]]);
+        //     //执行下单操作
+        //     $this->plugins("task", ["score", [
+        //         "order",
+        //         $pay_total_amount,
+        //     ]]);
+        // }
 
         if ($pay_total_amount == 0) {
             $free_res = $this->freePay($return_data);
@@ -354,11 +419,48 @@ class IndexController extends BasicController
     {
         $order_sn = $order_info['order_sn'] ?? null;
         $model    = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
+
+        Yii::info('判断插件是否安装' . $this->plugins("task", "status"));
+        Yii::info('读取积分支付信息' . $model->total_score);
+        Yii::info('读取积分支付总价' . $model->total_amount);
+        Yii::info('读取积分支付订单' . $order_sn);
+        Yii::info('读取积分支付用户' . $model->UID);
+
         if ($model && $model->status < 201) {
             $model->status   = 201;
             $model->pay_type = '';
             $model->pay_time = time();
             if ($model->save()) {
+
+                //判断插件已经安装，则执行
+                if ($this->plugins("task", "status")) {
+                    //判断是否积分订单
+                    if ($model->total_score > 0) {
+                        //执行下单操作减积分操作
+                        $this->plugins("task", ["order", [
+                            $model->total_score,
+                            $model->UID,
+                            $order_sn,
+                            "order",
+                        ]]);
+                    }
+                    //执行下单操作
+                    $this->plugins("task", ["score", [
+                        "goods",
+                        0,
+                        $model->UID,
+                        $order_sn,
+
+                    ]]);
+                    //执行下单操作
+                    $this->plugins("task", ["score", [
+                        "order",
+                        $model->total_amount,
+                        $model->UID,
+                        $order_sn,
+                    ]]);
+                }
+
                 $this->module->event->pay_order_sn = $order_sn;
                 $this->module->event->pay_uid      = $model->UID;
                 $this->module->trigger('pay_order');
@@ -433,13 +535,22 @@ class IndexController extends BasicController
         $model->cancel_time = time();
 
         if ($model->save()) {
-
             //执行取消订单事件
-            $order_goods                             = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->select('goods_id,goods_param,goods_number')->asArray()->all();
-            $this->module->event->cancel_order_goods = $order_goods;
-            $this->module->event->cancel_order_sn    = $model->order_sn;
-            $this->module->trigger('cancel_order');
+            $order_goods = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->select('goods_id,goods_param,goods_number')->asArray()->all();
 
+            //插件模式下事件问题还没解决暂时直接写
+            if ($model->type == 'task') {
+                foreach ($order_goods as $value) {
+                    $GoodsData     = 'goods\models\GoodsData';
+                    $taskGoodsData = 'plugins\task\models\TaskGoods';
+                    $GoodsData::updateAllCounters(['task_stock' => $value['goods_number']], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
+                    $taskGoodsData::updateAllCounters(['task_stock' => $value['goods_number']], ['id' => $value['goods_id']]);
+                }
+            } else {
+                $this->module->event->cancel_order_goods = $order_goods;
+                $this->module->event->cancel_order_sn    = $model->order_sn;
+                $this->module->trigger('cancel_order');
+            }
             return true;
         } else {
             Error('操作失败');
@@ -497,15 +608,60 @@ class IndexController extends BasicController
         switch ($type) {
             //商城订单
             case 'shop_order':
-                $result = $this->buildGoods();
+                $result = [];
+                if ($this->is_task()) {
+                    $result = $this->buildGoodsTask();
+                } else {
+                    $result = $this->buildGoods();
+                }
                 foreach ($result as $merchant_id => $value) {
-                    $return_data[$merchant_id] = $this->buildAmount($value, $consignee_info, $merchant_id);
+                    //判断此处处理价格计算
+                    if ($this->is_task()) {
+                        $return_data[$merchant_id] = $this->buildAmountTask($value, $consignee_info, $merchant_id);
+
+                        // $UID = Yii::$app->user->identity->id;
+                        // //判断积分够不够
+                        // $TaskUserModel = '\plugins\task\models\TaskUser';
+                        // $TaskUser      = $TaskUserModel::find()->where(["UID" => $UID])->one();
+
+                        // //跳转积分处理
+                        // if (!$TaskUser || $TaskUser->number < $return_data[$merchant_id]['total_score']) {
+                        //     Error("当前积分余额：" . $TaskUser->number, 416);
+                        // }
+
+                    } else {
+                        $return_data[$merchant_id] = $this->buildAmount($value, $consignee_info, $merchant_id);
+                    }
                 }
 
                 break;
 
         }
         return $return_data;
+    }
+
+    /**
+     * 用于判断是否为积分商品
+     * @return boolean [description]
+     */
+    public function is_task()
+    {
+        $task = Yii::$app->request->get('task', false); //判断是否是预请求
+        if ($task == 'false') {
+            $task = false;
+        }
+
+        if ($task == false) {
+            $type = Yii::$app->request->post('type', false);
+            if ($type == 'task') {
+                $task = true;
+            }
+        }
+        if ($this->plugins("task", "status")) {
+            return $task;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -654,12 +810,210 @@ class IndexController extends BasicController
                         } else {
                             $show_goods_param .= $goods_param[$key] . ' ';
                         }
-
                     }
 
                     $v['goods_name']       = $value['name'];
                     $v['show_goods_param'] = $show_goods_param;
                     $v['goods_price']      = $goods_info[$v['goods_param']]['price'];
+                    $v['goods_cost_price'] = $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
+                    $v['goods_weight']     = $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
+                    $v['goods_image']      = $goods_image;
+                    $v['freight']          = $value['freight'];
+                    $v['package']          = $value['package'];
+                    $v['ft_type']          = $value['ft_type'];
+                    $v['ft_price']         = $value['ft_price'];
+                    if ($calculate == 'calculate') {
+                        $v['failure_reason'] = $failure_reason;
+                        $v['failure_number'] = $failure_number;
+                    }
+
+                    if (array_key_exists($value['merchant_id'], $return_data)) {
+                        array_push($return_data[$value['merchant_id']], $v);
+                    } else {
+                        $return_data[$value['merchant_id']] = [$v];
+                    }
+                }
+            }
+        }
+
+        return $return_data;
+    }
+
+    /**
+     * 商品库存检测及处理
+     * @return [type] [description]
+     */
+    public function buildGoodsTask()
+    {
+        $calculate  = Yii::$app->request->get('calculate', false); //判断是否是预请求
+        $UID        = Yii::$app->user->identity->id;
+        $goods_data = Yii::$app->request->post('goods_data', []);
+
+        if (empty($goods_data)) {
+            Error('商品为空');
+        }
+
+        $goods_id = array_unique(array_column($goods_data, 'goods_id'));
+
+        //判断是否是任务中心下单
+        $goods_list = M('goods', 'Goods')::find()->where(['id' => $goods_id])->with(['param', 'freight', 'package', 'task'])->asArray()->all();
+
+        $return_data    = [];
+        $failure_reason = ''; //param规格不存在  is_sale下架  delete商品不存在  stocks库存不足  limit限购  min低于起购数
+        $failure_number = null;
+
+        $goods_data_number_count = [];
+        foreach ($goods_data as $goods) {
+            if (isset($goods_data_number_count[$goods['goods_id']])) {
+                $goods_data_number_count[$goods['goods_id']] += $goods['goods_number'];
+            } else {
+                $goods_data_number_count[$goods['goods_id']] = $goods['goods_number'];
+            }
+        }
+
+        foreach ($goods_list as $value) {
+
+            //判断是否有删除或者下架
+            if ($value['task']['goods_is_sale'] === 0) {
+                if ($calculate == 'calculate') {
+                    $failure_reason = $value['task']['goods_is_sale'] === 0 ? 'delete' : 'is_sale';
+                } else {
+                    Error($value['name'] . '不存在或已下架');
+                }
+            }
+
+            $value['freight']['freight_rules'] = $value['freight'] ? to_array($value['freight']['freight_rules']) : null;
+            $value['package']['free_area']     = $value['package'] ? to_array($value['package']['free_area']) : null;
+            $param_data                        = to_array($value['param']['param_data']);
+            $slideshow                         = to_array($value['slideshow']); //轮播图
+            $first_param_info                  = array_column($param_data[0]['value'], null, 'value'); //第一个规格信息
+
+            foreach ($goods_data as $v) {
+                //商品数据去除多余部分
+                $v = [
+                    'goods_id'     => $v['goods_id'],
+                    'goods_sn'     => $v['goods_sn'],
+                    'goods_param'  => $v['goods_param'],
+                    'goods_number' => $v['goods_number'],
+                ];
+
+                //购买商品和商品列表一一匹配
+                if ($v['goods_id'] == $value['id']) {
+                    //商品规格信息
+                    $goods_info = array_column($value['param']['goods_data'], null, 'param_value');
+
+                    if (!isset($goods_info[$v['goods_param']])) {
+                        if ($calculate == 'calculate') {
+                            $failure_reason = 'param';
+                        } else {
+                            Error($value['name'] . '不存在' . $v['goods_param']);
+                        }
+                    }
+
+                    /**
+                     * 用于判断处理积分商品
+                     */
+                    if ($goods_info[$v['goods_param']]['task_stock'] < $v['goods_number']) {
+                        if ($calculate == 'calculate') {
+                            $failure_reason = 'stocks';
+                        } else {
+                            Error("积分商品" . $value['name'] . '库存不足');
+                        }
+                    }
+
+                    /**
+                     * 判断兑换限制是否存在
+                     */
+                    if ($goods_info[$v['goods_param']]['task_limit']) {
+                        if ($goods_info[$v['goods_param']]['task_limit'] > 0) {
+                            //限制兑换-1 处理当前
+                            if ($goods_info[$v['goods_param']]['task_limit'] < $v['goods_number']) {
+                                if ($calculate == 'calculate') {
+                                    $failure_reason = 'limit';
+                                } else {
+                                    Error("购买数量超过兑换限制数件");
+                                }
+                            }
+                        }
+
+                        //限购兑换-2 处理用户已购
+                        $UID          = Yii::$app->user->identity->id;
+                        $goods_number = M('order', 'OrderGoods')::find()
+                            ->alias('goods')
+                            ->joinWith([
+                                'order as order',
+                            ])
+                            ->where(['and', ['>', 'order.status', 200], [
+                                'order.UID'         => $UID,
+                                'order.type'        => 'task',
+                                'goods.goods_id'    => $value['id'],
+                                'goods.goods_param' => $v['goods_param'],
+                            ]])
+                            ->SUM('goods.goods_number');
+
+                        //算上当前购买量后的购买总数
+                        if (($goods_number + $v['goods_number']) > $goods_info[$v['goods_param']]['task_limit']) {
+                            if ($calculate == 'calculate') {
+                                $failure_reason = 'limit';
+                                $failure_number = $goods_info[$v['goods_param']]['task_limit'];
+                            } else {
+                                $can_buy_num = $goods_info[$v['goods_param']]['task_limit'] - $goods_number;
+                                if ($can_buy_num <= 0) {
+                                    Error('您兑换' . $value['name'] . '已达上限');
+                                } else {
+                                    Error('您还可以购买' . $value['name'] . ' ' . $can_buy_num . ' 份');
+                                }
+                            }
+                        }
+                    }
+
+                    /**
+                     * 判断是否为0
+                     */
+                    if ($goods_info[$v['goods_param']]['task_limit'] === 0) {
+                        if ($calculate == 'calculate') {
+                            $failure_reason = 'limit';
+                        } else {
+                            Error("购买数量超过兑换限制数件");
+                        }
+                    }
+
+                    //判断积分够不够
+                    $TaskUserModel = '\plugins\task\models\TaskUser';
+                    $TaskUser      = $TaskUserModel::find()->where(["UID" => $UID])->one();
+
+                    $total_score = $goods_info[$v['goods_param']]['task_number'] * $v['goods_number'];
+                    Yii::info('出发余额计算方式:' . $total_score);
+                    Yii::info('出发用户余额:' . $TaskUser->number);
+                    //跳转积分处理
+                    if (!$TaskUser || $TaskUser->number < $total_score) {
+                        if ($calculate == 'calculate') {
+                            $failure_reason = to_json([
+                                'score' => $TaskUser->number,
+                                'msg'   => "当前积分余额：" . $TaskUser->number,
+                            ]);
+                        } else {
+                            Error("当前积分余额：" . $TaskUser->number, 416);
+                        }
+                    }
+
+                    $first_param = explode('_', $v['goods_param'])[0]; //第一个规格
+                    $goods_image = $param_data[0]['image_status'] && $first_param_info[$first_param]['image'] ? $first_param_info[$first_param]['image'] : $slideshow[0]; //存在规格图片则使用,不存在使用第一张轮播图
+
+                    $show_goods_param = '';
+                    $goods_param      = explode('_', $v['goods_param']);
+                    foreach ($param_data as $key => $param_info) {
+                        if ($param_info['name']) {
+                            $show_goods_param .= $param_info['name'] . '：' . $goods_param[$key] . ' ';
+                        } else {
+                            $show_goods_param .= $goods_param[$key] . ' ';
+                        }
+                    }
+
+                    $v['goods_name']       = $value['name'];
+                    $v['show_goods_param'] = $show_goods_param;
+                    $v['goods_score']      = $goods_info[$v['goods_param']]['task_number'] ?? 0;
+                    $v['goods_price']      = $goods_info[$v['goods_param']]['task_price'];
                     $v['goods_cost_price'] = $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
                     $v['goods_weight']     = $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
                     $v['goods_image']      = $goods_image;
@@ -709,6 +1063,50 @@ class IndexController extends BasicController
 
         $total_amount = $goods_amount + $freight_amount;
         $return_data  = [
+            'total_amount'   => $total_amount,
+            'goods_amount'   => $goods_amount,
+            'pay_amount'     => $total_amount,
+            'freight_amount' => $freight_amount,
+            'coupon_reduced' => 0,
+            'merchant_id'    => $merchant_id,
+            'goods_data'     => $goods,
+        ];
+
+        $return_data = $this->buildReducePrice($return_data);
+
+        return $return_data;
+
+    }
+
+    /**
+     * 金额计算
+     * @return [type] [description]
+     */
+    public function buildAmountTask($goods, $consignee_info, $merchant_id)
+    {
+        $freight_data   = $this->buildFreightPrice($goods, $consignee_info);
+        $goods_amount   = $freight_data['goods_amount']; //商品总金额
+        $freight_amount = $freight_data['freight_amount']; //总运费
+        //累计计算积分
+        $total_score = 0;
+        foreach ($goods as $key => &$value) {
+            $goods_price = $value['goods_number'] * $value['goods_price'];
+            $goods_score = $value['goods_number'] * $value['goods_score'];
+            unset($value['freight']);
+            unset($value['package']);
+            unset($value['ft_type']);
+            unset($value['ft_price']);
+            $value['total_amount']   = $goods_price;
+            $value['pay_amount']     = $goods_price;
+            $value['score_amount']   = $goods_score;
+            $value['coupon_reduced'] = 0;
+            //处理积分统计
+            $total_score += $goods_score;
+        }
+
+        $total_amount = $goods_amount + $freight_amount;
+        $return_data  = [
+            'total_score'    => $total_score,
             'total_amount'   => $total_amount,
             'goods_amount'   => $goods_amount,
             'pay_amount'     => $total_amount,

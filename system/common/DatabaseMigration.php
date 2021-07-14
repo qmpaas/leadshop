@@ -1,9 +1,9 @@
 <?php
 /**
- * @Author: qinuoyun
- * @Date:   2020-08-20 13:46:09
- * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-06-15 10:34:55
+ * 数据管理文件
+ * @link http://www.Leadshop.com/
+ * @copyright Copyright (c) 2020 Leadshop Software LLC
+ * @license http://www.Leadshop.com/license/
  */
 namespace framework\common;
 
@@ -107,7 +107,6 @@ class DatabaseMigration extends Migration
             case 'comment':
                 return "comment";
                 break;
-
             //是否主键
             case 'key':
             case 'primaryKey':
@@ -130,6 +129,8 @@ class DatabaseMigration extends Migration
             //文本
             case 'text':
                 return 'text';
+            case 'longtext':
+                return 'longtext';
                 break;
             //长文本
             case 'longtext':

@@ -24,17 +24,17 @@ class OrderSendMessage extends BaseSubscribeMessage
     public function msg()
     {
         return [
-            'thing7' => [
-                'value' => $this->expressName
+            'thing7'            => [
+                'value' => $this->expressName,
             ],
             'character_string4' => [
-                'value' => $this->expressNo
+                'value' => $this->expressNo,
             ],
-            'thing11' => [
-                'value' => $this->address
+            'thing11'           => [
+                'value' => $this->address,
             ],
             'character_string1' => [
-                'value' => $this->orderNo
+                'value' => $this->orderNo,
             ],
         ];
     }

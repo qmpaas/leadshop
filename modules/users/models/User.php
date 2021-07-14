@@ -7,10 +7,11 @@
 
 namespace users\models;
 
+use framework\common\CommonModels;
 use sizeg\jwt\Jwt;
 use Yii;
-use \framework\common\TokenHttpException;
 use yii\web\UnauthorizedHttpException;
+use \framework\common\TokenHttpException;
 
 /**
  * This is the model class for table "{{%user}}".
@@ -29,13 +30,16 @@ use yii\web\UnauthorizedHttpException;
  * @property int $deleted_time 删除事件
  * @property Oauth $oauth 删除事件
  */
-class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
+class User extends CommonModels implements \yii\web\IdentityInterface
 {
 
     const id           = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
     const nickname     = ['varchar' => 50, 'notNull', 'comment' => '昵称'];
     const mobile       = ['bigint' => 11, 'comment' => '手机号'];
     const realname     = ['varchar' => 50, 'comment' => '真实姓名'];
+    const birthday     = ['varchar' => 50, 'comment' => '生日'];
+    const area         = ['varchar' => 255, 'comment' => '地区'];
+    const wechat       = ['varchar' => 50, 'comment' => '微信号'];
     const avatar       = ['varchar' => 255, 'comment' => '头像'];
     const gender       = ['tinyint' => 1, 'default' => 0, 'comment' => '性别 0未知 1男 2女'];
     const status       = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '帐号状态 0正常  1禁用'];
@@ -86,7 +90,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function scenarios()
     {
         $scenarios            = parent::scenarios();
-        $scenarios['setting'] = ['mobile', 'realname'];
+        $scenarios['setting'] = ['mobile', 'realname', 'wechat', 'birthday', 'area'];
 
         return $scenarios;
     }
@@ -101,7 +105,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             'nickname' => '昵称',
             'avatar'   => '头像',
             'gender'   => '性别',
-            'realname' => '真实姓名',
+            'birthday' => '生日',
+            'area'     => '地区',
+            'wechat'   => '微信号',
         ];
     }
 
@@ -180,12 +186,25 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->hasOne(Oauth::className(), ['UID' => 'id']);
     }
 
+    public function getScore()
+    {
+        $Score = 'plugins\task\models\TaskScore';
+        return $this->hasOne($Score::className(), ['UID' => 'id']);
+    }
+
+    public function getTaskuser()
+    {
+        $TaskUser = 'plugins\task\models\TaskUser';
+        return $this->hasOne($TaskUser::className(), ['UID' => 'id']);
+    }
+
     public function getLabellog()
     {
         return $this->hasMany(LabelLog::className(), ['UID' => 'id'])->select('id,UID,label_id');
     }
 
-    public function getCoupon(){
-        return $this->hasMany('coupon\models\UserCoupon',['UID'=>'id']);
+    public function getCoupon()
+    {
+        return $this->hasMany('coupon\models\UserCoupon', ['UID' => 'id']);
     }
 }

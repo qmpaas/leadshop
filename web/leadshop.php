@@ -1,10 +1,9 @@
 <?php
 /**
- * @Author: qinuoyun
- * @Date:   2021-05-27 09:55:15
- * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-06-16 16:39:17
- * @Version 1.2.6
+ * 核心文件
+ * @link http://www.Leadshop.com/
+ * @copyright Copyright (c) 2020 Leadshop Software LLC
+ * @license http://www.Leadshop.com/license/
  */
 ini_set("display_errors", "Off");
 error_reporting(E_ALL);

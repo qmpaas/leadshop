@@ -32,7 +32,7 @@ class OrderPay extends CommonModels
     public function rules()
     {
         return [
-            [['pay_sn', 'order_list', 'total_amount','AppID'], 'required', 'message' => '{attribute}不能为空'],
+            [['pay_sn', 'order_list', 'total_amount', 'AppID'], 'required', 'message' => '{attribute}不能为空'],
         ];
     }
 

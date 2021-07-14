@@ -71,7 +71,7 @@ function chooseWXPay({
         },
         fail: function (err) {
             fail && fail(err);
-            console.error(err);
+           
         },
         cancel: function (res) {
             cancel && cancel(res);

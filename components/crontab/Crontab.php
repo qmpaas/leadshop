@@ -33,14 +33,33 @@ class Crontab extends Component
                 if (!$crontab->enable) {
                     continue;
                 }
+                $name = $this->getClassName($crontab);
+                $cacheKey = 'LEADSHOP_CRONTAB_BY_' . $name;
+                $res = \Yii::$app->cache->get($cacheKey);
+                if ($res) {
+                    \Yii::info('===定时任务' . $crontab->name() . '限流中===');
+                    continue;
+                }
                 \Yii::info('===执行定时任务' . $crontab->name() . '开始===');
                 $crontab->doCrontab();
+                \Yii::$app->cache->set($cacheKey, true, $crontab->limit);
                 \Yii::info('===执行定时任务' . $crontab->name() . '成功===');
             } catch (\Exception $e) {
                 \Yii::error('===执行定时任务' . $crontab->name() . '失败===');
                 \Yii::error($e);
             }
         }
+    }
+
+    /**
+     * 获取类名称（去除命名空间）
+     * @param BaseCrontab $crontab
+     * @return string
+     */
+    private function getClassName(BaseCrontab $crontab)
+    {
+        $class = is_object($crontab) ? get_class($crontab) : $crontab;
+        return basename(str_replace('\\', '/', $class));
     }
 
     /**

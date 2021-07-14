@@ -22,8 +22,12 @@ class OrderAfter extends CommonModels
     const source                = ['varchar' => 50, 'notNull', 'comment' => '来源'];
     const return_number         = ['int' => 10, 'notNull', 'default' => 1, 'comment' => '退货数量'];
     const return_amount         = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '退款金额'];
+    const return_score          = ['bigint' => 20, 'default' => 0, 'comment' => '退款积分'];
+    const return_score_type     = ['tinyint' => 1, 'default' => 0, 'comment' => '0不退积分 1退积分'];
     const actual_refund         = ['decimal' => '10,2', 'comment' => '实际退款'];
+    const actual_score          = ['bigint' => 20, 'comment' => '实际退还积分'];
     const return_reason         = ['varchar' => 255, 'comment' => '退货原因'];
+    const order_type            = ['varchar' => 255, 'default' => 'base', 'comment' => '订单类型'];
     const images                = ['text' => 0, 'comment' => '说明图片'];
     const status                = ['smallint' => 3, 'notNull', 'default' => 100, 'comment' => '100待审核 101首次拒绝 102再次提交待审核  111审核通过待退款 121审核通过待买家发货 122买家发货待商家收货退款 131审核通过待买家发货 132买家发货待商家收货  133商家换货(买家待收)  200售后已完成  201两次拒绝之后完成'];
     const return_address        = ['text' => 0, 'comment' => '退货地址'];
@@ -89,7 +93,7 @@ class OrderAfter extends CommonModels
     public function scenarios()
     {
         $scenarios           = parent::scenarios();
-        $scenarios['create'] = ['order_sn', 'after_sn', 'UID', 'order_goods_id', 'return_amount', 'return_number', 'merchant_id', 'type', 'user_note', 'images', 'status', 'source', 'AppID', 'return_reason', 'process'];
+        $scenarios['create'] = ['order_sn', 'after_sn', 'UID', 'order_goods_id', 'return_amount', 'return_number', 'merchant_id', 'type', 'user_note', 'images', 'status', 'source', 'AppID', 'return_reason', 'process', 'return_score', 'order_type', 'return_score_type'];
 
         return $scenarios;
     }
@@ -100,17 +104,18 @@ class OrderAfter extends CommonModels
     public function attributeLabels()
     {
         return [
-            'order_sn'       => '订单编号',
-            'after_sn'       => '售后编号',
-            'UID'            => '用户ID',
-            'order_goods_id' => '订单商品ID',
-            'type'           => '售后类型',
-            'return_number'  => '售后数量',
-            'return_amount'  => '售后金额',
-            'return_reason'  => '退货原因',
-            'user_note'      => '用户备注',
-            'source'         => '来源',
-            'process'        => '流程',
+            'order_sn'          => '订单编号',
+            'after_sn'          => '售后编号',
+            'UID'               => '用户ID',
+            'order_goods_id'    => '订单商品ID',
+            'type'              => '售后类型',
+            'return_number'     => '售后数量',
+            'return_amount'     => '售后金额',
+            'return_reason'     => '退货原因',
+            'return_score_type' => '售后订单类型',
+            'user_note'         => '用户备注',
+            'source'            => '来源',
+            'process'           => '流程',
         ];
     }
 
@@ -120,7 +125,7 @@ class OrderAfter extends CommonModels
      */
     public function getGoods()
     {
-        return $this->hasOne('order\models\OrderGoods', ['id' => 'order_goods_id'])->select('id,order_sn,freight_sn,goods_name,goods_id,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales');
+        return $this->hasOne('order\models\OrderGoods', ['id' => 'order_goods_id'])->select('id,order_sn,freight_sn,goods_name,goods_id,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount');
     }
 
     /**

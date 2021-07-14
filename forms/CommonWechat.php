@@ -69,9 +69,9 @@ class CommonWechat extends BaseObject
             return $this->xWechatPay;
         }
         if ($option) {
-            $payType['appid'] = $option['appid'];
-            $payType['mchid'] = $option['mchid'];
-            $payType['key'] = $option['key'];
+            $payType['appid'] = trim($option['appid']);
+            $payType['mchid'] = trim($option['mchid']);
+            $payType['key'] = trim($option['key']);
             $payType['certPem'] = $option['certPem'];
             $payType['keyPem'] = $option['keyPem'];
             $payType['isService'] = false;
@@ -101,9 +101,9 @@ class CommonWechat extends BaseObject
                     list($sslCer, $sslKey) = $this->generatePem($payType['certPem'], $payType['keyPem']);
                 }
                 $this->xWechatPay = load_wechat('Pay',[
-                    'appid'          => $payType['appid'],
-                    'mch_id'         => $payType['mchid'],
-                    'partnerkey'     => $payType['key'],
+                    'appid'          => trim($payType['appid']),
+                    'mch_id'         => trim($payType['mchid']),
+                    'partnerkey'     => trim($payType['key']),
                     'ssl_cer'        => $sslCer ?? '',
                     'ssl_key'        => $sslKey ?? ''
                 ]);

@@ -58,7 +58,7 @@ class AfterController extends BasicController
 
         $list = $data->getModels();
         foreach ($list as $key => &$value) {
-            $value['images']                  = to_array($value['images']);
+            $value['images'] = to_array($value['images']);
         }
         //将所有返回内容中的本地地址代替字符串替换为域名
         $list = str2url($list);
@@ -98,10 +98,10 @@ class AfterController extends BasicController
             ->asArray()
             ->one();
         if ($result) {
-            $result['images']                  = to_array($result['images']);
-            $result['return_address']          = to_array($result['return_address']);
-            $result['user_freight_info']       = to_array($result['user_freight_info']);
-            $result['merchant_freight_info']   = to_array($result['merchant_freight_info']);
+            $result['images']                = to_array($result['images']);
+            $result['return_address']        = to_array($result['return_address']);
+            $result['user_freight_info']     = to_array($result['user_freight_info']);
+            $result['merchant_freight_info'] = to_array($result['merchant_freight_info']);
             return str2url($result);
         } else {
             Error('售后不存在');
@@ -132,17 +132,24 @@ class AfterController extends BasicController
 
         $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
 
-        $merchant_id         = 1;
-        $AppID               = Yii::$app->params['AppID'];
-        $source              = Yii::$app->params['AppType'];
-        $UID                 = Yii::$app->user->identity->id;
-        $post                = Yii::$app->request->post();
-        $post                = url2str($post);
-        $post['images']      = to_json($post['images']);
-        $post['order_sn']    = $order_sn;
-        $post['UID']         = $UID;
-        $post['AppID']       = $AppID;
-        $post['source']      = $source;
+        $merchant_id      = 1;
+        $AppID            = Yii::$app->params['AppID'];
+        $source           = Yii::$app->params['AppType'];
+        $UID              = Yii::$app->user->identity->id;
+        $post             = Yii::$app->request->post();
+        $post             = url2str($post);
+        $post['images']   = to_json($post['images']);
+        $post['order_sn'] = $order_sn;
+        $post['UID']      = $UID;
+        $post['AppID']    = $AppID;
+        $post['source']   = $source;
+
+        ///判断是否要创建积分售后
+        if ($this->plugins("task", "status") && $order_info->type = "task") {
+            $post['return_score_type'] = $this->plugins("task", "config.integral_return");
+        }
+        // $post['return_score_type'] = 1;
+
         $post['merchant_id'] = $merchant_id;
 
         //判断是否是第一次提交被拒绝,是则修改提交信息,不是则创建一条记录
@@ -152,19 +159,19 @@ class AfterController extends BasicController
                 Error('非法操作');
             }
             $post['status'] = 102;
-            $process = to_array($model->process);
+            $process        = to_array($model->process);
             array_unshift($process, ['label' => '买家', 'content' => '再次申请售后 ' . date('Y-m-d H:i:s', time())]);
         } else {
             $process = [
-            [
-                "label"   => "买家",
-                "content" => "申请售后 " . date('Y-m-d H:i:s', time()),
-            ],
-        ];
+                [
+                    "label"   => "买家",
+                    "content" => "申请售后 " . date('Y-m-d H:i:s', time()),
+                ],
+            ];
             $post['after_sn'] = get_sn('asn');
             $model            = new $this->modelClass;
         }
-        $post['process']     = to_json($process);
+        $post['process'] = to_json($process);
 
         $model->setScenario('create');
         $model->setAttributes($post);
@@ -192,11 +199,11 @@ class AfterController extends BasicController
 
                     $setting = Setting::findOne(['AppID' => Yii::$app->params['AppID'], 'merchant_id' => 1, 'keyword' => 'sms_setting', 'is_deleted' => 0]);
                     if ($setting && $setting['content']) {
-                        $mobiles = json_decode($setting['content'], true);
+                        $mobiles                  = json_decode($setting['content'], true);
                         $this->module->event->sms = [
-                            'type' => 'order_refund',
+                            'type'   => 'order_refund',
                             'mobile' => $mobiles['mobile_list'] ?? [],
-                            'params' => []
+                            'params' => [],
                         ];
                         $this->module->trigger('send_sms');
                     }
@@ -332,8 +339,8 @@ class AfterController extends BasicController
         // } else {
         //     $res1 = M('order', 'Order')::updateAll(['after_sales' => 0], ['order_sn' => $model->order_sn]);
         // }
-        $res2             = M('order', 'OrderGoods')::updateAll(['after_sales' => 0], ['id' => $model->order_goods_id]);
-        $res              = $model->delete();
+        $res2 = M('order', 'OrderGoods')::updateAll(['after_sales' => 0], ['id' => $model->order_goods_id]);
+        $res  = $model->delete();
         if ($res && $res2) {
             $transaction->commit();
             return true;

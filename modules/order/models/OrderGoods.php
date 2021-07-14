@@ -22,10 +22,12 @@ class OrderGoods extends CommonModels
     const show_goods_param = ['varchar' => 255, 'notNull', 'comment' => '商品展示规格'];
     const goods_param      = ['varchar' => 255, 'notNull', 'comment' => '商品规格'];
     const goods_price      = ['decimal' => '10,2', 'notNull', 'comment' => '商品价格'];
+    const goods_score      = ['bigint' => 10, 'notNull', 'default' => 0, 'comment' => '商品积分'];
     const goods_cost_price = ['decimal' => '10,2', 'comment' => '商品成本价格'];
     const goods_weight     = ['decimal' => '10,2', 'comment' => '商品重量'];
     const goods_number     = ['int' => 10, 'notNull', 'comment' => '商品数量'];
     const total_amount     = ['decimal' => '10,2', 'notNull', 'comment' => '总计金额'];
+    const score_amount     = ['bigint' => 10, 'default' => 0, 'comment' => '总计积分'];
     const pay_amount       = ['decimal' => '10,2', 'notNull', 'comment' => '实付金额'];
     const coupon_reduced   = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '优惠券优惠金额'];
     const after_sales      = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '0正常 1进行售后'];
@@ -119,7 +121,18 @@ class OrderGoods extends CommonModels
      */
     public function getGoods()
     {
-        return $this->hasOne('goods\models\Goods', ['id' => 'goods_id'])->select('id,group');
+        $Goods = 'goods\models\Goods';
+        return $this->hasOne($Goods::className(), ['id' => 'goods_id'])->select('id,group')->from(['g' => $Goods::tableName()]);
+    }
+
+    /**
+     * 物流信息
+     * @return [type] [description]
+     */
+    public function getTaskgoods()
+    {
+        $TaskGoods = 'plugins\task\models\TaskGoods';
+        return $this->hasOne($TaskGoods::className(), ['goods_id' => 'goods_id'])->from(['g' => $TaskGoods::tableName()]);
     }
 
 }

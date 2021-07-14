@@ -4,11 +4,12 @@
  * @Author: qinuoyun
  * @Date:   2020-08-20 13:43:40
  * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-05-18 08:54:03
+ * @Last Modified time: 2021-06-25 17:30:53
  */
 namespace framework\common;
 
 use yii\web\ForbiddenHttpException;
+use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\ServerErrorHttpException;
 
 class ErrorCentral
@@ -17,6 +18,8 @@ class ErrorCentral
     {
         if ($code == 403) {
             throw new ForbiddenHttpException($msg);
+        } elseif ($code == 416) {
+            throw new RangeNotSatisfiableHttpException($msg);
         } else {
             if ($type == 'wechat') {
                 throw new WechatHttpException($msg, $code);

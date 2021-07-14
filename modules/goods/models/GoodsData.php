@@ -19,6 +19,11 @@ class GoodsData extends CommonModels
     const cost_price   = ['decimal' => '10,2', 'default' => 0, 'comment' => '成本价'];
     const stocks       = ['int' => 10, 'notNull', 'default' => 0, 'comment' => '库存'];
     const weight       = ['decimal' => '10,2', 'default' => 0, 'comment' => '重量'];
+    const task_stock   = ['int' => 10, 'comment' => '兑换库存'];
+    const task_number  = ['bigint' => 10, 'comment' => '兑换积分'];
+    const task_price   = ['decimal' => '10,2', 'comment' => '兑换价格'];
+    const task_limit   = ['bigint' => 5, 'comment' => '兑换限制'];
+    const task_status  = ['tinyint' => 1, 'default' => 0, 'comment' => '是否上架：0 下架 1 上架'];
     const goods_sn     = ['varchar' => 50, 'comment' => '商品编号'];
     const created_time = ['bigint' => 10, 'comment' => '创建时间'];
     const updated_time = ['bigint' => 10, 'comment' => '修改时间'];

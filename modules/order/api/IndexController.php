@@ -30,7 +30,33 @@ class IndexController extends BasicController
 
     public function actionIndex()
     {
-        return '占位方法';
+        $id       = Yii::$app->request->get('id', false);
+        $order_sn = Yii::$app->request->get('order_sn', false);
+        $where    = ['is_recycle' => 0];
+        if ($id) {
+            $where = ['and', $where, ['id' => $id]];
+        }
+        if ($order_sn) {
+            $where = ['and', $where, ['order_sn' => $order_sn]];
+        }
+
+        $result = M()::find()
+            ->where($where)
+            ->with([
+                'buyer',
+                'goods',
+                'user',
+                'freight',
+            ])
+            ->asArray()
+            ->one();
+
+        if (empty($result)) {
+            Error('订单不存在');
+        }
+        $result                 = str2url($result);
+        $result['goods_amount'] = $result['goods_amount'] + $result['coupon_reduced'];
+        return $result;
     }
 
     public function actionTabcount()
@@ -126,7 +152,6 @@ class IndexController extends BasicController
                 case 'recycle': //回收站
                     $w = ['order.is_recycle' => 1, 'order.is_deleted' => 0];
                     break;
-
                 default: //默认获取全部
                     $w = ['order.is_recycle' => 0];
                     break;
@@ -199,6 +224,12 @@ class IndexController extends BasicController
         $source = $keyword['source'] ?? false;
         if ($source) {
             $where = ['and', $where, ['order.source' => $source]];
+        }
+
+        //订单类型
+        $type = $keyword['type'] ?? '';
+        if ($type) {
+            $where = ['and', $where, ['order.type' => $type]];
         }
 
         //支付方式
@@ -296,10 +327,18 @@ class IndexController extends BasicController
      */
     public function actionView()
     {
-        $id = Yii::$app->request->get('id', false);
+        $id       = Yii::$app->request->get('id', false);
+        $order_sn = Yii::$app->request->get('order_sn', false);
+        $where    = ['is_recycle' => 0];
+        if ($id) {
+            $where = ['and', $where, ['id' => $id]];
+        }
+        if ($order_sn) {
+            $where = ['and', $where, ['order_sn' => $order_sn]];
+        }
 
         $result = M()::find()
-            ->where(['id' => $id, 'is_recycle' => 0])
+            ->where($where)
             ->with([
                 'buyer',
                 'goods',

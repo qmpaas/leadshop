@@ -6,10 +6,9 @@
  */
 namespace system\models;
 
+use framework\common\AccessToken;
 use framework\common\CommonModels;
-use sizeg\jwt\Jwt;
 use Yii;
-use \framework\common\TokenHttpException;
 
 class Account extends CommonModels implements \yii\web\IdentityInterface
 {
@@ -73,37 +72,12 @@ class Account extends CommonModels implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token  = Yii::$app->jwt->getParser()->parse((string) $token);
-        $data   = Yii::$app->jwt->getValidationData();
-        $AppID  = Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '';
-        $host   = Yii::$app->request->hostInfo;
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-        $data->setIssuer($host);
-        $data->setAudience($origin);
-        $data->setId($AppID);
-        $data->setCurrentTime(time());
-        if ($token->validate($data)) {
-            $id = $token->getClaim('id');
-            if ($id) {
-                $data        = static::findOne($id);
-                $data->uid   = $id;
-                $data->token = (string) $token;
-                return $data;
-            } else {
-                return null;
-            }
-        } else {
-            if ($token->getClaim('jti') !== $AppID) {
-                throw new TokenHttpException('Leadshop应用ID验证错误', 419);
-            } else {
-                $data->setCurrentTime(time() - 21500);
-                if ($token->validate($data)) {
-                    throw new TokenHttpException('Token validation timeout', 420);
-                } else {
-                    throw new TokenHttpException('Token validation timeout', 419);
-                }
-            }
-        }
+        $token       = AccessToken::accessToken($token);
+        $id          = $token->getClaim('id');
+        $data        = static::findOne($id);
+        $data->uid   = $id;
+        $data->token = (string) $token;
+        return $data;
     }
 
     public function getId()

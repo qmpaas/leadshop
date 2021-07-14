@@ -37,7 +37,7 @@ class Address extends CommonModels
         return [
             [['name', 'mobile', 'province', 'city', 'district', 'address', 'UID'], 'required', 'message' => '{attribute}不能为空'],
             [['UID', 'status'], 'integer', 'message' => '{attribute}必须是整数'],
-            [['mobile'], 'match', 'pattern' => '/^1[0-9]{10}$/','message' => '{attribute}必须为手机号'],
+            [['mobile'], 'match', 'pattern' => '/^1[0-9]{10}$/', 'message' => '{attribute}必须为手机号'],
         ];
     }
 
@@ -66,8 +66,8 @@ class Address extends CommonModels
     public function scenarios()
     {
         $scenarios           = parent::scenarios();
-        $scenarios['create'] = ['name', 'mobile', 'province', 'city', 'district', 'address', 'UID','status'];
-        $scenarios['update'] = ['name', 'mobile', 'province', 'city', 'district', 'address','status'];
+        $scenarios['create'] = ['name', 'mobile', 'province', 'city', 'district', 'address', 'UID', 'status'];
+        $scenarios['update'] = ['name', 'mobile', 'province', 'city', 'district', 'address', 'status'];
         return $scenarios;
     }
 

@@ -29,7 +29,7 @@ class TemplateController extends BasicController
         //获取分页信息
         $pageSize = $headers->get('X-Pagination-Per-Page') ?? 20;
         $get      = \Yii::$app->request->get();
-        $query = GoodsParamTemplate::find()
+        $query    = GoodsParamTemplate::find()
             ->where(['AppID' => \Yii::$app->params['AppID'], 'merchant_id' => 1, 'is_deleted' => 0]);
         $name = $get['name'] ?? false;
         if ($name) {
@@ -45,10 +45,10 @@ class TemplateController extends BasicController
         $list    = $data->getModels();
         if ($list) {
             foreach ($list as $item) {
-                $newItem['id'] = $item['id'];
+                $newItem['id']         = $item['id'];
                 $newItem['param_name'] = $item['param_name'];
                 $newItem['param_data'] = json_decode($item['param_data'], true);
-                $newList[] = $newItem;
+                $newList[]             = $newItem;
             }
         }
 
@@ -62,12 +62,12 @@ class TemplateController extends BasicController
     {
         $post = \Yii::$app->request->post();
         $this->checkData($post);
-        $template = new GoodsParamTemplate();
-        $template->AppID = \Yii::$app->params['AppID'];
+        $template              = new GoodsParamTemplate();
+        $template->AppID       = \Yii::$app->params['AppID'];
         $template->merchant_id = 1;
-        $template->param_name = $post['param_name'];
-        $template->param_data = json_encode($post['param_data']);
-        $res = $template->save();
+        $template->param_name  = $post['param_name'];
+        $template->param_data  = json_encode($post['param_data']);
+        $res                   = $template->save();
         if (!$res) {
             Error($template->getErrorMsg());
         }
@@ -76,8 +76,8 @@ class TemplateController extends BasicController
 
     public function actionUpdate()
     {
-        $id   = \Yii::$app->request->get('id', false);
-        $post = \Yii::$app->request->post();
+        $id       = \Yii::$app->request->get('id', false);
+        $post     = \Yii::$app->request->post();
         $template = GoodsParamTemplate::findOne(['id' => $id, 'is_deleted' => 0]);
         if (!$template) {
             Error('规格模板不存在');
@@ -85,7 +85,7 @@ class TemplateController extends BasicController
         $this->checkData($post);
         $template->param_name = $post['param_name'];
         $template->param_data = json_encode($post['param_data']);
-        $res = $template->save();
+        $res                  = $template->save();
         if (!$res) {
             Error($template->getErrorMsg());
         }
@@ -94,7 +94,7 @@ class TemplateController extends BasicController
 
     public function actionView()
     {
-        $id   = \Yii::$app->request->get('id', false);
+        $id       = \Yii::$app->request->get('id', false);
         $template = GoodsParamTemplate::findOne(['id' => $id, 'is_deleted' => 0]);
         if (!$template) {
             Error('规格模板不存在');
@@ -106,7 +106,7 @@ class TemplateController extends BasicController
     public function actionDelete()
     {
         $ids = \Yii::$app->request->get('id', false);
-        $id = explode(',', $ids);
+        $id  = explode(',', $ids);
         GoodsParamTemplate::updateAll(['is_deleted' => 1, 'deleted_time' => time()], ['id' => $id]);
         return true;
     }

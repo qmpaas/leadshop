@@ -108,7 +108,44 @@ class PayController extends BasicsModules implements Map
             $model->pay_number = $pay_number;
             $model->pay_type   = 'wechat';
             $model->pay_time   = time();
+
+            Yii::info('判断插件是否安装' . $this->plugins("task", "status"));
+            Yii::info('读取积分支付信息' . $model->total_score);
+            Yii::info('读取积分支付总价' . $model->total_amount);
+            Yii::info('读取积分支付订单' . $order_sn);
+            Yii::info('读取积分支付用户' . $model->UID);
+
+            //判断插件已经安装，则执行
+            if ($this->plugins("task", "status")) {
+                //判断是否积分订单
+                if ($model->total_score > 0) {
+                    //执行下单操作减积分操作
+                    $this->plugins("task", ["order", [
+                        $model->total_score,
+                        $model->UID,
+                        $order_sn,
+                        "order",
+                    ]]);
+                }
+                //执行下单操作
+                $this->plugins("task", ["score", [
+                    "goods",
+                    $model->pay_amount,
+                    $model->UID,
+                    $order_sn,
+
+                ]]);
+                //执行下单操作
+                $this->plugins("task", ["score", [
+                    "order",
+                    $model->total_amount,
+                    $model->UID,
+                    $order_sn,
+                ]]);
+            }
+
             if ($model->save()) {
+
                 $this->module->event->user_statistical = ['UID' => $model->UID, 'buy_number' => 1, 'buy_amount' => $model->pay_amount, 'last_buy_time' => time()];
                 $this->module->trigger('user_statistical');
                 $this->module->event->pay_order_sn = $order_sn;
@@ -130,6 +167,7 @@ class PayController extends BasicsModules implements Map
                     ],
                 ];
                 $this->module->trigger('send_sms');
+
                 $setting = Setting::findOne(['AppID' => Yii::$app->params['AppID'], 'merchant_id' => 1, 'keyword' => 'sms_setting', 'is_deleted' => 0]);
                 if ($setting && $setting['content']) {
                     $mobiles                  = json_decode($setting['content'], true);

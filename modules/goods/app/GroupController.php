@@ -42,7 +42,7 @@ class GroupController extends BasicController
     {
         $merchant_id = Yii::$app->request->get('merchant_id', -1);
         $type        = Yii::$app->request->get('type', -1);
-        $where       = ['is_deleted' => 0, 'merchant_id' => $merchant_id];
+        $where       = ['is_deleted' => 0, 'merchant_id' => $merchant_id, 'is_show' => 1];
         if ($type != 'all') {
             $parent_id = Yii::$app->request->get('parent_id', 0);
             $where     = ['and', $where, ['parent_id' => $parent_id]];

@@ -23,6 +23,7 @@ class GoodsGroup extends CommonModels
     const goods_show   = ['tinyint' => 2, 'notNull', 'comment' => '分类商品展示方式'];
     const AppID        = ['varchar' => 50, 'notNull', 'comment' => '应用ID'];
     const merchant_id  = ['bigint' => 10, 'notNull', 'comment' => '商户ID'];
+    const is_show      = ['tinyint' => 1, 'default' => 1, 'comment' => '是否显示 0不显示  1显示'];
     const created_time = ['bigint' => 10, 'comment' => '创建时间'];
     const updated_time = ['bigint' => 10, 'comment' => '修改时间'];
     const deleted_time = ['bigint' => 10, 'comment' => '删除时间'];
@@ -43,7 +44,7 @@ class GoodsGroup extends CommonModels
                 'when' => function ($model) {
                     return (!$model->parent_id > 0) ? true : false;
                 }, 'message' => '{attribute}不能为空'],
-            [['parent_id', 'sort', 'merchant_id'], 'integer'],
+            [['parent_id', 'sort', 'is_show', 'merchant_id'], 'integer'],
             ['sort', 'compare', 'compareValue' => 999, 'operator' => '<=', 'message' => '{attribute}最多3位'],
             ['name', 'string', 'max' => 8, 'tooLong' => '{attribute}最多8位'],
         ];
@@ -70,8 +71,8 @@ class GoodsGroup extends CommonModels
     public function scenarios()
     {
         $scenarios           = parent::scenarios();
-        $scenarios['create'] = ['name', 'parent_id', 'sort', 'merchant_id', 'AppID', 'icon', 'goods_show', 'path', 'type'];
-        $scenarios['update'] = ['name', 'sort', 'icon', 'goods_show', 'type'];
+        $scenarios['create'] = ['name', 'parent_id', 'sort', 'merchant_id', 'AppID', 'icon', 'goods_show', 'path', 'type', 'is_show'];
+        $scenarios['update'] = ['name', 'sort', 'icon', 'goods_show', 'type', 'is_show'];
         return $scenarios;
     }
 
@@ -89,6 +90,7 @@ class GoodsGroup extends CommonModels
             'goods_show'  => '商品展示形式',
             'path'        => '分类路径',
             'merchant_id' => '商户ID',
+            'is_show'     => '分组是否显示',
         ];
     }
 

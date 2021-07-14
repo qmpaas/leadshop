@@ -5,6 +5,7 @@ namespace live\models;
 use app\components\core\HttpRequest;
 use app\forms\CommonWechat;
 use app\forms\ImageTools;
+use goods\models\Goods;
 use yii\base\Model;
 
 class GoodsForm extends Model
@@ -76,9 +77,14 @@ class GoodsForm extends Model
             $item['my_goods_id'] = $liveGoods ? $liveGoods->gid : '';
             $item['is_show'] = 0;
             $item['new_url'] = $item['url'];
+            $item['goods'] = null;
             if (strstr($item['url'], 'pages/goods/detail?id=')) {
                 $item['new_url'] = str_replace('pages/goods/detail?id=', '' ,$item['url']);
                 $item['is_show'] = 1;
+                $item['goods'] = Goods::find()->where(['id' => $item['new_url']])->select('id,name,slideshow')->one();
+                if ($item['goods'] && $item['goods']['slideshow']) {
+                    $item['goods']['slideshow'] = to_array($item['goods']['slideshow']);
+                }
             }
             $newList[] = $item;
         }

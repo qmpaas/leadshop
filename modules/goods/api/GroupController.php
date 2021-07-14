@@ -21,19 +21,9 @@ class GroupController extends BasicController
      */
     public function actions()
     {
-        $actions           = parent::actions();
-        $actions['create'] = [
-            'class'       => 'yii\rest\CreateAction',
-            'modelClass'  => $this->modelClass,
-            'checkAccess' => [$this, 'checkAccess'],
-            'scenario'    => 'create',
-        ];
-        $actions['update'] = [
-            'class'       => 'yii\rest\UpdateAction',
-            'modelClass'  => $this->modelClass,
-            'checkAccess' => [$this, 'checkAccess'],
-            'scenario'    => 'update',
-        ];
+        $actions = parent::actions();
+        unset($actions['create']);
+        unset($actions['update']);
         return $actions;
     }
 
@@ -43,19 +33,6 @@ class GroupController extends BasicController
      */
     public function actionIndex()
     {
-        $type2_p = $this->modelClass::find()->where(['type'=>2,'parent_id'=>0])->select('id')->asArray()->all();
-        if (!empty($type2_p)) {
-            $type2_p = array_column($type2_p,'id');
-            $this->modelClass::updateAll(['type'=>2],['parent_id'=>$type2_p]);
-        }
-        $type3_p = $this->modelClass::find()->where(['type'=>3,'parent_id'=>0])->select('id')->asArray()->all();
-        if (!empty($type3_p)) {
-            $type3_p = array_column($type3_p,'id');
-            $type3_p2 = $this->modelClass::find()->where(['parent_id'=>$type3_p])->select('id')->asArray()->all();
-            $type3_p2 = array_column($type3_p2,'id');
-            $type3_p = array_merge($type3_p,$type3_p2);
-            $this->modelClass::updateAll(['type'=>3],['parent_id'=>$type3_p]);
-        }
         $get         = Yii::$app->request->get();
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
@@ -67,7 +44,10 @@ class GroupController extends BasicController
         if (isset($get['parent'])) {
             $where['parent_id'] = 0;
         }
-        $data = $this->modelClass::find()->where($where)->orderBy(['id' => SORT_ASC])->select('id,name,parent_id,goods_show,icon,image,path,type,sort')->asArray()->all();
+        if (isset($get['is_show'])) {
+            $where['is_show'] = 1;
+        }
+        $data = $this->modelClass::find()->where($where)->orderBy(['id' => SORT_ASC])->select('id,name,parent_id,goods_show,icon,image,path,type,sort,is_show')->asArray()->all();
         //将所有返回内容中的本地地址代替字符串替换为域名
         $data = str2url($data);
         return $data;
@@ -127,60 +107,94 @@ class GroupController extends BasicController
         }
     }
 
-    /**
-     * 数据前置检查器
-     * @param  [type]  $operation    [description]
-     * @param  array   $params       [description]
-     * @param  boolean $allowCaching [description]
-     * @return [type]                [description]
-     */
-    public function checkAccess($operation, $params = array(), $allowCaching = true)
+    public function actionCreate()
     {
-        switch ($operation) {
-            case 'create':
-                $post = Yii::$app->request->post();
+        $post = Yii::$app->request->post();
 
-                $post = url2str($post);
+        $post = url2str($post);
 
-                if (!empty($post['parent_id'])) {
-                    $parent_info = $this->modelClass::find()->where(['id' => $post['parent_id'], 'is_deleted' => 0])->asArray()->one();
-                    if (!empty($parent_info)) {
-                        //根据父级path中-的数量，判断时候还可以在添加
-                        if (substr_count($parent_info['path'], '-') >= 2) {
-                            Error('分组超过三级，无法添加');
-                        }
-                        $post['path'] = $parent_info['path'] . '-' . $post['parent_id'];
-                        $post['type'] = $parent_info['type'];
-                    } else {
-                        Error('父级分组不存在');
-                    }
+        if (!empty($post['parent_id'])) {
+            $parent_info = $this->modelClass::find()->where(['id' => $post['parent_id'], 'is_deleted' => 0])->asArray()->one();
+            if (!empty($parent_info)) {
+                //根据父级path中-的数量，判断时候还可以在添加
+                if (substr_count($parent_info['path'], '-') >= 2) {
+                    Error('分组超过三级，无法添加');
                 }
-
-                $merchant_id         = 1;
-                $post['merchant_id'] = $merchant_id;
-                $check               = $this->modelClass::find()->where(['name' => $post['name'], 'parent_id' => $post['parent_id'], 'is_deleted' => 0, 'merchant_id' => $merchant_id])->exists();
-                if ($check) {
-                    Error('同一级分类名不能重复');
-                }
-                $post['AppID'] = Yii::$app->params['AppID'];
-                Yii::$app->request->setBodyParams($post);
-                break;
-            case 'update':
-                $post = Yii::$app->request->post();
-
-                if (N('name')) {
-                    $id    = Yii::$app->request->get('id');
-                    $info  = $this->modelClass::findOne($id);
-                    $check = $this->modelClass::find()->where(['and', ['name' => $post['name'], 'parent_id' => $info->parent_id, 'is_deleted' => 0, 'merchant_id' => $info->merchant_id], ['<>', 'id', $id]])->exists();
-                    if ($check) {
-                        Error('同一级分类名不能重复');
-                    }
-                }
-
-                $post = url2str($post);
-
-                Yii::$app->request->setBodyParams($post);
-                break;
+                $post['path'] = $parent_info['path'] . '-' . $post['parent_id'];
+                $post['type'] = $parent_info['type'];
+            } else {
+                Error('父级分组不存在');
+            }
         }
+
+        $merchant_id         = 1;
+        $post['merchant_id'] = $merchant_id;
+        $check               = $this->modelClass::find()->where(['name' => $post['name'], 'parent_id' => $post['parent_id'], 'is_deleted' => 0, 'merchant_id' => $merchant_id])->exists();
+        if ($check) {
+            Error('同一级分类名不能重复');
+        }
+        $post['AppID'] = Yii::$app->params['AppID'];
+
+        $model = M('goods', 'GoodsGroup', true);
+        $model->setScenario('create');
+        $model->setAttributes($post);
+        if ($model->validate()) {
+            $res = $model->save();
+            if ($res) {
+                return true;
+            } else {
+                Error('保存失败');
+            }
+
+        }
+        return $model;
     }
+
+    public function actionUpdate()
+    {
+        $post = Yii::$app->request->post();
+
+        $id    = Yii::$app->request->get('id');
+        $model = $this->modelClass::findOne($id);
+        if (N('name')) {
+            $check = $this->modelClass::find()->where(['and', ['name' => $post['name'], 'parent_id' => $model->parent_id, 'is_deleted' => 0, 'merchant_id' => $model->merchant_id], ['<>', 'id', $id]])->exists();
+            if ($check) {
+                Error('同一级分类名不能重复');
+            }
+        }
+
+        $is_show = $model->is_show;
+
+        $t    = Yii::$app->db->beginTransaction();
+        $post = url2str($post);
+        $model->setScenario('update');
+        $model->setAttributes($post);
+        if ($model->validate()) {
+            $res = $model->save();
+            if ($res) {
+                if (isset($post['is_show']) && $post['is_show'] != $is_show) {
+                    $children = $this->modelClass::find()->where(['parent_id' => $id,'is_show'=>$is_show])->select('id')->asArray()->all();
+                    $children = array_column($children, 'id');
+                    if (count($children)) {
+                        $children2 = $this->modelClass::find()->where(['parent_id' => $children,'is_show'=>$is_show])->select('id')->asArray()->all();
+                        $children2 = array_column($children2, 'id');
+                        $children  = array_merge($children, $children2);
+                        $batch_res = $this->modelClass::updateAll(['is_show' => $post['is_show']], ['id' => $children]);
+                        if ($batch_res != count($children)) {
+                            $t->rollBack();
+                            Error('保存失败');
+                        }
+                    }
+                }
+                $t->commit();
+                return true;
+            } else {
+                $t->rollBack();
+                Error('保存失败');
+            }
+
+        }
+        return $model;
+    }
+
 }
