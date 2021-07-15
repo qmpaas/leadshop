@@ -400,7 +400,8 @@ class leadshops
             $sql  = "SELECT * FROM {$db['tablePrefix']}store_setting WHERE keyword = :version";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['version' => 'mysql_version']);
-            $row        = $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
             $db_version = '1.2.0';
             if (isset($row['content'])) {
                 $db_version = empty($row['content']) ? '1.2.0' : $row['content'];

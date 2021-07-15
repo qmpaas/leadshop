@@ -942,8 +942,8 @@ CREATE TABLE `heshop_initialize_prefix_live_room` (
 
 
 ALTER TABLE `heshop_initialize_prefix_goods_data`
-ADD COLUMN `task_stock` int(10) NOT NULL COMMENT '兑换库存',
-ADD COLUMN `task_number` bigint(10) NOT NULL COMMENT '兑换积分',
+ADD COLUMN `task_stock` int(10) NOT NULL DEFAULT '0' COMMENT '兑换库存',
+ADD COLUMN `task_number` bigint(10) NOT NULL DEFAULT '0' COMMENT '兑换积分',
 ADD COLUMN `task_price` decimal(10,2) DEFAULT NULL COMMENT '兑换价格',
 ADD COLUMN `task_limit` bigint(5) DEFAULT NULL COMMENT '兑换限制',
 ADD COLUMN `task_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否上架：0 下架 1 上架';

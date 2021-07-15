@@ -93,7 +93,7 @@ class AppconfigController extends BasicsModules implements Map
         if ($type == 'wechat') {
             $platform = '微信公众号';
         }
-        $appId = Yii::$app->request->post('AppID', false);
+        $appId     = Yii::$app->request->post('AppID', false);
         $appSecret = Yii::$app->request->post('AppSecret', false);
         if (!$appId) {
             throw new \Exception($platform . 'AppId有误');
@@ -122,9 +122,14 @@ class AppconfigController extends BasicsModules implements Map
     public function upload()
     {
         $file = $_FILES['file'];
+        preg_match('|\.(\w+)$|', $file['name'], $ext);
+        $ext = strtolower($ext[1]);
+        if (!in_array($ext, ['txt','ico'])) {
+            Error('不被允许的文件类型');
+        }
         if (move_uploaded_file($file['tmp_name'], Yii::$app->basePath . '/web/' . $file['name'])) {
-            $url             = Yii::$app->request->hostInfo;
-            return $url.'/'.$file['name'];
+            $url = Yii::$app->request->hostInfo;
+            return $url . '/' . $file['name'];
         } else {
             Error('上传失败');
         }

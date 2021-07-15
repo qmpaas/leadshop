@@ -3,48 +3,25 @@
     })
     let origin = window.location.origin;
     window.siteinfo = {
-        "uniacid": "3",
-        "acid": "3",
-        "multiid": "0",
-        "version": "1.1.5",
-        "AppURL": origin + "/index.php",
-        "siteroot": origin + "/index.php",
-        "design_method": "3",
-        "tabBar": {
-            "color": "#ccc",
-            "selectedColor": "#ff4c92",
-            "borderStyle": "black",
-            "backgroundColor": "#ffffff",
-            "list": [{
-                    "pagePath": "/pages/index/index",
-                    "text": "A"
-                },
-                {
-                    "pagePath": "/pages/categories/index",
-                    "text": "B"
-                },
-                {
-                    "pagePath": "/pages/cart/index",
-                    "text": "C"
-                },
-                {
-                    "pagePath": "/pages/goods/list",
-                    "text": "D"
-                },
-                {
-                    "pagePath": "/pages/user/index",
-                    "text": "E"
-                }
-            ]
-        }
+      "uniacid": "3",
+      "acid": "3",
+      "multiid": "0",
+      "version": "1.1.5",
+      "AppURL": origin + "/index.php",
+      "siteroot": origin + "/index.php",
+      "design_method": "3",
+      "tabBar": {
+        "color": "#ccc",
+        "selectedColor": "#ff4c92",
+        "borderStyle": "black",
+        "backgroundColor": "#ffffff",
+        "list": []
+      }
     }
 
-
-
     <?php if (!empty($tabBar)) {
-    echo "window.siteinfo.tabBar = " . json_encode($tabBar);
-}?>
+      echo "window.siteinfo.tabBar = " . json_encode($tabBar);
+    }?>
 
-    console.log("window.siteinfo",window.siteinfo)
     var coverSupport = 'CSS' in window && typeof CSS.supports === 'function' && (CSS.supports('top: env(a)') || CSS.supports('top: constant(a)'))
-    document.write('<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' + (coverSupport ? ', viewport-fit=cover' : '') + '" />')</script><link rel="stylesheet" href="/assets/wechat/static/index.3e73f18a.css"></head><body><noscript><strong>Please enable JavaScript to continue.</strong></noscript><div id="app"></div><script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script><script src="/assets/wechat/static/js/chunk-vendors.f0e1d886.js"></script><script src="/assets/wechat/static/js/index.362d465d.js"></script></body></html>
+    document.write('<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' + (coverSupport ? ', viewport-fit=cover' : '') + '" />')</script><link rel="stylesheet" href="/assets/wechat/static/index.d0f128df.css"></head><body><noscript><strong>Please enable JavaScript to continue.</strong></noscript><div id="app"></div><script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script><script src="/assets/wechat/static/js/chunk-vendors.d630ff75.js"></script><script src="/assets/wechat/static/js/index.0fa3d46d.js"></script></body></html>
