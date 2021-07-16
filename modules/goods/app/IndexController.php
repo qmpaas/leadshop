@@ -168,12 +168,12 @@ class IndexController extends BasicController
         //判断是否安装
         $task_status = $this->plugins("task", "status");
         //商品分组
-        $is_task = Yii::$app->request->get('is_task', []);
+        $is_task = Yii::$app->request->get('is_task', false);
 
         $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => 1, 'AppID' => $AppID])->select('content')->asArray()->one();
 
         $goods_id = false;
-        if ($setting_data && !$task_status) {
+        if ($setting_data && !$is_task) {
             $setting_data['content'] = to_array($setting_data['content']);
             if (isset($setting_data['content']['goods_setting'])) {
                 $goods_setting = $setting_data['content']['goods_setting'];

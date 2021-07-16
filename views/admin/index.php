@@ -57,7 +57,7 @@
   <link href="/assets/admin/css/goods-collect-edit.4338a2b8.css" rel="prefetch">
   <link href="/assets/admin/css/goods-collect-list.a8eceb38.css" rel="prefetch">
   <link href="/assets/admin/css/goods-goodsExportHistory.92539d8d.css" rel="prefetch">
-  <link href="/assets/admin/css/goods-group-publish.e6d0d454.css" rel="prefetch">
+  <link href="/assets/admin/css/goods-group-publish.3667dc21.css" rel="prefetch">
   <link href="/assets/admin/css/goods-group.7e96f1e3.css" rel="prefetch">
   <link href="/assets/admin/css/goods-groupTemplate.8f34701f.css" rel="prefetch">
   <link href="/assets/admin/css/goods-index.66189e38.css" rel="prefetch">
@@ -113,7 +113,7 @@
   <link href="/assets/admin/js/goods-collect-edit.aafa7037.js" rel="prefetch">
   <link href="/assets/admin/js/goods-collect-list.f3dfb879.js" rel="prefetch">
   <link href="/assets/admin/js/goods-goodsExportHistory.e8a74b09.js" rel="prefetch">
-  <link href="/assets/admin/js/goods-group-publish.15eb0000.js" rel="prefetch">
+  <link href="/assets/admin/js/goods-group-publish.c9b2d59c.js" rel="prefetch">
   <link href="/assets/admin/js/goods-group.c0451484.js" rel="prefetch">
   <link href="/assets/admin/js/goods-groupTemplate.21056509.js" rel="prefetch">
   <link href="/assets/admin/js/goods-index.b592888c.js" rel="prefetch">
@@ -137,16 +137,16 @@
   <link href="/assets/admin/js/store-update.5081b598.js" rel="prefetch">
   <link href="/assets/admin/js/users-editLabel.a376e3fe.js" rel="prefetch">
   <link href="/assets/admin/js/users-userLabel.2d1effe3.js" rel="prefetch">
-  <link href="/assets/admin/css/app.abfbd683.css" rel="preload" as="style">
-  <link href="/assets/admin/js/app.c08526fa.js" rel="preload" as="script">
+  <link href="/assets/admin/css/app.a4614040.css" rel="preload" as="style">
+  <link href="/assets/admin/js/app.0bd560c6.js" rel="preload" as="script">
   <link href="/assets/admin/js/vendors.724edaea.js" rel="preload" as="script">
-  <link href="/assets/admin/css/app.abfbd683.css" rel="stylesheet">
+  <link href="/assets/admin/css/app.a4614040.css" rel="stylesheet">
 </head>
 
 <body><noscript><strong>We're sorry but admin doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript>
   <div id="app"></div>
   <script src="/assets/admin/js/vendors.724edaea.js"></script>
-  <script src="/assets/admin/js/app.c08526fa.js"></script>
+  <script src="/assets/admin/js/app.0bd560c6.js"></script>
 </body>
 
 </html>

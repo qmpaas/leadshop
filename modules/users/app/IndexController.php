@@ -315,9 +315,11 @@ class IndexController extends BasicController
             [
                 'AppID'  => Yii::$app->params['AppID'],
                 'status' => 1,
+                'is_deleted' => 0
             ],
             ['>', 'over_num', 0],
             ['>', 'register_limit', 0],
+            ['>', 'end_time', time()]
         ])->all();
         $success = [];
         /**@var Coupon $coupon*/
