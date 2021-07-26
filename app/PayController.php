@@ -106,7 +106,7 @@ class PayController extends BasicsModules implements Map
         if ($model && $model->status < 201) {
             $model->status     = 201;
             $model->pay_number = $pay_number;
-            $model->pay_type   = 'wechat';
+            $model->pay_type   = $pay_type;
             $model->pay_time   = time();
 
             Yii::info('判断插件是否安装' . $this->plugins("task", "status"));

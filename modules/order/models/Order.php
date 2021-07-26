@@ -10,6 +10,44 @@ namespace order\models;
 
 use framework\common\CommonModels;
 
+/**
+ * This is the model class for table "{{%order}}".
+ *
+ * @property int $id
+ * @property string $order_sn 订单编号
+ * @property int $UID 买家ID
+ * @property float $total_amount 总计价格
+ * @property float $pay_amount 实付金额
+ * @property float $goods_amount 商品金额
+ * @property float $goods_reduced 商品减少金额
+ * @property float $freight_amount 运费金额
+ * @property float $freight_reduced 运费减少金额
+ * @property float $promotion_amount 促销优惠金额（促销价、满减、阶梯价）
+ * @property int $status 100待付款  101用户取消 102超时取消 103商户取消  201已付款(待发货)  202已发货(待收货)  203已收货 204已完成
+ * @property int|null $cancel_time 关闭时间
+ * @property int|null $send_time 发货时间
+ * @property int|null $received_time 收货时间
+ * @property int|null $finish_time 结束时间
+ * @property int $after_sales 0正常  1售后中
+ * @property string $source 来源
+ * @property string|null $pay_number 支付交易号
+ * @property string|null $pay_type wechart微信  alipay支付宝
+ * @property int|null $pay_time 支付时间
+ * @property string|null $note 商家备注
+ * @property int $merchant_id 商户ID
+ * @property string $AppID 应用ID
+ * @property int $created_time 创建时间
+ * @property int|null $updated_time 修改时间
+ * @property int|null $deleted_time 删除时间
+ * @property int $is_deleted 是否删除
+ * @property int $is_evaluate 0未评价 1已评价
+ * @property int|null $evaluate_time 评价时间
+ * @property int|null $is_recycle 是否在回收站
+ * @property float $coupon_reduced 优惠券优惠金额
+ * @property int $score_amount 积分支付
+ * @property int $total_score 积分统计
+ * @property string|null $type 订单类型 base 基础订单 task 任务订单
+ */
 class Order extends CommonModels
 {
     const id              = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
@@ -144,11 +182,11 @@ class Order extends CommonModels
      */
     public function getGoods()
     {
-        $Oauth = 'order\models\OrderGoods';
-        return $this->hasMany($Oauth::className(), ['order_sn' => 'order_sn'])
+        $Goods = 'order\models\OrderGoods';
+        return $this->hasMany($Goods::className(), ['order_sn' => 'order_sn'])
             ->select('id,order_sn,freight_sn,goods_id,goods_name,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount')
             ->with('after')
-            ->from(['u' => $Oauth::tableName()]);
+            ->from(['u' => $Goods::tableName()]);
     }
 
 }

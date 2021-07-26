@@ -107,9 +107,11 @@ class IndexController extends BasicController
             if ($auto) {
                 $data = $this->goodsModel::find()
                     ->from(['g' => $this->goodsModel::tableName()])
-                    ->joinWith('task')
+                    ->joinWith('task as t')
                     ->where([
                         "t.goods_is_sale" => 1,
+                        "t.is_recycle"    => 0,
+                        "t.is_deleted"    => 0,
                     ])
                     ->limit($auto)
                     ->asArray()
@@ -123,18 +125,18 @@ class IndexController extends BasicController
             } else {
                 $where = ['AppID' => $AppID];
                 $where = ['and', $where, ['g.id' => $goods_id]];
-                $where = ['and', $where, ['t.goods_is_sale' => 1]];
+                $where = ['and', $where, ['t.goods_is_sale' => 1, "t.is_recycle" => 0, "t.is_deleted" => 0]];
                 $data  = M()::find()
                     ->from(['g' => M()::tableName()])
                     ->where($where)
                     ->orderBy(['g.created_time' => SORT_DESC])
-                    ->joinWith('task')
+                    ->joinWith('task as t')
                     ->asArray()
                     ->all();
             }
 
         } else {
-            $where = ['id' => $goods_id, 'AppID' => $AppID, 'is_sale' => 1];
+            $where = ['id' => $goods_id, 'AppID' => $AppID, 'is_sale' => 1, 'is_recycle' => 0, 'is_deleted' => 0];
             $data  = M()::find()
                 ->where($where)
                 ->orderBy(['created_time' => SORT_DESC])
@@ -481,9 +483,10 @@ class IndexController extends BasicController
                 $value['area'] = implode('、', array_column($value['area'], 'name'));
             }
         }
-        $services                  = to_array($result['services']);
-        $result['services']        = M('goods', 'GoodsService')::find()->where(['id' => $services, 'status' => 1])->select('title,content')->orderBy(['sort' => SORT_DESC])->asArray()->all();
-        $result['body']['content'] = htmlspecialchars_decode($result['body']['content']);
+        $services                     = to_array($result['services']);
+        $result['services']           = M('goods', 'GoodsService')::find()->where(['id' => $services, 'status' => 1])->select('title,content')->orderBy(['sort' => SORT_DESC])->asArray()->all();
+        $result['body']['goods_args'] = to_array($result['body']['goods_args']);
+        $result['body']['content']    = htmlspecialchars_decode($result['body']['content']);
         //将所有返回内容中的本地地址代替字符串替换为域名
         $result         = str2url($result);
         $result['task'] = [];

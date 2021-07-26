@@ -408,6 +408,7 @@ CREATE TABLE `heshop_initialize_prefix_order_after`  (
   `source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '来源',
   `return_number` int(10) NOT NULL DEFAULT 1 COMMENT '退货数量',
   `return_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '退款金额',
+  `return_freight` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '退款运费',
   `images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '说明图片',
   `status` smallint(3) NOT NULL DEFAULT 100 COMMENT '100待审核 101首次拒绝 102再次提交待审核  111审核通过待退款 121审核通过待买家发货 122买家发货待商家收货退款 131审核通过待买家发货 132买家发货待商家收货  133商家换货(买家待收)  200售后已完成  201两次拒绝之后完成',
   `return_address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '退货地址',
@@ -1076,3 +1077,24 @@ CREATE TABLE `heshop_initialize_prefix_task_user` (
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_waybill` (
+  `id` bigint(10) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `code` varchar(10) NOT NULL COMMENT '物流公司编号',
+  `name` varchar(256) NOT NULL COMMENT '名称',
+  `mobile` varchar(32) NOT NULL COMMENT '联系方式',
+  `province` varchar(50) NOT NULL COMMENT '省',
+  `city` varchar(50) NOT NULL COMMENT '市',
+  `district` varchar(50) NOT NULL COMMENT '区县',
+  `address` varchar(255) NOT NULL COMMENT '详细地址',
+  `AppID` varchar(50) NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) DEFAULT '0' COMMENT '创建时间',
+  `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
+  `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
+  `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `heshop_initialize_prefix_order_after`
+ADD COLUMN `return_freight`  decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '退款运费' ;

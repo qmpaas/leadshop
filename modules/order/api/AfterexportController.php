@@ -116,7 +116,7 @@ class AfterexportController extends BasicController
         if ($time_end > 0) {
             $where = ['and', $where, ['<=', 'after.created_time', $time_end]];
         } else {
-            $after                 = M('order', 'OrderAfter')::find()->where(['AppID' => $AppID])->orderBy(['created_time' => SORT_DESC])->one();
+            $after               = M('order', 'OrderAfter')::find()->where(['AppID' => $AppID])->orderBy(['created_time' => SORT_DESC])->one();
             $keyword['time_end'] = $after->created_time;
         }
 
@@ -152,13 +152,30 @@ class AfterexportController extends BasicController
         if ($search_key == 'consignee_mobile' && $search) {
             $where = ['and', $where, ['like', 'buyer.mobile', $search]];
         }
+        $o_g_ids = [];
         //商品名称
         if ($search_key == 'goods_name' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_name', $search]];
+            $ids = M('Order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('Order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_name', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+
         }
         //商品货号
         if ($search_key == 'goods_sn' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_sn', $search]];
+            $ids = M('Order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('Order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_sn', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+        }
+
+        if (!empty($o_g_ids)) {
+            $o_g_ids = array_unique($o_g_ids);
+            $where   = ['and', $where, ['goods.order_goods_id' => $o_g_ids]];
         }
 
         $data = M('order', 'OrderAfter')::find()
@@ -171,6 +188,7 @@ class AfterexportController extends BasicController
             ])
             ->where($where)
             ->groupBy(['after.id'])
+            ->asArray()
             ->all();
 
         $tHeader     = [];
@@ -186,8 +204,17 @@ class AfterexportController extends BasicController
             Error('未选择导出字段');
         }
         foreach ($data as $value) {
-            $res = $this->listBuild($value, $filterVal);
-            array_push($list, $res);
+            if ($value['order_goods_id']) {
+                $goods          = array_column($value['goods'], null, 'id');
+                $new_goods[]    = isset($goods[$value['order_goods_id']]) ? $goods[$value['order_goods_id']] : null;
+                $value['goods'] = $new_goods;
+            }
+            $build_data = $value;
+            foreach ($value['goods'] as $goods) {
+                $build_data['goods'] = $goods;
+                $res                 = $this->listBuild($build_data, $filterVal);
+                array_push($list, $res);
+            }
         }
 
         $order_data = [

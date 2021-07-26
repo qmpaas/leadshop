@@ -8,6 +8,7 @@
 namespace order\api;
 
 use framework\common\BasicController;
+use setting\models\Waybill;
 use Yii;
 use yii\data\ActiveDataProvider;
 
@@ -94,11 +95,19 @@ class HandleController extends BasicController
      */
     public function actionCreate()
     {
-        $list = Yii::$app->request->post();
+        $behavior = Yii::$app->request->get('behavior', 'deliver');
+
+        if ($behavior == 'waybill') {
+            $list = Yii::$app->request->post('list');
+            $waybillId = Yii::$app->request->post('waybill_id');
+        } else {
+            $list = Yii::$app->request->post();
+        }
 
         if (!is_array($list)) {
-            Error('数据格式错误');
+          Error('数据格式错误');
         }
+
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
 
@@ -147,12 +156,39 @@ class HandleController extends BasicController
             $model->send_time     = $send_time;
             $model->status        = 202;
 
-            $freight_data = [
-                'order_sn'          => $v[0],
-                'type'              => $v[2] ? 1 : 2,
-                'logistics_company' => $v[1],
-                'freight_sn'        => $v[2],
-            ];
+            if ($behavior == 'waybill') {
+               try {
+                   /**@var Waybill $waybill*/
+                   $waybill = Waybill::find()->where(['id' => $waybillId])->one();
+                   if (!$waybill) {
+                     Error('发货地址不存在');
+                   }
+                   $data = (new \app\components\WaybillPrint())->query([
+                     'order_sn' => $v[0],
+                     'waybill_id' => $waybillId
+                   ]);
+                   $json = file_get_contents(__DIR__.'/../../setting/app/express.json');
+                   $jsonArray = array_column(to_array($json), null, 'code');
+                   $companyName = $jsonArray[$waybill->code]['name'] ?? '';
+                   $freight_data = [
+                     'order_sn'          => $v[0],
+                     'type'              => 3,
+                     'logistics_company' => $companyName,
+                     'freight_sn'        => $data['freight_sn'],
+                   ];
+               } catch (\Exception $e) {
+                   array_push($v, '获取电子面单失败' . $e->getMessage());
+                   array_push($error_data, $v);
+                   continue;
+               }
+            } else {
+                $freight_data = [
+                    'order_sn'          => $v[0],
+                    'type'              => $v[2] ? 1 : 2,
+                    'logistics_company' => $v[1],
+                    'freight_sn'        => $v[2],
+                ];
+            }
             $freight_model = M('order', 'OrderFreight', true);
             $freight_model->setAttributes($freight_data);
             if ($freight_model->validate()) {

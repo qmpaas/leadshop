@@ -8,6 +8,7 @@
 namespace order\app;
 
 use framework\common\BasicController;
+use order\models\OrderAfter;
 use setting\models\Setting;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -42,7 +43,7 @@ class AfterController extends BasicController
 
         $data = new ActiveDataProvider(
             [
-                'query'      => $this->modelClass::find()
+                'query'      => OrderAfter::find()
                     ->alias('after')
                     ->joinWith([
                         'buyer as buyer',
@@ -58,6 +59,12 @@ class AfterController extends BasicController
 
         $list = $data->getModels();
         foreach ($list as $key => &$value) {
+            if ($value['order_goods_id']) {
+                $new_goods      = null;
+                $goods          = array_column($value['goods'], null, 'id');
+                $new_goods      = isset($goods[$value['order_goods_id']]) ? [$goods[$value['order_goods_id']]] : null;
+                $value['goods'] = $new_goods;
+            }
             $value['images'] = to_array($value['images']);
         }
         //将所有返回内容中的本地地址代替字符串替换为域名
@@ -81,15 +88,24 @@ class AfterController extends BasicController
      */
     public function actionView()
     {
+
         $id       = Yii::$app->request->get('id', false);
         $behavior = Yii::$app->request->get('behavior', false);
+
         if ($behavior === 'order_goods') {
-            $where = ['order_goods_id' => $id, 'is_deleted' => 0];
+            $check = OrderAfter::findOne(['order_goods_id' => $id]);
+            if (!$check) {
+                $o_g_info = M('order', 'OrderGoods')::findOne($id);
+                $where    = ['order_sn' => $o_g_info->order_sn, 'is_deleted' => 0];
+            } else {
+                $where = ['order_goods_id' => $id, 'is_deleted' => 0];
+            }
+
         } else {
             $where = ['id' => $id, 'is_deleted' => 0];
         }
 
-        $result = $this->modelClass::find()
+        $result = OrderAfter::find()
             ->where($where)
             ->with([
                 'buyer',
@@ -98,6 +114,11 @@ class AfterController extends BasicController
             ->asArray()
             ->one();
         if ($result) {
+            if ($result['order_goods_id']) {
+                $goods           = array_column($result['goods'], null, 'id');
+                $new_goods[]     = isset($goods[$result['order_goods_id']]) ? $goods[$result['order_goods_id']] : null;
+                $result['goods'] = $new_goods;
+            }
             $result['images']                = to_array($result['images']);
             $result['return_address']        = to_array($result['return_address']);
             $result['user_freight_info']     = to_array($result['user_freight_info']);
@@ -116,18 +137,27 @@ class AfterController extends BasicController
     public function actionCreate()
     {
         $order_goods_id = Yii::$app->request->post('order_goods_id', false);
-
-        $o_g_info = M('order', 'OrderGoods')::findOne($order_goods_id);
-        if (empty($o_g_info)) {
-            Error('订单不存在');
-        }
-
-        $order_sn = $o_g_info->order_sn;
+        $order_sn       = Yii::$app->request->post('order_sn', false);
+        $post           = Yii::$app->request->post();
 
         $order_info = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
 
+        if (empty($order_info)) {
+            Error('订单不存在');
+        }
+
+        if ($order_goods_id) {
+            $o_g_info = M('order', 'OrderGoods')::findOne($order_goods_id);
+            if (empty($o_g_info)) {
+                Error('订单商品不存在');
+            }
+        }
         if ($order_info->status !== 201 && $order_info->status !== 202 && $order_info->status !== 203) {
             Error('当前状态不支持售后');
+        }
+
+        if ($order_info->status === 201 && !$order_goods_id) {
+            $post['return_freight'] = $order_info->freight_amount;
         }
 
         $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
@@ -136,7 +166,6 @@ class AfterController extends BasicController
         $AppID            = Yii::$app->params['AppID'];
         $source           = Yii::$app->params['AppType'];
         $UID              = Yii::$app->user->identity->id;
-        $post             = Yii::$app->request->post();
         $post             = url2str($post);
         $post['images']   = to_json($post['images']);
         $post['order_sn'] = $order_sn;
@@ -145,15 +174,14 @@ class AfterController extends BasicController
         $post['source']   = $source;
 
         ///判断是否要创建积分售后
-        if ($this->plugins("task", "status") && $order_info->type = "task") {
+        if ($this->plugins("task", "status") && $order_info->type == "task") {
             $post['return_score_type'] = $this->plugins("task", "config.integral_return");
         }
-        // $post['return_score_type'] = 1;
 
         $post['merchant_id'] = $merchant_id;
 
         //判断是否是第一次提交被拒绝,是则修改提交信息,不是则创建一条记录
-        $model = $this->modelClass::find()->where(['order_goods_id' => $order_goods_id])->one();
+        $model = OrderAfter::find()->where(['order_goods_id' => $order_goods_id, 'order_sn' => $order_sn])->one();
         if ($model) {
             if ($model->status !== 101) {
                 Error('非法操作');
@@ -169,30 +197,30 @@ class AfterController extends BasicController
                 ],
             ];
             $post['after_sn'] = get_sn('asn');
-            $model            = new $this->modelClass;
+            $model            = new OrderAfter;
         }
         $post['process'] = to_json($process);
-
         $model->setScenario('create');
         $model->setAttributes($post);
         if ($model->validate()) {
-
             if ($order_info->status === 201 && $post['type'] !== 0) {
                 Error('该订单只支持退款');
             }
 
-            if ($o_g_info->goods_number < $post['return_number']) {
-                Error('数量超限制');
+            if ($order_goods_id) {
+                if ($o_g_info->goods_number < $post['return_number']) {
+                    Error('数量超限制');
+                }
             }
-
             if ($model->save()) {
-                //修改订单售后状态
-                // $order_info->after_sales = 1;
-                // $order_info->finish_time = '';
-                // $order_res               = $order_info->save();
                 //修改订单商品售后状态
-                $o_g_info->after_sales = 1;
-                $o_g_res               = $o_g_info->save();
+                if ($order_goods_id) {
+                    $o_g_info->after_sales = 1;
+                    $o_g_res               = $o_g_info->save();
+                } else {
+                    $o_g_res = M('order', 'OrderGoods')::updateAll(['after_sales' => 1], ['order_sn' => $order_sn]);
+                }
+
                 if ($o_g_res) {
                     $transaction->commit(); //事务执行
                     $status = $model->status ? $model->status : 100;
@@ -254,7 +282,7 @@ class AfterController extends BasicController
     public function salesexchange()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -292,7 +320,7 @@ class AfterController extends BasicController
     public function received()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -320,7 +348,7 @@ class AfterController extends BasicController
     public function cancel()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -332,7 +360,7 @@ class AfterController extends BasicController
 
         $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
 
-        // $after_count = $this->modelClass::find()->where(['order_sn' => $model->order_sn])->count();
+        // $after_count = OrderAfter::find()->where(['order_sn' => $model->order_sn])->count();
         // //当订单将不存在售后时  状态改为正常
         // if ($after_count > 1) {
         //     $res1 = true;
@@ -357,7 +385,7 @@ class AfterController extends BasicController
     public function actionDelete()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }

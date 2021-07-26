@@ -47,7 +47,7 @@ EOF;
                     } else {
                         $package['plugins'] = [
                             'live-player-plugin' => [
-                                'version' => '1.3.0',
+                                'version' => '1.3.1',
                                 'provider' => 'wx2b03c6e691cd7370'
                             ]
                         ];

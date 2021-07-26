@@ -1,97 +1,198 @@
 [
-    {
-        "name": "韵达快递",
-        "pinyin": "yundasudi",
-        "code": "yd"
-    },
-    {
-        "name": "申通快递",
-        "pinyin": "shentongkuaidi",
-        "code": "sto"
-    },
-    {
-        "name": "圆通快递",
-        "pinyin": "yuantongkuaidi",
-        "code": "yt"
-    },
-    {
-        "name": "中通快递",
-        "pinyin": "zhongtongkuaidi",
-        "code": "zt"
-    },
-    {
-        "name": "极兔快递",
-        "pinyin": "jitukuaidi",
-        "code": "jt"
-    },
-    {
-        "name": "百世快递",
-        "pinyin": "baishikuaidi",
-        "code": "ht"
-    },
-    {
-        "name": "邮政小包",
-        "pinyin": "youzhengxiaobao",
-        "code": "postx"
-    },
-    {
-        "name": "EMS包裹",
-        "pinyin": "emsbaoguo",
-        "code": "ems"
-    },
-    {
-        "name": "邮政包裹",
-        "pinyin": "youzhengbaoguo",
-        "code": "post"
-    },
-    {
-        "name": "天天快递",
-        "pinyin": "tiantiankuaidi",
-        "code": "tt"
-    },
-    {
-        "name": "百世快运",
-        "pinyin": "baishikuaiyun",
-        "code": "best"
-    },
-    {
-        "name": "优速快递",
-        "pinyin": "yousukuaidi",
-        "code": "yd"
-    },
-    {
-        "name": "德邦",
-        "pinyin": "debang",
-        "code": "dp"
-    },
-    {
-        "name": "宅急送",
-        "pinyin": "zhaijisong",
-        "code": "zjs"
-    },
-    {
-        "name": "京东",
-        "pinyin": "jindong",
-        "code": "jd"
-    },
-    {
-        "name": "中通快运",
-        "pinyin": "zhongtongkuaiyun",
-        "code": "ztky"
-    },
-    {
-        "name": "顺丰速运",
-        "pinyin": "shufensuyong",
-        "code": "sf"
-    },
-    {
-        "name": "国通快递",
-        "pinyin": "yuangtongkuaidi",
-        "code": "gt"
-    },
-    {
-        "name": "顺丰快运",
-        "pinyin": "shufengkuaiyun",
-        "code": "sfky"
-    }
+  {
+    "name": "韵达快递",
+    "pinyin": "yundasudi",
+    "code": "yd",
+    "is_waybill": true
+  },
+  {
+    "name": "申通快递",
+    "pinyin": "shentongkuaidi",
+    "code": "sto",
+    "is_waybill": true
+  },
+  {
+    "name": "百世快递",
+    "pinyin": "baishikuaidi",
+    "code": "ht",
+    "is_waybill": true
+  },
+  {
+    "name": "百世快运",
+    "pinyin": "baishikuaiyun",
+    "code": "htky"
+  },
+  {
+    "name": "圆通快递",
+    "pinyin": "yuantongkuaidi",
+    "code": "yt",
+    "is_waybill": true
+  },
+  {
+    "name": "圆通速递",
+    "pinyin": "yuantongsudi",
+    "code": "ytsd"
+  },
+  {
+    "name": "中通快递",
+    "pinyin": "zhongtongkuaidi",
+    "code": "zt",
+    "is_waybill": true
+  },
+  {
+    "name": "极兔快递",
+    "pinyin": "jitukuaidi",
+    "code": "jt",
+    "is_waybill": true
+  },
+  {
+    "name": "邮政快包",
+    "pinyin": "youzhengxiaobao",
+    "code": "postx",
+    "is_waybill": true
+  },
+  {
+    "name": "EMS",
+    "pinyin": "emsbaoguo",
+    "code": "ems",
+    "is_waybill": true
+  },
+  {
+    "name": "天天快递",
+    "pinyin": "tiantiankuaidi",
+    "code": "tt"
+  },
+  {
+    "name": "百世快运",
+    "pinyin": "baishikuaiyun",
+    "code": "best"
+  },
+  {
+    "name": "优速快递",
+    "pinyin": "yousukuaidi",
+    "code": "ys",
+    "is_waybill": true
+  },
+  {
+    "name": "德邦物流",
+    "pinyin": "debangwuliu",
+    "code": "dp",
+    "is_waybill": true
+  },
+  {
+    "name": "德邦快递",
+    "pinyin": "debangkuaidi",
+    "code": "dpkd"
+  },
+  {
+    "name": "宅急送",
+    "pinyin": "zhaijisong",
+    "code": "zjs"
+  },
+  {
+    "name": "京东",
+    "pinyin": "jindong",
+    "code": "jd"
+  },
+  {
+    "name": "中通快运",
+    "pinyin": "zhongtongkuaiyun",
+    "code": "ztky"
+  },
+  {
+    "name": "顺丰速运",
+    "pinyin": "shufensuyong",
+    "code": "sf",
+    "is_waybill": true
+  },
+  {
+    "name": "国通快递",
+    "pinyin": "yuangtongkuaidi",
+    "code": "gt"
+  },
+  {
+    "name": "顺丰快运",
+    "pinyin": "shufengkuaiyun",
+    "code": "sfky"
+  },
+  {
+    "name": "顺心捷达",
+    "pinyin": "shunxinjieda",
+    "code": "sfky"
+  },
+  {
+    "name": "速尔快递",
+    "pinyin": "suerkuaidi",
+    "code": "se",
+    "is_waybill": true
+  },
+  {
+    "name": "丰网速运",
+    "pinyin": "fengwangsuyun",
+    "code": "fw",
+    "is_waybill": true
+  },
+  {
+    "name": "众邮快递",
+    "pinyin": "zhongyoukuaidi",
+    "code": "zykd",
+    "is_waybill": true
+  },
+  {
+    "name": "品骏（唯品会）",
+    "pinyin": "pinjun",
+    "code": "pj",
+    "is_waybill": true
+  },
+  {
+    "name": "京广快递",
+    "pinyin": "jingguangkuaidi",
+    "code": "kk",
+    "is_waybill": true
+  },
+  {
+    "name": "苏宁快递",
+    "pinyin": "suningkuaidi",
+    "code": "sn"
+  },
+  {
+    "name": "安能快递",
+    "pinyin": "annengkuaidi",
+    "code": "ane"
+  },
+  {
+    "name": "速通物流",
+    "pinyin": "sutongwuliu",
+    "code": "sut"
+  },
+  {
+    "name": "汇森龙邦快运",
+    "pinyin": "huisenglongbangkuaiyun",
+    "code": "lb"
+  },
+  {
+    "name": "日日顺物流",
+    "pinyin": "ririshunwuliu",
+    "code": "rrs"
+  },
+  {
+    "name": "1号仓",
+    "pinyin": "1haocang",
+    "code": "yhc"
+  },
+  {
+    "name": "aae全球速递",
+    "pinyin": "aaequanqiusudi",
+    "code": "aae"
+  },
+  {
+    "name": "大田物流",
+    "pinyin": "datianwuliu",
+    "code": "dt"
+  },
+  {
+    "name": "快宝同城",
+    "pinyin": "kuaibaotongcheng",
+    "code": "kbtc"
+  }
 ]

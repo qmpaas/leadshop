@@ -51,9 +51,11 @@ class IndexController extends BasicController
             $auto = Yii::$app->request->get('auto', 20);
             return $this->goodsModel::find()
                 ->from(['g' => $this->goodsModel::tableName()])
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->where([
-                    "goods_is_sale" => 1,
+                    "t.goods_is_sale" => 1,
+                    "t.is_recycle"    => 0,
+                    "t.is_deleted"    => 0,
                 ])
                 ->limit($auto)
                 ->asArray()
@@ -62,7 +64,7 @@ class IndexController extends BasicController
         } else {
             $goods_id = explode(',', $goods_id);
             $AppID    = Yii::$app->params['AppID'];
-            $where    = ['id' => $goods_id, 'AppID' => $AppID, 'is_sale' => 1];
+            $where    = ['id' => $goods_id, 'AppID' => $AppID, 'is_sale' => 1, 'is_recycle' => 0, 'is_deleted' => 0];
 
             $data = M()::find()
                 ->where($where)
@@ -404,6 +406,7 @@ class IndexController extends BasicController
         }
         $result['slideshow']           = to_array($result['slideshow']);
         $result['param']['param_data'] = $result['param']['param_data'] ? to_array($result['param']['param_data']) : [];
+        $result['body']['goods_args']  = to_array($result['body']['goods_args']);
         $result['body']['content']     = htmlspecialchars_decode($result['body']['content']);
         //将所有返回内容中的本地地址代替字符串替换为域名
         $result = str2url($result);
@@ -490,9 +493,12 @@ class IndexController extends BasicController
                 $param_model->goods_id = $goods_id;
                 $param_res             = $param_model->save();
                 //商品详情表
-                $body_model           = M('goods', 'GoodsBody', true);
-                $body_model->goods_id = $goods_id;
-                $body_res             = $body_model->save();
+                $body_info                   = $post['body'];
+                $body_model                  = M('goods', 'GoodsBody', true);
+                $body_model->goods_id        = $goods_id;
+                $body_model->goods_args      = to_json($body_info['goods_args'] ?? []);
+                $body_model->goods_introduce = $body_info['goods_introduce'] ?? '';
+                $body_res                    = $body_model->save();
                 if ($param_res && $body_res) {
                     $transaction->commit(); //事务执行
                     return ['id' => $model->attributes['id'], 'status' => 1];
@@ -535,14 +541,24 @@ class IndexController extends BasicController
         if (empty($model)) {
             Error('商品不存在');
         }
-
+        $t = Yii::$app->db->beginTransaction();
         $model->setScenario('basic_setting');
         $model->setAttributes($post);
         if ($model->validate()) {
             $res = $model->save();
             if ($res) {
+                $body_model                  = M('goods', 'GoodsBody')::findOne(['goods_id' => $id]);
+                $body_info                   = $post['body'];
+                $body_model->goods_args      = to_json($body_info['goods_args'] ?? []);
+                $body_model->goods_introduce = $body_info['goods_introduce'] ?? '';
+                if (!$body_model->save()) {
+                    $t->rollBack();
+                    Error('保存失败');
+                }
+                $t->commit();
                 return ['id' => $model->id, 'status' => $model->status];
             } else {
+                $t->rollBack();
                 Error('保存失败');
             }
 
@@ -721,7 +737,7 @@ class IndexController extends BasicController
             Error('商品不存在');
         }
         if ($model->status === 2) {
-            $post['status'] = 3;
+            $post['status'] = 0;
         } elseif ($model->status !== 0 && !$model->status >= 2) {
             Error('不能跳步骤');
         }

@@ -18,6 +18,7 @@ class OrderFreight extends CommonModels
     const logistics_company = ['varchar' => 50, 'comment' => '物流公司'];
     const code              = ['varchar' => 50, 'notNull', 'comment' => '物流公司编号'];
     const freight_sn        = ['varchar' => 50, 'comment' => '物流单号'];
+    const preview_image     = ['varchar' => 2048, 'comment' => '电子面单预览图'];
     const created_time      = ['bigint' => 10, 'comment' => '创建时间'];
     const updated_time      = ['bigint' => 10, 'comment' => '修改时间'];
     const deleted_time      = ['bigint' => 10, 'comment' => '删除时间'];
@@ -38,7 +39,7 @@ class OrderFreight extends CommonModels
                 'when' => function ($model) {
                     return $model->type === 1 ? true : false;
                 }, 'message' => '{attribute}不能为空'],
-            [['order_sn', 'logistics_company', 'freight_sn', 'code'], 'string', 'message' => '{attribute}必须是字符串'],
+            [['order_sn', 'logistics_company', 'freight_sn', 'code', 'preview_image'], 'string', 'message' => '{attribute}必须是字符串'],
         ];
     }
 

@@ -8,6 +8,7 @@
 namespace setting\api;
 
 use framework\common\BasicController;
+use setting\models\Waybill;
 use Yii;
 
 class IndexController extends BasicController
@@ -80,6 +81,20 @@ class IndexController extends BasicController
         } elseif ($keyword == 'expressjson') {
             $json_string = file_get_contents(__DIR__ . '/../app/express.json');
             return to_array($json_string);
+        } elseif ($keyword == 'waybilljson') {
+          $newList = [];
+          $waybill = Waybill::find()->where(['AppID' => Yii::$app->params['AppID'], 'is_deleted' => 0])
+            ->groupBy(['code'])->select('code')->column();
+          $json_string = file_get_contents(__DIR__ . '/../app/express.json');
+          $array = to_array($json_string);
+          foreach ($array as $json) {
+            foreach ($waybill as $item) {
+              if ($json['code'] == $item) {
+                array_push($newList, $json);
+              }
+            }
+          }
+          return $newList;
         }
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];

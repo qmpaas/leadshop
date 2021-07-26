@@ -24,6 +24,7 @@ return [
     '@coupon/api'         => '@leadmall/modules/coupon/api',
     '@collect/api'        => '@leadmall/modules/collect/api',
     '@live/api'           => '@leadmall/modules/live/api',
+    '@waybill/api'        => '@leadmall/modules/waybill/api',
 
     '@demo/app'           => '@leadmall/modules/demo/app',
     '@basics/app'         => '@leadmall/modules/basics/app',

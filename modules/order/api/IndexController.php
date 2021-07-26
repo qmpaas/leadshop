@@ -54,6 +54,22 @@ class IndexController extends BasicController
         if (empty($result)) {
             Error('订单不存在');
         }
+        foreach ($result['goods'] as &$goods) {
+            if ($goods['after']) {
+                foreach ($goods['after'] as $v) {
+                    if ($v['order_goods_id'] === 0) {
+                        $goods['after'] = $v;
+                        break;
+                    } else {
+                        if ($v['order_goods_id'] === $goods['id']) {
+                            $goods['after'] = $v;
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
         $result                 = str2url($result);
         $result['goods_amount'] = $result['goods_amount'] + $result['coupon_reduced'];
         return $result;
@@ -315,6 +331,23 @@ class IndexController extends BasicController
         );
 
         $list = $data->getModels();
+        foreach ($list as &$value) {
+            foreach ($value['goods'] as &$goods) {
+                if ($goods['after']) {
+                    foreach ($goods['after'] as $v) {
+                        if ($v['order_goods_id'] === 0) {
+                            $goods['after'] = $v;
+                            break;
+                        } else {
+                            if ($v['order_goods_id'] === $goods['id']) {
+                                $goods['after'] = $v;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         //将所有返回内容中的本地地址代替字符串替换为域名
         $list = str2url($list);
         $data->setModels($list);
@@ -350,6 +383,22 @@ class IndexController extends BasicController
 
         if (empty($result)) {
             Error('订单不存在');
+        }
+        foreach ($result['goods'] as &$goods) {
+            if ($goods['after']) {
+                foreach ($goods['after'] as $v) {
+                    if ($v['order_goods_id'] === 0) {
+                        $goods['after'] = $v;
+                        break;
+                    } else {
+                        if ($v['order_goods_id'] === $goods['id']) {
+                            $goods['after'] = $v;
+                            break;
+                        }
+                    }
+                }
+            }
+
         }
         $result                 = str2url($result);
         $result['goods_amount'] = $result['goods_amount'] + $result['coupon_reduced'];
@@ -567,7 +616,7 @@ class IndexController extends BasicController
                     ];
                     $this->module->trigger('send_sms');
 
-                    if ($freight_model->type == 1) {
+                    if ($freight_model->type == 1 || $freight_model->type == 3) {
                         $message = new OrderSendMessage([
                             'expressName' => $freight_model->logistics_company,
                             'expressNo'   => $freight_model->freight_sn,

@@ -106,13 +106,9 @@ class OrderGoods extends CommonModels
         return $this->hasOne('order\models\OrderFreight', ['order_sn' => 'order_sn'])->select('order_sn,type,code,logistics_company,freight_sn,created_time');
     }
 
-    /**
-     * 物流信息
-     * @return [type] [description]
-     */
     public function getAfter()
     {
-        return $this->hasOne('order\models\OrderAfter', ['order_goods_id' => 'id'])->select('order_goods_id,type,status,return_number');
+        return $this->hasMany('order\models\OrderAfter', ['order_sn' => 'order_sn'])->select('order_sn,order_goods_id,type,status,return_number');
     }
 
     /**

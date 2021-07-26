@@ -101,13 +101,30 @@ class AfterController extends BasicController
         if ($search_key == 'consignee_mobile' && $search) {
             $where = ['and', $where, ['like', 'buyer.mobile', $search]];
         }
+        $o_g_ids = [];
         //商品名称
         if ($search_key == 'goods_name' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_name', $search]];
+            $ids = M('order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_name', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+
         }
         //商品货号
         if ($search_key == 'goods_sn' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_sn', $search]];
+            $ids = M('order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_sn', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+        }
+
+        if (!empty($o_g_ids)) {
+            $o_g_ids = array_unique($o_g_ids);
+            $where   = ['and', $where, ['goods.order_goods_id' => $o_g_ids]];
         }
 
         $data_list = ['all' => [], 'waitaudit' => [], 'bybuyer' => [], 'bymerchant' => [], 'finished' => [], 'closed' => [], 'recycle' => []];
@@ -140,7 +157,7 @@ class AfterController extends BasicController
             } else {
                 $w = ['and', $where, $w];
             }
-            $value = $this->modelClass::find()
+            $value = OrderAfter::find()
                 ->alias('after')
                 ->joinWith([
                     'buyer as buyer',
@@ -261,13 +278,30 @@ class AfterController extends BasicController
         if ($search_key == 'consignee_mobile' && $search) {
             $where = ['and', $where, ['like', 'buyer.mobile', $search]];
         }
+        $o_g_ids = [];
         //商品名称
         if ($search_key == 'goods_name' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_name', $search]];
+            $ids = M('order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_name', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+
         }
         //商品货号
         if ($search_key == 'goods_sn' && $search) {
-            $where = ['and', $where, ['like', 'goods.goods_sn', $search]];
+            $ids = M('order', 'OrderGoods')::find()
+                ->alias('g')
+                ->leftJoin(['o' => M('order', 'Order')::tablename()], 'o.order_sn = g.order_sn')
+                ->where(['and', ['like', 'g.goods_sn', $search], ['o.AppID' => $AppID, 'o.merchant_id' => $merchant_id]])->select('id')->asArray()->all();
+            $ids     = array_column($ids, 'id');
+            $o_g_ids = array_merge($o_g_ids, $ids);
+        }
+
+        if (!empty($o_g_ids)) {
+            $o_g_ids = array_unique($o_g_ids);
+            $where   = ['and', $where, ['goods.order_goods_id' => $o_g_ids]];
         }
 
         //处理排序
@@ -283,7 +317,7 @@ class AfterController extends BasicController
 
         $data = new ActiveDataProvider(
             [
-                'query'      => $this->modelClass::find()
+                'query'      => OrderAfter::find()
                     ->alias('after')
                     ->joinWith([
                         'buyer as buyer',
@@ -301,6 +335,12 @@ class AfterController extends BasicController
 
         $list = $data->getModels();
         foreach ($list as $key => &$value) {
+            if ($value['order_goods_id']) {
+                $new_goods      = null;
+                $goods          = array_column($value['goods'], null, 'id');
+                $new_goods      = isset($goods[$value['order_goods_id']]) ? [$goods[$value['order_goods_id']]] : null;
+                $value['goods'] = $new_goods;
+            }
             $value['images']                = to_array($value['images']);
             $value['merchant_freight_info'] = to_array($value['merchant_freight_info']);
         }
@@ -320,12 +360,21 @@ class AfterController extends BasicController
         $behavior = Yii::$app->request->get('behavior', false);
 
         if ($behavior === 'order_goods') {
-            $where = ['order_goods_id' => $id];
+            $check = OrderAfter::findOne(['order_goods_id' => $id]);
+            if (!$check) {
+                $o_g_info = M('order', 'OrderGoods')::findOne($id);
+                $where    = ['order_sn' => $o_g_info->order_sn];
+            } else {
+                $where = ['order_goods_id' => $id];
+            }
+
         } else {
             $where = ['id' => $id];
         }
 
-        $result = $this->modelClass::find()
+        $model = OrderAfter::findOne($where);
+
+        $result = OrderAfter::find()
             ->where($where)
             ->with([
                 'buyer',
@@ -336,6 +385,11 @@ class AfterController extends BasicController
             ->asArray()
             ->one();
         if ($result) {
+            if ($result['order_goods_id']) {
+                $goods           = array_column($result['goods'], null, 'id');
+                $new_goods[]     = isset($goods[$result['order_goods_id']]) ? $goods[$result['order_goods_id']] : null;
+                $result['goods'] = $new_goods;
+            }
             $result['images']                = to_array($result['images']);
             $result['process']               = to_array($result['process']);
             $result['return_address']        = to_array($result['return_address']);
@@ -386,7 +440,7 @@ class AfterController extends BasicController
             Error('未定义操作');
         }
         $this->orderAfter($model);
-        return ['status' => $model->status];
+        return $model;
     }
 
     /**
@@ -397,7 +451,7 @@ class AfterController extends BasicController
     {
         $id    = Yii::$app->request->get('id', false);
         $post  = Yii::$app->request->post();
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -438,7 +492,7 @@ class AfterController extends BasicController
     public function pass()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -464,6 +518,17 @@ class AfterController extends BasicController
         } else {
             //退款
             $model->status = 111;
+            $order_sn = $model->order_sn;
+            $order_info = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
+            if ($order_info->status === 201 && $order_info->freight_amount > 0 && $model->order_goods_id) {
+                $a_g_count = OrderAfter::find()->where(['and',['order_sn'=>$order_sn],['>','status',110],['<','status',201]])->sum('return_number');//退款商品数
+                $a_g_count = $a_g_count ?: 0;
+                $o_g_count = M('order', 'OrderGoods')::find()->where(['order_sn'=>$order_sn])->sum('goods_number');//订单商品数
+                if (($a_g_count+$model->return_number) >= $o_g_count) {
+                    $model->return_freight = $order_info->freight_amount;
+                    $model->return_amount += $model->return_freight;
+                }
+            }
         }
         $model->audit_time = time();
 
@@ -487,7 +552,7 @@ class AfterController extends BasicController
         $id            = Yii::$app->request->get('id', false);
         $actual_refund = Yii::$app->request->post('actual_refund', false);
         $actual_score  = Yii::$app->request->post('actual_score', 0);
-        $model         = $this->modelClass::findOne($id);
+        $model         = OrderAfter::findOne($id);
 
         if (empty($model)) {
             Error('售后订单不存在');
@@ -518,7 +583,6 @@ class AfterController extends BasicController
             $time                     = time();
             $model->actual_refund     = $actual_refund;
             $model->actual_score      = $actual_score;
-            $model->return_score_type = $this->plugins("task", "config.integral_return");
             $model->return_sn         = $return_sn;
             $model->status            = 200;
             $model->return_time       = $time;
@@ -529,9 +593,9 @@ class AfterController extends BasicController
             array_unshift($process, ['label' => '结束', 'content' => '已完成 ' . date('Y-m-d H:i:s', $time)]);
             $model->process = to_json($process);
             if ($model->save()) {
-                $after_count = $this->modelClass::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
+                $after_count = OrderAfter::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
                 $goods_count = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->count();
-                if ($after_count >= $goods_count) {
+                if ($model->order_goods_id === 0 || $after_count >= $goods_count) {
                     $order_model = M('order', 'Order')::find()->where(['order_sn' => $model->order_sn])->one();
 
                     $order_model->after_sales = 1;
@@ -548,6 +612,7 @@ class AfterController extends BasicController
                 $this->module->trigger('refunded');
 
                 //处理任务中心积分退还问题
+                $model->return_score_type = $this->plugins("task", "config.integral_return");
                 $this->onReturnScore($model);
 
                 return $model;
@@ -648,7 +713,7 @@ class AfterController extends BasicController
         $id            = Yii::$app->request->get('id', false);
         $actual_refund = Yii::$app->request->post('actual_refund', false);
         $actual_score  = Yii::$app->request->post('actual_score', 0);
-        $model         = $this->modelClass::findOne($id);
+        $model         = OrderAfter::findOne($id);
 
         if (empty($model)) {
             Error('售后订单不存在');
@@ -678,7 +743,6 @@ class AfterController extends BasicController
             $time                     = time();
             $model->actual_refund     = $actual_refund;
             $model->actual_score      = $actual_score;
-            $model->return_score_type = $this->plugins("task", "config.integral_return");
             $model->return_sn         = $return_sn;
             $model->status            = 200;
             $model->return_time       = $time;
@@ -689,7 +753,7 @@ class AfterController extends BasicController
             array_unshift($process, ['label' => '结束', 'content' => '已完成 ' . date('Y-m-d H:i:s', $time)]);
             $model->process = to_json($process);
             if ($model->save()) {
-                $after_count = $this->modelClass::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
+                $after_count = OrderAfter::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
                 $goods_count = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->count();
                 if ($after_count >= $goods_count) {
                     $order_model = M('order', 'Order')::find()->where(['order_sn' => $model->order_sn])->one();
@@ -708,6 +772,7 @@ class AfterController extends BasicController
                 $this->module->trigger('refunded');
 
                 //处理任务中心积分退还问题
+                $model->return_score_type = $this->plugins("task", "config.integral_return");
                 $this->onReturnScore($model);
                 return $model;
             } else {
@@ -723,7 +788,7 @@ class AfterController extends BasicController
     public function salesExchange()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -744,7 +809,7 @@ class AfterController extends BasicController
         $model->process = to_json($process);
 
         if ($model->save()) {
-            $after_count = $this->modelClass::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
+            $after_count = OrderAfter::find()->where(['and', ['order_sn' => $model->order_sn], ['>=', 'status', 200]])->count();
             $goods_count = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->count();
             if ($after_count >= $goods_count) {
                 $order_model = M('order', 'Order')::find()->where(['order_sn' => $model->order_sn])->one();
@@ -770,7 +835,7 @@ class AfterController extends BasicController
     public function exchangeFreight()
     {
         $id    = Yii::$app->request->get('id', false);
-        $model = $this->modelClass::findOne($id);
+        $model = OrderAfter::findOne($id);
         if (empty($model)) {
             Error('售后订单不存在');
         }
@@ -854,7 +919,7 @@ class AfterController extends BasicController
                     $subscribeData = [
                         'refundAmount' => $model->return_amount,
                         'orderNo'      => $model->order->order_sn,
-                        'goodsName'    => $model->goods->goods_name,
+                        'goodsName'    => $model->goods[0]['goods_name'],
                         'applyTime'    => date('Y年m月d日 H:i', time()),
                     ];
                     $subscribe = new OrderRefundMessage($subscribeData);

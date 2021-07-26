@@ -108,6 +108,23 @@ class IndexController extends BasicController
         );
 
         $list = $data->getModels();
+        foreach ($list as &$value) {
+            foreach ($value['goods'] as &$goods) {
+                if ($goods['after']) {
+                    foreach ($goods['after'] as $v) {
+                        if ($v['order_goods_id'] === 0) {
+                            $goods['after'] = $v;
+                            break;
+                        } else {
+                            if ($v['order_goods_id'] === $goods['id']) {
+                                $goods['after'] = $v;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         //将所有返回内容中的本地地址代替字符串替换为域名
         $list = str2url($list);
         $data->setModels($list);
@@ -179,6 +196,24 @@ class IndexController extends BasicController
             Error('订单不存在');
         }
 
+        $result['check_after'] = false;
+        foreach ($result['goods'] as &$goods) {
+            if ($goods['after']) {
+                $result['check_after'] = true;
+                foreach ($goods['after'] as $v) {
+                    if ($v['order_goods_id'] === 0) {
+                        $goods['after'] = $v;
+                        break;
+                    } else {
+                        if ($v['order_goods_id'] === $goods['id']) {
+                            $goods['after'] = $v;
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
         $result['goods_amount']  = $result['goods_amount'] + $result['goods_reduced'] + $result['coupon_reduced'];
         $result['store_reduced'] = $result['goods_reduced'] + $result['freight_reduced'];
 

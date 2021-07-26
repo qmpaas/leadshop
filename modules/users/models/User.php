@@ -90,7 +90,7 @@ class User extends CommonModels implements \yii\web\IdentityInterface
     public function scenarios()
     {
         $scenarios            = parent::scenarios();
-        $scenarios['setting'] = ['mobile', 'realname', 'wechat', 'birthday', 'area'];
+        $scenarios['setting'] = ['mobile', 'realname', 'wechat', 'birthday', 'area', 'gender'];
 
         return $scenarios;
     }

@@ -199,7 +199,7 @@ class Goods extends CommonModels
 
     public function getBody()
     {
-        return $this->hasOne('goods\models\GoodsBody', ['goods_id' => 'id'])->select('id,content');
+        return $this->hasOne('goods\models\GoodsBody', ['goods_id' => 'id'])->select('id,goods_introduce,goods_args,content');
     }
 
     public function getCoupon()

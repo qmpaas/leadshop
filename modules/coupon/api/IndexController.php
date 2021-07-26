@@ -255,23 +255,23 @@ class IndexController extends BasicController
         }
         $obtainCouponNum = UserCoupon::find()->andWhere(["coupon_id" => $coupon->id])
             ->andWhere(['is_deleted' => 0])->count();
-        $newCoupon['id']            = $coupon['id'];
-        $newCoupon['name']          = $coupon['name'];
-        $newCoupon['total_num']     = $coupon['total_num'];
-        $newCoupon['expire_type']   = $coupon['expire_type'];
-        $newCoupon['expire_day']    = $coupon['expire_day'];
-        $newCoupon['min_price']     = $coupon['min_price'];
-        $newCoupon['sub_price']     = $coupon['sub_price'];
-        $newCoupon['begin_time']    = $coupon['begin_time'];
-        $newCoupon['end_time']      = $coupon['end_time'];
-        $newCoupon['appoint_type']  = $coupon['appoint_type'];
-        $newCoupon['give_limit']    = $coupon['give_limit'];
-        $newCoupon['register_limit']= $coupon['register_limit'];
-        $newCoupon['expire_remind'] = $coupon['expire_remind'];
-        $newCoupon['enable_share']  = $coupon['enable_share'];
-        $newCoupon['enable_refund'] = $coupon['enable_refund'];
-        $newCoupon['over_num']      = $coupon['total_num'] - $obtainCouponNum;
-        $newCoupon['content']       = $coupon['content'];
+        $newCoupon['id']             = $coupon['id'];
+        $newCoupon['name']           = $coupon['name'];
+        $newCoupon['total_num']      = $coupon['total_num'];
+        $newCoupon['expire_type']    = $coupon['expire_type'];
+        $newCoupon['expire_day']     = $coupon['expire_day'];
+        $newCoupon['min_price']      = $coupon['min_price'];
+        $newCoupon['sub_price']      = $coupon['sub_price'];
+        $newCoupon['begin_time']     = $coupon['begin_time'];
+        $newCoupon['end_time']       = $coupon['end_time'];
+        $newCoupon['appoint_type']   = $coupon['appoint_type'];
+        $newCoupon['give_limit']     = $coupon['give_limit'];
+        $newCoupon['register_limit'] = $coupon['register_limit'];
+        $newCoupon['expire_remind']  = $coupon['expire_remind'];
+        $newCoupon['enable_share']   = $coupon['enable_share'];
+        $newCoupon['enable_refund']  = $coupon['enable_refund'];
+        $newCoupon['over_num']       = $coupon['total_num'] - $obtainCouponNum;
+        $newCoupon['content']        = $coupon['content'];
         if ($newCoupon['expire_type'] == 1) {
             $newCoupon['begin_time'] = null;
             $newCoupon['end_time']   = null;
@@ -525,40 +525,42 @@ class IndexController extends BasicController
      */
     public static function invalidateUserCoupon($event)
     {
-        $refunded     = $event->refunded;
-        $goods_id     = M('order', 'OrderGoods')::findOne($refunded['order_goods_id'])->goods_id;
-        $goods_number = M('order', 'OrderGoods')::find()->where(['order_sn' => $refunded['order_sn'], 'goods_id' => $goods_id])->sum('goods_number');
+        $refunded = $event->refunded;
+        if ($refunded['order_goods_id'] > 0) {
+            $goods_id     = M('order', 'OrderGoods')::findOne($refunded['order_goods_id'])->goods_id;
+            $goods_number = M('order', 'OrderGoods')::find()->where(['order_sn' => $refunded['order_sn'], 'goods_id' => $goods_id])->sum('goods_number');
 
-        $user_coupon = M('coupon', 'UserCoupon')::find()
-            ->alias('uc')
-            ->joinWith(['coupon as c' => function ($q) {
-                $q->select('id,enable_refund');
-            }])
-            ->where(['and', ['uc.origin_order_sn' => $refunded['order_sn'], 'uc.goods_id' => $goods_id, 'c.enable_refund' => 1], ['>', 'uc.end_time', time()]])
-            ->asArray()
-            ->all();
-        $user_coupon_number = [];
-        foreach ($user_coupon as $v) {
-            if (isset($user_coupon_number[$v['coupon_id']])) {
-                $user_coupon_number[$v['coupon_id']]++;
-            } else {
-                $user_coupon_number[$v['coupon_id']] = 1;
+            $user_coupon = M('coupon', 'UserCoupon')::find()
+                ->alias('uc')
+                ->joinWith(['coupon as c' => function ($q) {
+                    $q->select('id,enable_refund');
+                }])
+                ->where(['and', ['uc.origin_order_sn' => $refunded['order_sn'], 'uc.goods_id' => $goods_id, 'c.enable_refund' => 1], ['>', 'uc.end_time', time()]])
+                ->asArray()
+                ->all();
+            $user_coupon_number = [];
+            foreach ($user_coupon as $v) {
+                if (isset($user_coupon_number[$v['coupon_id']])) {
+                    $user_coupon_number[$v['coupon_id']]++;
+                } else {
+                    $user_coupon_number[$v['coupon_id']] = 1;
+                }
+
+            }
+            foreach ($user_coupon_number as &$number) {
+                $number = ceil($number * ($refunded['return_number'] / $goods_number));
             }
 
-        }
-        foreach ($user_coupon_number as &$number) {
-            $number = ceil($number * ($refunded['return_number'] / $goods_number));
-        }
+            $invalidate_list = [];
+            foreach ($user_coupon as $info) {
+                if ($info['status'] === 0 && $user_coupon_number[$info['coupon_id']] > 0) {
+                    array_push($invalidate_list, $info['id']);
+                    $user_coupon_number[$info['coupon_id']]--;
+                }
 
-        $invalidate_list = [];
-        foreach ($user_coupon as $info) {
-            if ($info['status'] === 0 && $user_coupon_number[$info['coupon_id']] > 0) {
-                array_push($invalidate_list, $info['id']);
-                $user_coupon_number[$info['coupon_id']]--;
             }
 
+            M('coupon', 'UserCoupon')::updateAll(['status' => 2], ['id' => $invalidate_list]);
         }
-
-        M('coupon', 'UserCoupon')::updateAll(['status' => 2], ['id' => $invalidate_list]);
     }
 }

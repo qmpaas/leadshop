@@ -53,6 +53,6 @@ abstract class BaseExpress extends BaseObject
         if ($config) {
             return json_decode($config['content'], true);
         }
-        Error('请配置物流接口');
+        Error('请配置快宝开放平台');
     }
 }

@@ -40,11 +40,11 @@ class ScoreController extends BasicsModules
                 $where = ['and', $where, ['s.status' => $status]];
             }
             if ($today) {
-                $where = ['and', $where, ['>=', 'start_time', strtotime(date("Y-m-d"), time())]];
-                $where = ['and', $where, ['<=', 'start_time', strtotime(date('Y-m-d', strtotime('+1 day')))]];
+                $where = ['and', $where, ['>=', 's.start_time', strtotime(date("Y-m-d"), time())]];
+                $where = ['and', $where, ['<=', 's.start_time', strtotime(date('Y-m-d', strtotime('+1 day')))]];
             }
             return $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where($where)
                 ->andWhere(['t.keyword' => $keyword])
@@ -54,7 +54,7 @@ class ScoreController extends BasicsModules
         //判断是否是要获取已经完成任务的
         if ($type == 'fulfil') {
             $row_A = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['s.status' => 1, 'UID' => $UID])
                 ->andWhere(['>=', 's.start_time', strtotime(date("Y-m-d"), time())])
@@ -64,7 +64,7 @@ class ScoreController extends BasicsModules
                 ->asArray()
                 ->all();
             $order_data = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['UID' => $UID])
                 ->andWhere(['>=', 's.start_time', strtotime(date("Y-m-d"), time())])
@@ -89,14 +89,14 @@ class ScoreController extends BasicsModules
                 }
             }
             $row_C = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['s.status' => 1, 'UID' => $UID])
                 ->andWhere(['in', 't.keyword', ['perfect', 'binding']])
                 ->asArray()
                 ->all();
             $goods_data = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['UID' => $UID])
                 ->andWhere(['>=', 's.start_time', strtotime(date("Y-m-d"), time())])
@@ -122,7 +122,7 @@ class ScoreController extends BasicsModules
             }
             //获取邀请记录
             $invite_data = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['UID' => $UID])
                 ->andWhere(['>=', 's.start_time', strtotime(date("Y-m-d"), time())])
@@ -149,7 +149,7 @@ class ScoreController extends BasicsModules
             return array_merge($row_A, $row_B, $row_C, $row_D, $row_E);
         } else {
             $ScoreClass = $this->ModelScore::find()
-                ->joinWith('task')
+                ->joinWith('task as t')
                 ->from(['s' => $this->ModelScore::tableName()])
                 ->where(['s.status' => 0, 'UID' => $UID])
                 ->asArray()
