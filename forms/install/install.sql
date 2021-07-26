@@ -1095,6 +1095,3 @@ CREATE TABLE `heshop_initialize_prefix_waybill` (
   `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
-
-ALTER TABLE `heshop_initialize_prefix_order_after`
-ADD COLUMN `return_freight`  decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '退款运费' ;
