@@ -1,7 +1,7 @@
 ## 项目介绍
-Leadshop是一款提供持续更新迭代服务的免费商城系统，旨在打造极致的用户体验！
+Leadshop是一款提供持续更新迭代服务的企业级商用电商软件，旨在打造极致的用户体验！
 
-Leadshop由浙江禾成云计算有限公司（<a href="https://www.leadshop.vip" target="_blank"> **官网www.leadshop.vip** </a>）研发，主要面向中小型企业，助力搭建电商平台，并提供专业的技术支持。免费提供长期更新服务，应用涉及**可视化DIY拖拽装修** 、促销转化、裂变分销、用户精细化管理、数据分析等多个维度，追求极致体验，全面赋能商家，为商家创造价值。
+Leadshop由浙江禾成云计算有限公司（<a href="https://www.leadshop.vip" target="_blank"> **官网www.leadshop.vip** </a>）研发，主要面向中小型企业，助力搭建电商平台，并提供专业的技术支持。免费提供长期更新服务，应用涉及**可视化DIY拖拽设计** 、促销转化、裂变分销、用户精细化管理、数据分析等多个维度，追求极致体验，全面赋能商家，为商家创造价值。
 
 **Leadshop无偿供大家使用，您的star是我们前进的动力** 
 
@@ -32,9 +32,11 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 <a href="https://www.leadshop.vip/thread/35" target="_blank"> **查看常见问题/安装教程** </a>
 
 ## 下期更新计划
-* <a href="https://www.leadshop.vip/category/9?search_ids=9" target="_blank"> **【预告】积分任务中心插件即将上线** </a>
+* <a href="https://www.leadshop.vip/category/9?search_ids=9" target="_blank"> **【预告】电子面单/商品参数/商品副标题/开屏广告/小程序跳转/发布商品等功能的开发及优化** </a>
 
- <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/06/30/2j5gat1nvAOsMUaWe3OQJg7A79eO0DJDl9q2Sexc.png">
+* <a href="https://mp.weixin.qq.com/s/WxA_kQIdx0H95ctkVMxlhg" target="_blank"> **【已上线】LEADSHOP第一款围绕积分开发的插件 ——【任务中心插件】详细介绍及视频演示** </a>
+
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210726/2.png)
 
 ## 更新历史
 * <a href="http://help.leadshop.vip/2278957" target="_blank"> **点击查看往期更新历史** </a>
@@ -49,8 +51,10 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 
 * 密码:123456
 
+* <a href="https://app.cloud.tencent.com/?app=Leadshop" target="_blank"> **点击进入腾讯云开源中心在线体验** </a>
+ <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/23/lBE6wgjWIoVsYzOO839I56FdgkUz0dLpl0KES7Pe.png">
 * 扫码关注“企码星球”体验Leadshop公众号+小程序
-
+<br>
  <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/05/14/SPpkWJfKviDWHsO7e0Yh6ZUohHX718rc7gzyUlff.jpg">
 
 * 操作文档：<a href="https://help.leadshop.vip" target="_blank"> **help.leadshop.vip** </a>
@@ -75,7 +79,9 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 ## 数据表格导出
 * 采用高性能的 js-xlsx数据导出，易于扩展，兼容性强。
 
-* 接口文档：<a href="http://doc.leadshop.vip/api.html" target="_blank"> **doc.leadshop.vip/api.html** </a>
+## 接口文档：
+* 后台接口： <a href="http://doc.leadshop.vip/api.html" target="_blank"> **doc.leadshop.vip/api.html** </a>
+* 小程序(公众号)接口：<a href="http://doc.leadshop.vip/app.html" target="_blank"> **doc.leadshop.vip/app.html** </a>
 
 ## 安装
 
@@ -106,7 +112,7 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 
 ### 重新安装
 1. 清除数据库
-2. 删除/server/install.lock 文件
+2. 删除/install.lock 文件
 
 ## 目录说明
 ```
@@ -155,13 +161,17 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 
 ## Leadshop功能简介
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/1.png)
-![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/2.png)
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210726/2.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/3.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/4.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/5.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/6.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/7.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/8.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/Sku1Gh8F1YVo1DVeaMNUYuAYxOXjgwWJhha9zMAo.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/JFSyAHgTf2k1aiG55Oxdd7ttGPaSNKWRKg1RiprI.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/QFEIO51KGEi2KQPTH965nEqD5YnTYy8Np9o5E5Rh.png)
+![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/pqTYMEwxvz5md9n6bhCfgUYRhA08ByIIbRMscY4q.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/9.png)
 
 ## 使用须知
@@ -173,3 +183,12 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 ## 版权信息
 
 Powered By Leadshop © 2021
+
+## 🚫  **禁止** 
+禁止未经Leadshop官方许可私自删除Leadshop前后端版权！
+<br>
+Leadshop每年都需要投入大量资金宣传推广产品和品牌，从而为更多用户创造价值！
+<br>
+所以，商业使用必须带官方版权！版权标识和链接是Leadshop的生命线和价值所在，很重要！
+<br>
+Leadshop官方非常重视版权保护，并成立了专门的法务维权部门，我们对非法去除版权标识的网站主体将根据《Apache-2.0开源许可协议》和《中华人民共和国著作权法》以及相关法律法规进行维权，维权措施包括但不限于法律诉讼、要求侵权网站主动购买版权标识修改许可、赔偿侵权损失、公开赔礼道歉等。
