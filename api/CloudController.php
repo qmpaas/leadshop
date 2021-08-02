@@ -28,10 +28,13 @@ class CloudController extends BasicsModules implements Map
         //获取分页信息
         $pageSize = $headers->get('X-Pagination-Per-Page') ?? 5;
         $page     = \Yii::$app->request->get('page', 1);
-        return \Yii::$app->cloud->update->getVersionData([
-            'page'  => $page,
-            'limit' => $pageSize,
-        ]);
+        return [
+            'version' => \Yii::$app->cloud->update->getVersionData([
+              'page'  => $page,
+              'limit' => $pageSize,
+            ]),
+            'auth' =>  \Yii::$app->cloud->auth->getAuthData(),
+        ];
     }
 
     public function actionCreate($value = '')

@@ -10,6 +10,7 @@
 namespace users\app;
 
 use framework\common\BasicController;
+use framework\common\GenerateIdentify;
 use sizeg\jwt\Jwt;
 use users\models\LoginUserInfo;
 use users\models\Oauth;
@@ -24,6 +25,8 @@ use \framework\common\TokenHttpException;
  */
 abstract class LoginController extends BasicController
 {
+    use GenerateIdentify;
+
     public $modelClass = 'users\models\Oauth';
 
     /**
@@ -163,7 +166,8 @@ abstract class LoginController extends BasicController
         /** @var Jwt $jwt */
         $jwt    = Yii::$app->jwt;
         $signer = $jwt->getSigner('HS256');
-        $key    = $jwt->getKey();
+        $identify = $this->getIdentify();
+        $key    = $jwt->getKey($identify);
         $time   = time();
         $host   = Yii::$app->request->hostInfo;
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';

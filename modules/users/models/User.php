@@ -8,6 +8,7 @@
 namespace users\models;
 
 use framework\common\CommonModels;
+use framework\common\GenerateIdentify;
 use sizeg\jwt\Jwt;
 use Yii;
 use yii\web\UnauthorizedHttpException;
@@ -32,6 +33,7 @@ use \framework\common\TokenHttpException;
  */
 class User extends CommonModels implements \yii\web\IdentityInterface
 {
+    use GenerateIdentify;
 
     const id           = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
     const nickname     = ['varchar' => 50, 'notNull', 'comment' => '昵称'];
@@ -127,8 +129,11 @@ class User extends CommonModels implements \yii\web\IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        $token  = Yii::$app->jwt->getParser()->parse((string) $token);
-        $data   = Yii::$app->jwt->getValidationData();
+        /** @var Jwt $jwt */
+        $jwt = Yii::$app->jwt;
+        $jwt->key = (new User)->getIdentify();
+        $token  = $jwt->getParser()->parse((string) $token);
+        $data   = $jwt->getValidationData();
         $AppID  = Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '';
         $host   = Yii::$app->request->hostInfo;
         $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
@@ -136,7 +141,7 @@ class User extends CommonModels implements \yii\web\IdentityInterface
         $data->setAudience($origin);
         $data->setId($AppID);
         $data->setCurrentTime(time());
-        if ($token->validate($data)) {
+        if ($token->validate($data) && $jwt->verifyToken($token)) {
             $id = $token->getClaim('id');
             if ($id) {
                 $data = static::find()->where(['id' => $id])->with(['oauth'])->one();

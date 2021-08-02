@@ -20,10 +20,13 @@ class Cloud extends Component
 {
     /** @var CloudUpdate $update */
     public $update;
+    /** @var CloudAuth $auth */
+    public $auth;
 
     public function init()
     {
         parent::init();
         $this->update = new CloudUpdate();
+        $this->auth = new CloudAuth();
     }
 }

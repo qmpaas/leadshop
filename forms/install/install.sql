@@ -548,6 +548,7 @@ CREATE TABLE `heshop_initialize_prefix_order_freight`  (
   `updated_time` bigint(10) NULL DEFAULT NULL COMMENT '修改时间',
   `deleted_time` bigint(10) NULL DEFAULT NULL COMMENT '删除时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
+  `preview_image`  varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '电子面单预览图',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `订单编号`(`order_sn`) USING BTREE,
   INDEX `物流编号`(`freight_sn`) USING BTREE
@@ -1095,3 +1096,6 @@ CREATE TABLE `heshop_initialize_prefix_waybill` (
   `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `heshop_initialize_prefix_goods`
+MODIFY COLUMN `video`  varchar(8192) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频地址' AFTER `is_video`;

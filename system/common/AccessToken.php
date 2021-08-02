@@ -7,10 +7,12 @@
  */
 namespace framework\common;
 
+use sizeg\jwt\Jwt;
 use Yii;
 
 class AccessToken
 {
+    use GenerateIdentify;
 
     /**
      * 获取Token信息
@@ -24,7 +26,8 @@ class AccessToken
         /** @var Jwt $jwt */
         $jwt    = Yii::$app->jwt;
         $signer = $jwt->getSigner('HS256');
-        $key    = $jwt->getKey();
+        $identify = (new AccessToken())->getIdentify();
+        $key    = $jwt->getKey($identify);
         $time   = time();
         $host   = Yii::$app->request->hostInfo;
 
@@ -56,14 +59,17 @@ class AccessToken
      */
     public static function accessToken($token)
     {
-        $token = Yii::$app->jwt->getParser()->parse((string) $token);
-        $data  = Yii::$app->jwt->getValidationData();
+        /** @var Jwt $jwt */
+        $jwt = Yii::$app->jwt;
+        $jwt->key = (new AccessToken())->getIdentify();
+        $token = $jwt->getParser()->parse((string) $token);
+        $data  = $jwt->getValidationData();
         $AppID = Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '';
         $host  = Yii::$app->request->hostInfo;
         $data->setIssuer($host);
         $data->setId($AppID);
         $data->setCurrentTime(time());
-        if ($token->validate($data)) {
+        if ($token->validate($data) && $jwt->verifyToken($token)) {
             $id = $token->getClaim('id');
             if ($id) {
                 return $token;

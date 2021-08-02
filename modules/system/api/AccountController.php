@@ -199,33 +199,6 @@ class AccountController extends BasicController
         return $menusArray;
     }
 
-    /**
-     * 获取Token信息
-     * 超时时间:21600
-     * @param  string $id [description]
-     * @return [type]      [description]
-     */
-    public function getToken($id = '')
-    {
-        /** @var Jwt $jwt */
-        $jwt    = Yii::$app->jwt;
-        $signer = $jwt->getSigner('HS256');
-        $key    = $jwt->getKey();
-        $time   = time();
-        $host   = Yii::$app->request->hostInfo;
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-        // Adoption for lcobucci/jwt ^4.0 version
-        $token = $jwt->getBuilder()
-            ->issuedBy($host) // Configures the issuer (iss claim)
-            ->permittedFor($origin) // Configures the audience (aud claim)
-            ->identifiedBy(Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '', true) // Configures the id (jti claim), replicating as a header item
-            ->issuedAt($time) // Configures the time that the token was issue (iat claim)
-            ->expiresAt($time + 21600) // Configures the expiration time of the token (exp claim)
-            ->withClaim('id', $id) // Configures a new claim, called "id"
-            ->getToken($signer, $key); // Retrieves the generated token
-        return (string) $token;
-    }
-
     public function changePwd()
     {
         $host = Yii::$app->request->hostInfo;
