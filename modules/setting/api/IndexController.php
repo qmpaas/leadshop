@@ -34,10 +34,20 @@ class IndexController extends BasicController
     {
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
+        $behavior     = Yii::$app->request->post('behavior', false);
+        switch ($behavior) {
+            case 'copyright_information':
+                $keyword = 'copyright_information';
+                break;
+            
+            default:
+                $keyword = 'web_setting';
+                break;
+        }
         $where       = [
             'merchant_id' => $merchant_id,
             'AppID'       => $AppID,
-            'keyword'=>'web_setting'
+            'keyword'=>$keyword
         ];
         $data = M()::find()->where($where)->select('keyword,content')->asArray()->one();
         return str2url(to_array($data['content']));

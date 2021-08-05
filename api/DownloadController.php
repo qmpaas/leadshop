@@ -107,6 +107,26 @@ EOF;
         $appJson['tabBar'] = $newBar;
         $appJson = json_encode($appJson, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $zipArchive->addFromString('app.json', $appJson);
+        // 自动根据小程序的配置信息更新微信小程序`zip`包`project.config.json`文件的`appid`和`projectname`
+        $appConfigJsonUrl = \Yii::$app->basePath . '/stores/' . $AppID . '.json';
+        if (file_exists($appConfigJsonUrl)) {
+            $appConfigJson  = file_get_contents($appConfigJsonUrl);
+            $appConfigArr  = to_array($appConfigJson);
+
+            $projectConfigFile = 'project.config.json';
+            //Read project config contents into memory
+            $projectConfig = json_decode($zipArchive->getFromName($projectConfigFile),true);
+            //Modify project config contents:
+            $projectConfig['appid'] = $appConfigArr['apply']['weapp']['AppID'];
+            $projectConfig['projectname'] = $appConfigArr['apply']['weapp']['name'];
+
+            $newProjectConfigContents = json_encode($projectConfig, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            //Delete the old...
+            $zipArchive->deleteName($projectConfigFile);
+            //Write the new...
+            $zipArchive->addFromString($projectConfigFile, $newProjectConfigContents);
+            //And write back to the filesystem.
+        }
         $zipArchive->close();
         \Yii::$app->response->format = Response::FORMAT_RAW;
         header('Content-Description: File Transfer');

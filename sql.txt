@@ -1,2 +1,0 @@
-ALTER TABLE `heshop_initialize_prefix_goods`
-MODIFY COLUMN `video`  varchar(8192) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频地址' AFTER `is_video`;

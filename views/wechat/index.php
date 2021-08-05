@@ -30,8 +30,8 @@
     }
 
     <?php if (!empty($tabBar)) {
-        echo "window.siteinfo.tabBar = " . json_encode($tabBar);
-      }?>
+          echo "window.siteinfo.tabBar = " . json_encode($tabBar);
+        }?>
 
     var coverSupport =
         'CSS' in window &&
@@ -51,7 +51,7 @@
     <div id="app"></div>
     <script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <script src="/assets/wechat/static/js/chunk-vendors.d630ff75.js"></script>
-    <script src="/assets/wechat/static/js/index.b1cc953b.js"></script>
+    <script src="/assets/wechat/static/js/index.83649695.js"></script>
 </body>
 
 </html>

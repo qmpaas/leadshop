@@ -71,6 +71,11 @@ class KbExpress extends BaseExpress
             'result_sort' => $this->sort,
             'phone' => $this->mobile
         ];
+        $cacheKey = 'LEADSHOP_KB_EXPRESS_BY_' . md5(json_encode($params));
+        $res = \Yii::$app->cache->get($cacheKey);
+        if ($res) {
+            return $res;
+        }
         $config = $this->getConfig();
         if (!isset($config['app_id']) || empty($config['app_key'])) {
             Error('请配置物流接口');
@@ -88,7 +93,9 @@ class KbExpress extends BaseExpress
             "data" => json_encode($params)
         ];
         try {
-            return $this->post($this->url, $body, $header);
+            $res = $this->post($this->url, $body, $header);
+            \Yii::$app->cache->set($cacheKey, $res, 60 * 5);
+            return $res;
         } catch (TransferException $e) {
             $httpCode = $e->getResponse()->getStatusCode();
             $headers = $e->getResponse()->getHeaders();
