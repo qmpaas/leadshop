@@ -18,7 +18,7 @@
     <script src="/assets/admin/js/chunk-echarts.9abfeb26.js"></script>
     <script src="/assets/admin/js/chunk-elementUi.fd2db04a.js"></script>
     <script src="/assets/admin/js/chunk-leadshop.97ce0175.js"></script>
-    <script src="/assets/admin/js/index.88e31c03.js"></script>
+    <script src="/assets/admin/js/index.18540768.js"></script>
 </body>
 
 </html>
