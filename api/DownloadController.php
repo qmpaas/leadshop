@@ -117,8 +117,8 @@ EOF;
             //Read project config contents into memory
             $projectConfig = json_decode($zipArchive->getFromName($projectConfigFile),true);
             //Modify project config contents:
-            $projectConfig['appid'] = $appConfigArr['apply']['weapp']['AppID'];
-            $projectConfig['projectname'] = $appConfigArr['apply']['weapp']['name'];
+            $projectConfig['appid'] = $appConfigArr['apply']['weapp']['AppID'] ?? '';
+            $projectConfig['projectname'] = $appConfigArr['apply']['weapp']['name'] ?? '';
 
             $newProjectConfigContents = json_encode($projectConfig, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             //Delete the old...
