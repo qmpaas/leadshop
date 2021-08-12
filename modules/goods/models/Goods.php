@@ -17,10 +17,9 @@ class Goods extends CommonModels
     const group            = ['varchar' => 1000, 'notNull', 'comment' => '分类列表'];
     const price            = ['decimal' => '10,2', 'notNull', 'comment' => '商品价格'];
     const line_price       = ['decimal' => '10,2', 'default' => 0, 'comment' => '划线价'];
-    const status           = ['tinyint' => 3, 'notNull', 'default' => 1, 'comment' => '商品状态： 0 正常 1 失效/下架'];
+    const status           = ['tinyint' => 3, 'notNull', 'default' => 0, 'comment' => '商品状态： 0 正常 1 失效/下架'];
     const param_type       = ['tinyint' => 1, 'notNull', 'default' => 1, 'comment' => '规格类型：1单规格 2 多规格'];
     const unit             = ['varchar' => 50, 'comment' => '单位'];
-    const tags             = ['varchar' => 255, 'comment' => '标签'];
     const slideshow        = ['text' => 0, 'notNull', 'comment' => '轮播图'];
     const is_video         = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '视频开关： 0 关闭 1 启用'];
     const video            = ['text' => 0, 'comment' => '视频地址'];
@@ -71,7 +70,7 @@ class Goods extends CommonModels
             ['name', 'string', 'max' => 40, 'tooLong' => '{attribute}最多40位'],
 
             //价格库存设置
-            [['price', 'param_type', 'unit', 'stocks', 'reduce_stocks'], 'required', 'message' => '{attribute}不能为空'],
+            [['price', 'param_type', 'unit', 'stocks'], 'required', 'message' => '{attribute}不能为空'],
             [['param_type', 'stocks', 'reduce_stocks', 'virtual_sales'], 'integer', 'message' => '{attribute}必须是整数'],
             [['price', 'line_price'], 'number', 'message' => '{attribute}必须是数字'],
             ['virtual_sales', 'default', 'value' => 0],
@@ -131,11 +130,9 @@ class Goods extends CommonModels
     public function scenarios()
     {
         $scenarios                      = parent::scenarios();
-        $scenarios['create']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover'];
-        $scenarios['basic_setting']     = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover'];
-        $scenarios['param_setting']     = ['price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status'];
-        $scenarios['logistics_setting'] = ['ft_type', 'ft_price', 'ft_id', 'pfr_id', 'status'];
-        $scenarios['other_setting']     = ['limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services', 'status'];
+        $scenarios['create']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services'];
+        $scenarios['update']            = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services'];
+        $scenarios['collect']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover'];
 
         return $scenarios;
     }

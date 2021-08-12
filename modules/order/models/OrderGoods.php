@@ -14,7 +14,6 @@ class OrderGoods extends CommonModels
 {
     const id               = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
     const order_sn         = ['varchar' => 50, 'notNull', 'comment' => '订单号'];
-    const freight_sn       = ['varchar' => 50, 'comment' => '物流单号'];
     const goods_id         = ['bigint' => 20, 'notNull', 'comment' => '商品ID'];
     const goods_sn         = ['varchar' => 50, 'comment' => '商品编号'];
     const goods_name       = ['varchar' => 100, 'notNull', 'comment' => '商品名称'];
@@ -104,6 +103,11 @@ class OrderGoods extends CommonModels
     public function getFreight()
     {
         return $this->hasOne('order\models\OrderFreight', ['order_sn' => 'order_sn'])->select('order_sn,type,code,logistics_company,freight_sn,created_time');
+    }
+
+    public function getBag()
+    {
+        return $this->hasMany('order\models\OrderFreightGoods', ['order_goods_id' => 'id'])->select('freight_id,order_goods_id,bag_goods_number');
     }
 
     public function getAfter()

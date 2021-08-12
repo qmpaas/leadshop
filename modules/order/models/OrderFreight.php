@@ -73,4 +73,13 @@ class OrderFreight extends CommonModels
         ];
     }
 
+    /**
+     * 包裹商品
+     * @return [type] [description]
+     */
+    public function getGoods()
+    {
+        return $this->hasMany('order\models\OrderFreightGoods', ['freight_id' => 'id'])->select('id,freight_id,order_goods_id,bag_goods_number')->with('goods');
+    }
+
 }

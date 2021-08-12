@@ -30,9 +30,9 @@
     }
 
     <?php if (!empty($tabBar)) {
-          echo "window.siteinfo.tabBar = " . json_encode($tabBar);
-        }?>
-
+        echo "window.siteinfo.tabBar = " . json_encode($tabBar);
+    }?>
+    
     var coverSupport =
         'CSS' in window &&
         typeof CSS.supports === 'function' &&
@@ -49,9 +49,9 @@
 
 <body><noscript><strong>Please enable JavaScript to continue.</strong></noscript>
     <div id="app"></div>
-    <script src="https://res2.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-    <script src="/assets/wechat/static/js/chunk-vendors.d630ff75.js"></script>
-    <script src="/assets/wechat/static/js/index.9e82a7c9.js"></script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script src="/assets/wechat/static/js/chunk-vendors.26dbbd2c.js"></script>
+    <script src="/assets/wechat/static/js/index.4ad7ba74.js"></script>
 </body>
 
 </html>

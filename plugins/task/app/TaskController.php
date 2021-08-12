@@ -85,6 +85,10 @@ class TaskController extends BasicsModules
             if ($status != -1) {
                 $where = ["status" => $status];
             }
+            $goods_info = Yii::$app->request->get("goods_info", "");
+            if ($goods_info) {
+                $where = ['and', $where, ['keyword' => ['goods', 'order']]];
+            }
             $taskRow = $this->ModelTask::find()->where($where)->asArray()->indexBy('keyword')->all();
             if ($taskRow) {
                 foreach ($taskRow as $key => &$task) {
@@ -113,17 +117,24 @@ class TaskController extends BasicsModules
                         $task['log']     = $log;
                     }
                     if ($task['keyword'] == 'order') {
-                        $UID             = Yii::$app->user->identity->id;
                         $task['declare'] = sprintf($task['remark'], $task['total'], $task['acquire']);
-                        $log             = $this->ModelLog::find()->where(['task_id' => $task['id'], 'status' => 0, 'UID' => $UID])->count('task_id');
-                        $task['log']     = $log;
+                        $task['log']     = 0;
+                        if (!empty(Yii::$app->user->identity)) {
+                            $UID         = Yii::$app->user->identity->id;
+                            $log         = $this->ModelLog::find()->where(['task_id' => $task['id'], 'status' => 0, 'UID' => $UID])->count('task_id');
+                            $task['log'] = $log;
+                        }
                     }
                     if ($task['keyword'] == 'goods') {
-                        $UID             = Yii::$app->user->identity->id;
                         $task['declare'] = sprintf($task['remark'], $task['total'], $task['acquire']);
-                        $log             = $this->ModelLog::find()->where(['task_id' => $task['id'], 'status' => 0, 'UID' => $UID])->count('task_id');
-                        $task['log']     = $log;
-                    }
+                        $task['log']     = 0;
+                        if (!empty(Yii::$app->user->identity)) {
+                            $UID         = Yii::$app->user->identity->id;
+                            $log         = $this->ModelLog::find()->where(['task_id' => $task['id'], 'status' => 0, 'UID' => $UID])->count('task_id');
+                            $task['log'] = $log;
+                        }
+                    };
+
                     if ($task['keyword'] == 'invite') {
                         $UID             = Yii::$app->user->identity->id;
                         $task['declare'] = sprintf($task['remark'], $task['total'], $task['acquire']);

@@ -11,13 +11,13 @@ use app\forms\video\Video;
 use framework\common\BasicController;
 use Yii;
 use yii\data\ActiveDataProvider;
+use goods\models\Goods;
 
 /**
  * 小程序商品
  */
 class IndexController extends BasicController
 {
-    public $goodsModel = 'goods\models\Goods';
 
     /**
      * 重写父类
@@ -105,8 +105,8 @@ class IndexController extends BasicController
         //用于判断插件是否安装
         if ($is_task && $task_status) {
             if ($auto) {
-                $data = $this->goodsModel::find()
-                    ->from(['g' => $this->goodsModel::tableName()])
+                $data = Goods::find()
+                    ->from(['g' => Goods::tableName()])
                     ->joinWith('task as t')
                     ->where([
                         "t.goods_is_sale" => 1,
@@ -126,8 +126,8 @@ class IndexController extends BasicController
                 $where = ['AppID' => $AppID];
                 $where = ['and', $where, ['g.id' => $goods_id]];
                 $where = ['and', $where, ['t.goods_is_sale' => 1, "t.is_recycle" => 0, "t.is_deleted" => 0]];
-                $data  = M()::find()
-                    ->from(['g' => M()::tableName()])
+                $data  = Goods::find()
+                    ->from(['g' => Goods::tableName()])
                     ->where($where)
                     ->orderBy(['g.created_time' => SORT_DESC])
                     ->joinWith('task as t')
@@ -137,7 +137,7 @@ class IndexController extends BasicController
 
         } else {
             $where = ['id' => $goods_id, 'AppID' => $AppID, 'is_sale' => 1, 'is_recycle' => 0, 'is_deleted' => 0];
-            $data  = M()::find()
+            $data  = Goods::find()
                 ->where($where)
                 ->orderBy(['created_time' => SORT_DESC])
                 ->asArray()
@@ -193,29 +193,19 @@ class IndexController extends BasicController
             $where = ['and', $where, ['t.goods_is_sale' => 1]];
             $where = ['and', $where, ['t.is_recycle' => 0]];
 
-            $data = M()::find()
+            $data = Goods::find()
                 ->joinWith('task')
-                ->from(['g' => M()::tableName()])
+                ->from(['g' => Goods::tableName()])
                 ->where($where)
                 ->orderBy(['sales' => SORT_DESC])
                 ->offset(0)
                 ->limit(6)
                 ->asArray()
                 ->all();
-            // $sql = M()::find()
-            //     ->joinWith('task')
-            //     ->from(['g' => M()::tableName()])
-            //     ->where($where)
-            //     ->orderBy(['sales' => SORT_DESC])
-            //     ->offset(0)
-            //     ->limit(20);
-
-            // P2($sql);
-            // exit();
         } else {
             $where = ['and', $where, ['is_recycle' => 0, 'is_sale' => 1]];
-            $data  = M()::find()
-                ->from(['g' => M()::tableName()])
+            $data  = Goods::find()
+                ->from(['g' => Goods::tableName()])
                 ->where($where)
                 ->orderBy(['sales' => SORT_DESC])
                 ->offset(0)
@@ -334,9 +324,9 @@ class IndexController extends BasicController
             $where = ['and', $where, ['t.is_recycle' => 0]];
             $data  = new ActiveDataProvider(
                 [
-                    'query'      => M()::find()
+                    'query'      => Goods::find()
                         ->joinWith('task')
-                        ->from(['g' => M()::tableName()])
+                        ->from(['g' => Goods::tableName()])
                         ->where($where)
                         ->orderBy($orderBy)
                         ->asArray(),
@@ -347,7 +337,7 @@ class IndexController extends BasicController
             $where = ['and', $where, ['is_recycle' => 0, 'is_sale' => 1]];
             $data  = new ActiveDataProvider(
                 [
-                    'query'      => M()::find()
+                    'query'      => Goods::find()
                         ->where($where)
                         ->orderBy($orderBy)
                         ->asArray(),
@@ -395,9 +385,9 @@ class IndexController extends BasicController
             } elseif ($result['goods_is_sale'] === 0) {
                 return ['empty_status' => 2];
             }
-            $result = M()::find()->where(['id' => $id])->with($with)->asArray()->one();
+            $result = Goods::find()->where(['id' => $id])->with($with)->asArray()->one();
         } else {
-            $result = M()::find()->where(['id' => $id])->with($with)->asArray()->one();
+            $result = Goods::find()->where(['id' => $id])->with($with)->asArray()->one();
             if (empty($result) || $result['is_deleted'] === 1) {
                 return ['empty_status' => 1];
             } elseif ($result['is_sale'] === 0) {
@@ -455,18 +445,6 @@ class IndexController extends BasicController
                             $district = array_column($district, null, 'name');
                             if (array_key_exists($address['district'], $district)) {
                                 $freight += $freight_rules['first']['price']; //首件首重费用
-                                // if ($result['freight']['type'] == 1) {
-                                //     //按件计算
-                                //     $f_number = 1;
-                                // } else {
-                                //     //按重计算
-                                //     $f_number = 1;
-                                // }
-
-                                // $continue = $f_number - $freight_rules['first']['number']; //判断是否超出首件数量或首重重量
-                                // if ($continue > 0 && $freight_rules['continue']['number'] > 0) {
-                                //     $freight += ceil($continue / $freight_rules['continue']['number']) * $freight_rules['continue']['price'];
-                                // }
                             }
                         }
                     }
@@ -498,7 +476,7 @@ class IndexController extends BasicController
             $result['task'] = $task;
         }
 
-        M()::updateAllCounters(['visits' => 1], ['id' => $id]);
+        Goods::updateAllCounters(['visits' => 1], ['id' => $id]);
 
         return $result;
     }
@@ -508,7 +486,7 @@ class IndexController extends BasicController
 
         $list = M('order', 'OrderGoods')::find()->where(['order_sn' => $event->pay_order_sn])->select('order_sn,goods_id,goods_number,pay_amount')->asArray()->all();
         foreach ($list as $value) {
-            M()::updateAllCounters(['sales_amount' => $value['pay_amount'], 'sales' => $value['goods_number']], ['id' => $value['goods_id']]);
+            Goods::updateAllCounters(['sales_amount' => $value['pay_amount'], 'sales' => $value['goods_number']], ['id' => $value['goods_id']]);
         }
 
     }
@@ -522,7 +500,7 @@ class IndexController extends BasicController
     {
         foreach ($event->order_goods as $value) {
             M('goods', 'GoodsData')::updateAllCounters(['stocks' => (0 - $value['goods_number'])], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
-            M()::updateAllCounters(['stocks' => (0 - $value['goods_number'])], ['id' => $value['goods_id']]);
+            Goods::updateAllCounters(['stocks' => (0 - $value['goods_number'])], ['id' => $value['goods_id']]);
         }
     }
 
@@ -535,7 +513,7 @@ class IndexController extends BasicController
     {
         foreach ($event->cancel_order_goods as $value) {
             M('goods', 'GoodsData')::updateAllCounters(['stocks' => $value['goods_number']], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
-            M()::updateAllCounters(['stocks' => $value['goods_number']], ['id' => $value['goods_id']]);
+            Goods::updateAllCounters(['stocks' => $value['goods_number']], ['id' => $value['goods_id']]);
         }
     }
 }

@@ -133,6 +133,22 @@ function updateShareData({ title = '', desc = ' ', path = '', imageUrl = '' }) {
   );
 }
 
+// 获取定位
+function getLocation({ success }) {
+  init(
+    function (jssdk) {
+      jssdk.getLocation({
+        type: 'wgs84',
+        success(response) {
+          success && success(response);
+        },
+        fail() {}
+      });
+    },
+    ['getLocation']
+  );
+}
+
 export default {
   isWechat,
   showMenuItems,
@@ -141,5 +157,6 @@ export default {
   updateShareData,
   init,
   call,
-  hideMenuItems
+  hideMenuItems,
+  getLocation
 };

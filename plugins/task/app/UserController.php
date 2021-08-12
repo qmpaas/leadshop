@@ -38,7 +38,7 @@ class UserController extends BasicsModules
             $UserClass->UID = $UID;
             //执行积分数据写入
             $UserClass->save();
-            return $UserClass::find()->asArray()->one();
+            return $UserClass::find()->where(['UID'=>$UID])->asArray()->one();
         }
     }
 

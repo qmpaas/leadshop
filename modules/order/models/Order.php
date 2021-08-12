@@ -174,7 +174,7 @@ class Order extends CommonModels
      */
     public function getFreight()
     {
-        return $this->hasOne('order\models\OrderFreight', ['order_sn' => 'order_sn'])->select('order_sn,type,code,logistics_company,freight_sn,created_time');
+        return $this->hasMany('order\models\OrderFreight', ['order_sn' => 'order_sn'])->select('id,order_sn,type,code,logistics_company,freight_sn,created_time');
     }
     /**
      * 商品信息

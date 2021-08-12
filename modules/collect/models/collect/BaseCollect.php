@@ -257,7 +257,7 @@ abstract class BaseCollect extends BaseObject
         $this->check();
         $transaction = \Yii::$app->db->beginTransaction(); //启动数据库事务
         $model       = M('goods', 'Goods', true);
-        $model->setScenario('create');
+        $model->setScenario('collect');
         $model->name = $goods->name;
         $model->price = $goods->price;
         $model->line_price = $goods->linePrice;

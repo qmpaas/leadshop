@@ -37,6 +37,7 @@
     "leadmall/app/subscribe/index",
     "leadmall/api/demo/index",
     "leadmall/api/demo/create",
+    "leadmall/app/plugin/index",
     "leadmall/api/plugin/index",
     "leadmall/api/plugin/view",
     "leadmall/api/plugin/create",

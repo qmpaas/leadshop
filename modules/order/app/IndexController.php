@@ -187,7 +187,9 @@ class IndexController extends BasicController
             ->joinWith([
                 'buyer as buyer',
                 'goods as goods',
-                'freight as freight',
+                'freight as freight' => function ($q) {
+                    $q->with('goods');
+                },
             ])
             ->asArray()
             ->one();
@@ -213,6 +215,27 @@ class IndexController extends BasicController
                 }
             }
 
+        }
+        if (count($result['freight']) === 1 && empty($result['freight'][0]['goods'])) {
+            $order_goods = M('order', 'OrderGoods')::find()->where(['order_sn' => $result['order_sn']])->select('id,goods_name,goods_number,goods_image')->asArray()->all();
+            $new_goods   = [];
+            foreach ($order_goods as $o_g) {
+                $new_o_g = [
+                    'order_goods_id'   => $o_g['id'],
+                    'bag_goods_number' => $o_g['goods_number'],
+                    'goods'            => $o_g,
+                ];
+                array_push($new_goods, $new_o_g);
+            }
+            $result['freight'][0]['goods'] = $new_goods;
+        }
+        if (!empty($result['freight'])) {
+            foreach ($result['freight'] as &$o_f) {
+                $o_f['bag_goods_total'] = 0;
+                foreach ($o_f['goods'] as $o_f_g) {
+                    $o_f['bag_goods_total'] += $o_f_g['bag_goods_number'];
+                }
+            }
         }
         $result['goods_amount']  = $result['goods_amount'] + $result['goods_reduced'] + $result['coupon_reduced'];
         $result['store_reduced'] = $result['goods_reduced'] + $result['freight_reduced'];

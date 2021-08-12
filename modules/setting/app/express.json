@@ -23,15 +23,9 @@
     "code": "htky"
   },
   {
-    "name": "圆通快递",
-    "pinyin": "yuantongkuaidi",
-    "code": "yt",
-    "is_waybill": true
-  },
-  {
     "name": "圆通速递",
     "pinyin": "yuantongsudi",
-    "code": "ytsd"
+    "code": "yt"
   },
   {
     "name": "中通快递",
