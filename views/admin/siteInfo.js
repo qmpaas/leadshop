@@ -1,5 +1,5 @@
 (function () {
-  let origin = 'https://test.leadshop.vip';
+  let origin = window.location.origin;
   window.$_W = {
     AppURL: origin + '/index.php?q=',
     AppWEB: origin + '/index.php?r=wechat',
