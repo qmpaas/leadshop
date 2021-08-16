@@ -51,7 +51,7 @@
     <div id="app"></div>
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <script src="/assets/wechat/static/js/chunk-vendors.26dbbd2c.js"></script>
-    <script src="/assets/wechat/static/js/index.4ad7ba74.js"></script>
+    <script src="/assets/wechat/static/js/index.77896a5f.js"></script>
 </body>
 
 </html>

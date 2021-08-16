@@ -512,7 +512,6 @@ class IndexController extends BasicController
                 "weight"      => $g_d['weight'],
                 "goods_sn"    => $g_d['goods_sn'],
             ];
-
         }
         $post['price']  = $price;
         $post['stocks'] = $stocks;
@@ -558,12 +557,12 @@ class IndexController extends BasicController
 
                 $o_g_row = [];
                 $o_g_col = [];
-                foreach ($post['goods_data'] as $g_d) {
-                    $g_d['goods_id']     = $id;
-                    $g_d['created_time'] = $time;
-                    array_push($o_g_row, array_values($g_d));
+                foreach ($post['goods_data'] as $g_d2) {
+                    $g_d2['goods_id']     = $id;
+                    $g_d2['created_time'] = $time;
+                    array_push($o_g_row, array_values($g_d2));
                     if (empty($o_g_col)) {
-                        $o_g_col = array_keys($g_d);
+                        $o_g_col = array_keys($g_d2);
                     }
                 }
                 $g_d_prefix     = Yii::$app->db->tablePrefix;
