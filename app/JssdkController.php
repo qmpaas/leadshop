@@ -1,10 +1,7 @@
 <?php
 /**
- * @copyright ©2020 浙江禾成云计算有限公司
- * Created by PhpStorm.
- * User: Andy - 阿德
- * Date: 2021/1/27
- * Time: 15:43
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
 
 namespace leadmall\app;

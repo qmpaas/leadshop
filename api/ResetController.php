@@ -1,11 +1,9 @@
 <?php
 /**
- * @Author: qinuoyun
- * @Date:   2020-08-20 13:46:09
- * @Last Modified by:   qinuoyun
- * @Last Modified time: 2021-05-11 15:08:38
- *
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
+
 namespace leadmall\api;
 
 use leadmall\Map;

@@ -1,10 +1,7 @@
 <?php
 /**
- * @Author: qinuoyun
- * @Date  :   2020-08-20 13:46:09
- * @Last  Modified by:   wiki
- * @Last  Modified time: 2021-01-23 15:06:30
- *
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
 
 namespace leadmall\app;

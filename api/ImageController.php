@@ -1,10 +1,10 @@
 <?php
 /**
  * 商品管理
- * @link http://www.heshop.com/
- * @copyright Copyright (c) 2020 HeShop Software LLC
- * @license http://www.heshop.com/license/
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
+
 namespace leadmall\api;
 
 use basics\api\BasicsController as BasicsModules;
@@ -33,7 +33,7 @@ class ImageController extends BasicsModules implements Map
             $file      = $upload->image_base64($content);
             $host = $upload::$upload_way == 0 ? Yii::$app->request->hostInfo : '';
             $url       = $host . $file['url'];
-            
+
         } elseif ($type == 2) {
 
             $content = $_FILES['content'];

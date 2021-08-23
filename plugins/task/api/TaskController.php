@@ -1,9 +1,8 @@
 <?php
 /**
  * 插件模式
- * @link http://www.heshop.com/
- * @copyright Copyright (c) 2020 HeShop Software LLC
- * @license http://www.heshop.com/license/
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
 namespace plugins\task\api;
 

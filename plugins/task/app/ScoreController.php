@@ -1,13 +1,13 @@
 <?php
 /**
  * 插件模式
- * @link http://www.heshop.com/
- * @copyright Copyright (c) 2020 HeShop Software LLC
- * @license http://www.heshop.com/license/
+ * @link https://www.leadshop.vip/
+ * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
 namespace plugins\task\app;
 
 use basics\app\BasicsController as BasicsModules;
+use framework\common\TokenHttpException;
 use Yii;
 
 /**
@@ -32,6 +32,9 @@ class ScoreController extends BasicsModules
         $keyword = Yii::$app->request->get("keyword", null);
         $status  = Yii::$app->request->get("status", null);
         $today   = Yii::$app->request->get("today", 1);
+        if (\Yii::$app->user->isGuest) {
+            throw new TokenHttpException('not login', 419);
+        }
         $UID     = Yii::$app->user->identity->id;
         //获取单个任务是否完成
         if ($type == 'single') {

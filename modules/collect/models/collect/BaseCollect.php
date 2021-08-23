@@ -294,7 +294,11 @@ abstract class BaseCollect extends BaseObject
                     $item['goods_id'] = $goods_id;
                 }
                 unset($item);
-                $batch_res  = \Yii::$app->db->createCommand()->batchInsert($table_name, ['param_value', 'price', 'stocks', 'cost_price', 'weight', 'goods_sn', 'created_time', 'goods_id'], $goods->attr['goodsData'])->execute();
+                if ($goods->attr['goodsData']) {
+                    $batch_res  = \Yii::$app->db->createCommand()->batchInsert($table_name, ['param_value', 'price', 'stocks', 'cost_price', 'weight', 'goods_sn', 'created_time', 'goods_id'], $goods->attr['goodsData'])->execute();
+                } else {
+                    $batch_res = true;
+                }
                 if ($param_res && $body_res && $batch_res) {
                     $this->saveCollectGoodsId($goods_id, 1);
                     $transaction->commit(); //事务执行

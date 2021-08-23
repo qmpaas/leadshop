@@ -88,8 +88,7 @@ class leadmall
 //                        'queue' => \yii\queue\debug\Panel::class,
                     ],
                     // uncomment the following to add your IP if you are not connecting from localhost.
-                    'allowedIPs' => isset($local['debugAllowedIPs']) ? $local['debugAllowedIPs'] : ['127.0.0.1', '::1', '*'],
-                    'historySize' => 2000
+                    'allowedIPs' => isset($local['debugAllowedIPs']) ? $local['debugAllowedIPs'] : ['127.0.0.1', '::1', '*']
                 ];
 
                 // Yii2 gii模块（脚手架）

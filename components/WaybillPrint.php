@@ -85,7 +85,8 @@ class WaybillPrint extends Waybill
     public function parseResult($content)
     {
         if ($content['code'] == 221009) {
-            Error($content['data'][$this->orderSn]['message']);
+            $errMsg = $content['data'][$this->orderSn]['message'] ?? $content['msg'] ?? '请检查快宝配置';
+            Error($errMsg);
         }
         if ($content['code'] != 0) {
             Error($content['msg']);

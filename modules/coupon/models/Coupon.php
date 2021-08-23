@@ -192,7 +192,7 @@ class Coupon extends CommonModels
         $useCouponCount = UserCoupon::find()->where(['coupon_id' => $coupon->id, 'is_deleted' => 0])->count();
         if ($checkType == 1) {
             $coupon->over_num = $coupon->total_num - $useCouponCount - $num;
-            if ($coupon->over_num <= 0) {
+            if ($coupon->over_num < 0) {
                 Error('您来晚了,优惠券已被领完');
             }
         } elseif ($checkType == 2) {
