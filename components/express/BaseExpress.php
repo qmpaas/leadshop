@@ -49,9 +49,9 @@ abstract class BaseExpress extends BaseObject
 
     protected function getConfig()
     {
-        $config = M('setting', 'Setting')::find()->where(['keyword' => 'kb_express_setting', 'merchant_id' => 1, 'AppID' => \Yii::$app->params['AppID']])->select('content')->asArray()->one();
+        $config = StoreSetting('kb_express_setting');
         if ($config) {
-            return json_decode($config['content'], true);
+            return $config;
         }
         Error('请配置快宝开放平台');
     }

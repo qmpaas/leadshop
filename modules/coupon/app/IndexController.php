@@ -73,6 +73,7 @@ class IndexController extends BasicController
             $goods_id   = array_unique(explode(',', $goods_id));
             $goods_list = M('goods', 'Goods')::find()->where(['id' => $goods_id])->select('id,group')->asArray()->all();
             if ($goods_list) {
+                $where          = ['and', $where, ['<=', 'u.begin_time', time()]];
                 $goods_like     = ['and'];
                 $goods_not_like = ['and'];
                 $group_like     = ['and'];

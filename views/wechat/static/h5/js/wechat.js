@@ -149,6 +149,8 @@ function getLocation({ success }) {
   );
 }
 
+function downloadImage() {}
+
 export default {
   isWechat,
   showMenuItems,

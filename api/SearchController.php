@@ -46,6 +46,14 @@ class SearchController extends BasicsModules implements Map
             'module'     => 'users',
             'controller' => 'label',
         ],
+        'promoter'         => [
+            'module'     => 'promoter',
+            'controller' => 'index',
+        ],
+        'promoterorder'         => [
+            'module'     => 'promoter',
+            'controller' => 'order',
+        ],
     ];
 
     /**

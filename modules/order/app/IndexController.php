@@ -36,7 +36,7 @@ class IndexController extends BasicController
                 return $this->tabcount();
                 break;
             default:
-                return $this->list();
+                return $this->getList();
                 break;
         }
     }
@@ -45,7 +45,8 @@ class IndexController extends BasicController
      * 订单列表
      * @return [type] [description]
      */
-    function list() {
+    public function getList()
+    {
         //获取头部信息
         $headers = Yii::$app->getRequest()->getHeaders();
         //获取分页信息
@@ -236,8 +237,8 @@ class IndexController extends BasicController
                 }
             }
         }
-        $result['goods_amount']  = $result['goods_amount'] + $result['goods_reduced'] + $result['coupon_reduced'];
-        $result['store_reduced'] = $result['goods_reduced'] + $result['freight_reduced'];
+        $result['goods_amount']  = qm_round($result['goods_amount'] + $result['goods_reduced'] + $result['coupon_reduced']);
+        $result['store_reduced'] = qm_round($result['goods_reduced'] + $result['freight_reduced']);
 
         return str2url($result);
     }
@@ -261,7 +262,7 @@ class IndexController extends BasicController
             foreach ($return_data['goods_data'] as &$value) {
                 $number += $value['goods_number'];
             }
-            $return_data['goods_number_amount'] = round($number, 2);
+            $return_data['goods_number_amount'] = qm_round($number, 2);
             return str2url($return_data);
         }
 
@@ -281,16 +282,15 @@ class IndexController extends BasicController
             //统计积分总支出
             $score_total_amount += $order_data['total_score'] ?? 0;
 
-            $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $order_data['merchant_id'], 'AppID' => $AppID])->select('content')->asArray()->one();
+            $setting_data = StoreSetting('setting_collection');
             if ($setting_data) {
-                $setting_data['content'] = to_array($setting_data['content']);
-                if (isset($setting_data['content']['trade_setting'])) {
-                    $trade_setting = $setting_data['content']['trade_setting'];
+                if (isset($setting_data['trade_setting'])) {
+                    $trade_setting = $setting_data['trade_setting'];
                     if ($trade_setting['cancel_status']) {
                         $order_data['cancel_time'] = (float) $trade_setting['cancel_time'] * 60 * 60 + time();
                     }
                 }
-                if ($setting_data['content']['basic_setting']['run_status'] != 1) {
+                if ($setting_data['basic_setting']['run_status'] != 1) {
                     Error('店铺打烊中');
                 }
             }
@@ -342,6 +342,7 @@ class IndexController extends BasicController
                     $row = [];
                     $col = [];
                     foreach ($order_data['goods_data'] as $v) {
+                        unset($v['is_promoter']);
                         $v['order_sn']     = $order_sn;
                         $v['created_time'] = time();
                         array_push($row, array_values($v));
@@ -476,12 +477,6 @@ class IndexController extends BasicController
     {
         $order_sn = $order_info['order_sn'] ?? null;
         $model    = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
-
-        Yii::info('判断插件是否安装' . $this->plugins("task", "status"));
-        Yii::info('读取积分支付信息' . $model->total_score);
-        Yii::info('读取积分支付总价' . $model->total_amount);
-        Yii::info('读取积分支付订单' . $order_sn);
-        Yii::info('读取积分支付用户' . $model->UID);
 
         if ($model && $model->status < 201) {
             $model->status   = 201;
@@ -628,17 +623,13 @@ class IndexController extends BasicController
         if ($model->status !== 202) {
             Error('非法操作');
         }
-        $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $model->merchant_id, 'AppID' => $model->AppID])->select('content')->asArray()->one();
-        if ($setting_data) {
-            $setting_data['content'] = to_array($setting_data['content']);
-            if (isset($setting_data['content']['trade_setting'])) {
-                $trade_setting = $setting_data['content']['trade_setting'];
-                if ($trade_setting['after_time']) {
-                    $model->finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + time();
-                }
-                if ($trade_setting['evaluate_time']) {
-                    $model->evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + time();
-                }
+        $trade_setting = StoreSetting('setting_collection', 'trade_setting');
+        if ($trade_setting) {
+            if ($trade_setting['after_time'] >= 0) {
+                $model->finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + time();
+            }
+            if ($trade_setting['evaluate_time'] >= 0) {
+                $model->evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + time();
             }
         }
         $model->received_time = time();
@@ -789,7 +780,7 @@ class IndexController extends BasicController
                         }
                     }
                     //库存判断
-                    if ($goods_info[$v['goods_param']]['stocks'] < $v['goods_number']) {
+                    if (isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['stocks'] < $v['goods_number']) {
                         if ($calculate == 'calculate') {
                             $failure_reason = 'stocks';
                         } else {
@@ -871,14 +862,15 @@ class IndexController extends BasicController
 
                     $v['goods_name']       = $value['name'];
                     $v['show_goods_param'] = $show_goods_param;
-                    $v['goods_price']      = $goods_info[$v['goods_param']]['price'];
-                    $v['goods_cost_price'] = $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
-                    $v['goods_weight']     = $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
+                    $v['goods_price']      = isset($goods_info[$v['goods_param']]) ? $goods_info[$v['goods_param']]['price'] : 0;
+                    $v['goods_cost_price'] = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
+                    $v['goods_weight']     = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
                     $v['goods_image']      = $goods_image;
                     $v['freight']          = $value['freight'];
                     $v['package']          = $value['package'];
                     $v['ft_type']          = $value['ft_type'];
                     $v['ft_price']         = $value['ft_price'];
+                    $v['is_promoter']      = $value['is_promoter'];
                     if ($calculate == 'calculate') {
                         $v['failure_reason'] = $failure_reason;
                         $v['failure_number'] = $failure_number;
@@ -970,7 +962,7 @@ class IndexController extends BasicController
                     /**
                      * 用于判断处理积分商品
                      */
-                    if ($goods_info[$v['goods_param']]['task_stock'] < $v['goods_number']) {
+                    if (isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['task_stock'] < $v['goods_number']) {
                         if ($calculate == 'calculate') {
                             $failure_reason = 'stocks';
                         } else {
@@ -1069,15 +1061,16 @@ class IndexController extends BasicController
 
                     $v['goods_name']       = $value['name'];
                     $v['show_goods_param'] = $show_goods_param;
-                    $v['goods_score']      = $goods_info[$v['goods_param']]['task_number'] ?? 0;
-                    $v['goods_price']      = $goods_info[$v['goods_param']]['task_price'];
-                    $v['goods_cost_price'] = $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
-                    $v['goods_weight']     = $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
+                    $v['goods_score']      = isset($goods_info[$v['goods_param']]) ? $goods_info[$v['goods_param']]['task_number'] : 0;
+                    $v['goods_price']      = isset($goods_info[$v['goods_param']]) ? $goods_info[$v['goods_param']]['task_price'] : 0;
+                    $v['goods_cost_price'] = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
+                    $v['goods_weight']     = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
                     $v['goods_image']      = $goods_image;
                     $v['freight']          = $value['freight'];
                     $v['package']          = $value['package'];
                     $v['ft_type']          = $value['ft_type'];
                     $v['ft_price']         = $value['ft_price'];
+                    $v['is_promoter']      = $value['is_promoter'];
                     if ($calculate == 'calculate') {
                         $v['failure_reason'] = $failure_reason;
                         $v['failure_number'] = $failure_number;
@@ -1112,21 +1105,24 @@ class IndexController extends BasicController
             unset($value['package']);
             unset($value['ft_type']);
             unset($value['ft_price']);
-            $value['total_amount']   = $goods_price;
-            $value['pay_amount']     = $goods_price;
-            $value['coupon_reduced'] = 0;
+            $value['total_amount']     = $goods_price;
+            $value['pay_amount']       = $goods_price;
+            $value['coupon_reduced']   = 0;
+            $value['promoter_reduced'] = 0;
 
         }
 
         $total_amount = $goods_amount + $freight_amount;
         $return_data  = [
-            'total_amount'   => $total_amount,
-            'goods_amount'   => $goods_amount,
-            'pay_amount'     => $total_amount,
-            'freight_amount' => $freight_amount,
-            'coupon_reduced' => 0,
-            'merchant_id'    => $merchant_id,
-            'goods_data'     => $goods,
+            'total_amount'     => $total_amount,
+            'goods_amount'     => $goods_amount,
+            'pay_amount'       => $total_amount,
+            'freight_amount'   => $freight_amount,
+            'coupon_reduced'   => 0,
+            'is_promoter'      => 0,
+            'promoter_reduced' => 0,
+            'merchant_id'      => $merchant_id,
+            'goods_data'       => $goods,
         ];
 
         $return_data = $this->buildReducePrice($return_data);
@@ -1447,9 +1443,46 @@ class IndexController extends BasicController
             }
 
             foreach ($data['goods_data'] as &$value) {
-                $goods_pay_amount        = round($value['pay_amount'] * $discount, 2);
+                $goods_pay_amount        = qm_round($value['pay_amount'] * $discount, 2);
                 $value['coupon_reduced'] = $value['pay_amount'] - $goods_pay_amount;
                 $value['pay_amount']     = $goods_pay_amount;
+            }
+        }
+
+        $promoter_setting = StoreSetting('promoter_setting');
+        if ($promoter_setting['status']) {
+            foreach ($data['goods_data'] as $promoter_check) {
+                if ($promoter_check['is_promoter'] == 1) {
+                    $data['is_promoter'] = $promoter_setting['self_buy'] == 3 ? 1 : ($promoter_setting['self_buy'] == 2 ? 2 : 3);
+                    break;
+                }
+            }
+            if ($promoter_setting['self_buy'] === 3) {
+                $UID    = Yii::$app->user->identity->id;
+                $p_info = M('promoter', 'Promoter')::findOne(['UID' => $UID]);
+                if ($p_info && $p_info->status == 2) {
+                    $AppID       = Yii::$app->params['AppID'];
+                    $p_l_info    = M('promoter', 'PromoterLevel')::findOne(['level' => $p_info->level, 'AppID' => $AppID]);
+                    $p_ratio     = $p_l_info->first / 100;
+                    $count_rules = StoreSetting('commission_setting', 'count_rules');
+                    foreach ($data['goods_data'] as &$value) {
+                        if ($value['is_promoter'] === 1) {
+                            if ($count_rules === 1) {
+                                $commission_amount = $value['pay_amount'];
+                            } else {
+                                $commission_amount = $value['pay_amount'] - $value['goods_number'] * $value['goods_cost_price'];
+                            }
+                            if ($commission_amount > 0) {
+                                $value['promoter_reduced'] = qm_round($commission_amount * $p_ratio);
+                                $value['pay_amount']       = qm_round($value['pay_amount'] - $value['promoter_reduced']);
+                                $data['promoter_reduced'] += $value['promoter_reduced'];
+                            }
+                        }
+                    }
+
+                    $data['pay_amount'] = $data['pay_amount'] - $data['promoter_reduced'];
+
+                }
             }
         }
 

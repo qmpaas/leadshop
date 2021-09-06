@@ -20,8 +20,6 @@ class IndexController extends BasicController
      */
     public function actions()
     {
-        M('users', 'Label')::findOne(['id' => 1]);
-        M('users', 'LabelLog')::findOne(['id' => 1]);
         $actions = parent::actions();
         unset($actions['index']);
         unset($actions['view']);
@@ -68,37 +66,37 @@ class IndexController extends BasicController
             'order_amount_yesteday'   => [
                 'wxapp'  => $wxapp['order_amount_yesteday'],
                 'wechat' => $wechat['order_amount_yesteday'],
-                'all'    => round($wxapp['order_amount_yesteday'] + $wechat['order_amount_yesteday'], 2),
+                'all'    => qm_round($wxapp['order_amount_yesteday'] + $wechat['order_amount_yesteday'], 2),
             ],
             //今日订单金额统计
             'order_amount_today'      => [
                 'wxapp'  => $wxapp['order_amount_today'],
                 'wechat' => $wechat['order_amount_today'],
-                'all'    => round($wxapp['order_amount_today'] + $wechat['order_amount_today'], 2),
+                'all'    => qm_round($wxapp['order_amount_today'] + $wechat['order_amount_today'], 2),
             ],
             //昨日订单金额统计
             'pay_amount_yesteday'     => [
                 'wxapp'  => $wxapp['pay_amount_yesteday'],
                 'wechat' => $wechat['pay_amount_yesteday'],
-                'all'    => round($wxapp['pay_amount_yesteday'] + $wechat['pay_amount_yesteday'], 2),
+                'all'    => qm_round($wxapp['pay_amount_yesteday'] + $wechat['pay_amount_yesteday'], 2),
             ],
             //今日订单金额统计
             'pay_amount_today'        => [
                 'wxapp'  => $wxapp['pay_amount_today'],
                 'wechat' => $wechat['pay_amount_today'],
-                'all'    => round($wxapp['pay_amount_today'] + $wechat['pay_amount_today'], 2),
+                'all'    => qm_round($wxapp['pay_amount_today'] + $wechat['pay_amount_today'], 2),
             ],
             //昨日客单价
             'average_amount_yesteday' => [
                 'wxapp'  => $wxapp['average_amount_yesteday'],
                 'wechat' => $wechat['average_amount_yesteday'],
-                'all'    => round($wxapp['average_amount_yesteday'] + $wechat['average_amount_yesteday'], 2),
+                'all'    => qm_round($wxapp['average_amount_yesteday'] + $wechat['average_amount_yesteday'], 2),
             ],
             //今日客单价
             'average_amount_today'    => [
                 'wxapp'  => $wxapp['average_amount_today'],
                 'wechat' => $wechat['average_amount_today'],
-                'all'    => round($wxapp['average_amount_today'] + $wechat['average_amount_today'], 2),
+                'all'    => qm_round($wxapp['average_amount_today'] + $wechat['average_amount_today'], 2),
             ],
         ];
 
@@ -170,12 +168,12 @@ class IndexController extends BasicController
             'user_number_yesteday'    => $user_number_yesteday,
             'user_grow_yesteday'      => $user_grow_yesteday,
             'user_grow_today'         => $user_grow_today,
-            'order_amount_yesteday'   => round($order_amount_yesteday, 2),
-            'order_amount_today'      => round($order_amount_today, 2),
+            'order_amount_yesteday'   => qm_round($order_amount_yesteday, 2),
+            'order_amount_today'      => qm_round($order_amount_today, 2),
             'pay_amount_yesteday'     => count($user_list_yesteday),
             'pay_amount_today'        => count($user_list_today),
-            'average_amount_yesteday' => round($average_amount_yesteday, 2),
-            'average_amount_today'    => round($average_amount_today, 2),
+            'average_amount_yesteday' => qm_round($average_amount_yesteday, 2),
+            'average_amount_today'    => qm_round($average_amount_today, 2),
         ];
         return $data;
     }
@@ -373,26 +371,26 @@ class IndexController extends BasicController
         $order = M('order', 'Order')::find()->where(['and', ['>', 'status', 200], ['UID' => $bind_user]])->asArray()->all();
         foreach ($order as $o_v) {
             $result['pay_number']['all']++;
-            $result['pay_amount']['all'] = round(($result['pay_amount']['all'] + $o_v['pay_amount']), 2);
+            $result['pay_amount']['all'] = qm_round(($result['pay_amount']['all'] + $o_v['pay_amount']), 2);
             if ($o_v['source'] == 'weapp') {
                 $result['pay_number']['wxapp']++;
-                $result['pay_amount']['wxapp'] = round(($result['pay_amount']['wxapp'] + $o_v['pay_amount']), 2);
+                $result['pay_amount']['wxapp'] = qm_round(($result['pay_amount']['wxapp'] + $o_v['pay_amount']), 2);
             } else {
                 $result['pay_number']['wechat']++;
-                $result['pay_amount']['wechat'] = round(($result['pay_amount']['wechat'] + $o_v['pay_amount']), 2);
+                $result['pay_amount']['wechat'] = qm_round(($result['pay_amount']['wechat'] + $o_v['pay_amount']), 2);
             }
 
         }
         $order_after = M('order', 'OrderAfter')::find()->where(['UID' => $bind_user, 'is_deleted' => 0])->asArray()->all();
         foreach ($order_after as $o_a_v) {
             $result['after_number']['all']++;
-            $result['return_amount']['all'] = round(($result['return_amount']['all'] + $o_a_v['actual_refund']), 2);
+            $result['return_amount']['all'] = qm_round(($result['return_amount']['all'] + $o_a_v['actual_refund']), 2);
             if ($o_a_v['source'] == 'weapp') {
                 $result['after_number']['wxapp']++;
-                $result['return_amount']['wxapp'] = round(($result['return_amount']['wxapp'] + $o_a_v['actual_refund']), 2);
+                $result['return_amount']['wxapp'] = qm_round(($result['return_amount']['wxapp'] + $o_a_v['actual_refund']), 2);
             } else {
                 $result['after_number']['wechat']++;
-                $result['return_amount']['wechat'] = round(($result['return_amount']['wechat'] + $o_a_v['actual_refund']), 2);
+                $result['return_amount']['wechat'] = qm_round(($result['return_amount']['wechat'] + $o_a_v['actual_refund']), 2);
             }
         }
 

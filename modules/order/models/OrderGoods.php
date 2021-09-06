@@ -28,6 +28,7 @@ class OrderGoods extends CommonModels
     const score_amount     = ['bigint' => 10, 'default' => 0, 'comment' => '总计积分'];
     const pay_amount       = ['decimal' => '10,2', 'notNull', 'comment' => '实付金额'];
     const coupon_reduced   = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '优惠券优惠金额'];
+    const promoter_reduced = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '分销自购优惠'];
     const after_sales      = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '0正常 1进行售后'];
     const is_evaluate      = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '0未评价 1已评价'];
     const created_time     = ['bigint' => 10, 'comment' => '创建时间'];
@@ -115,13 +116,13 @@ class OrderGoods extends CommonModels
     }
 
     /**
-     * 物流信息
+     * 商品信息
      * @return [type] [description]
      */
     public function getGoods()
     {
         $Goods = 'goods\models\Goods';
-        return $this->hasOne($Goods::className(), ['id' => 'goods_id'])->select('id,group')->from(['g' => $Goods::tableName()]);
+        return $this->hasOne($Goods::className(), ['id' => 'goods_id'])->select('id,group,is_promoter');
     }
 
     /**

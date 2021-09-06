@@ -189,6 +189,33 @@ class AlibabaData extends BaseCollect
             ];
             $allStocks += $stock;
         }
+        if (empty($goodsParams) && empty($goodsData)) {
+            $this->goods->param_type = 1;
+            $goodsParams = [
+                [
+                    'name' => '默认规格',
+                    'image_status' => false,
+                    'value' => [
+                        [
+                            'value' => '默认规格',
+                            'image' => ''
+                        ]
+                    ],
+                ]
+            ];
+
+            $goodsData = [
+                [
+                    'param_value' => '默认规格',
+                    'price' => $goods['sku'][0]['price'] ?? 0,
+                    'stocks' => $goods['sku'][0]['quantity'] ?? 0,
+                    'cost_price' => $goods['sku'][0]['price'] ?? 0,
+                    'weight' => 0,
+                    'goods_sn' => '',
+                    'created_time' => time()
+                ]
+            ];
+        }
         return [
             'goodsParam' => $goodsParams,
             'goodsData' => $goodsData,

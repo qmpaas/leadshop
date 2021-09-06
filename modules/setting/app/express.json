@@ -25,7 +25,8 @@
   {
     "name": "圆通速递",
     "pinyin": "yuantongsudi",
-    "code": "yt"
+    "code": "yt",
+    "is_waybill": true
   },
   {
     "name": "中通快递",

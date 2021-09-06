@@ -1,8 +1,4 @@
 <?php
-/**
- * @link https://www.leadshop.vip/
- * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
- */
 
 namespace leadmall\api;
 
@@ -80,17 +76,18 @@ class CrontabController extends BasicsModules implements Map
             Error('店铺不存在');
         }
         \Yii::$app->params = json_decode(file_get_contents($file), true);
-        $accessToken       = \Yii::$app->request->get('access_token');
-        if (!$accessToken) {
-            Error('定时任务access_token不存在');
-        }
-        $res = Setting::findOne(['AppID' => \Yii::$app->params['AppID'], 'keyword' => 'crontab_access_token']);
-        if (!$res) {
-            Error('定时任务access_token尚未配置');
-        }
-        if ($res['content'] != $accessToken) {
-            Error('定时任务access_token不正确');
-        }
+
+        // $accessToken       = \Yii::$app->request->get('access_token');
+        // if (!$accessToken) {
+        //     Error('定时任务access_token不存在');
+        // }
+        // $res = Setting::findOne(['AppID' => \Yii::$app->params['AppID'], 'keyword' => 'crontab_access_token']);
+        // if (!$res) {
+        //     Error('定时任务access_token尚未配置');
+        // }
+        // if ($res['content'] != $accessToken) {
+        //     Error('定时任务access_token不正确');
+        // }
 
     }
 }

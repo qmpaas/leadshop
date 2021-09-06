@@ -519,7 +519,7 @@ class IndexController extends BasicController
             $result['freight'][0]['goods'] = $new_goods;
         }
         $result                 = str2url($result);
-        $result['goods_amount'] = $result['goods_amount'] + $result['coupon_reduced'];
+        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']);
         return $result;
     }
 
@@ -757,14 +757,10 @@ class IndexController extends BasicController
 
                     //全部发完则订单成为已发货状态
                     if ($all_goods_number <= ($all_bag_goods_number + $all_post_goods_number)) {
-                        $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $model->merchant_id, 'AppID' => $model->AppID])->select('content')->asArray()->one();
-                        if ($setting_data) {
-                            $setting_data['content'] = to_array($setting_data['content']);
-                            if (isset($setting_data['content']['trade_setting'])) {
-                                $trade_setting = $setting_data['content']['trade_setting'];
-                                if ($trade_setting['received_time']) {
-                                    $model->received_time = (float) $trade_setting['received_time'] * 24 * 60 * 60 + time();
-                                }
+                        $trade_setting = StoreSetting('setting_collection', 'trade_setting');
+                        if ($trade_setting) {
+                            if ($trade_setting['received_time']) {
+                                $model->received_time = (float) $trade_setting['received_time'] * 24 * 60 * 60 + time();
                             }
                         }
                         $model->send_time = $time;
@@ -866,17 +862,13 @@ class IndexController extends BasicController
         if ($model->status !== 202) {
             Error('非法操作');
         }
-        $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $model->merchant_id, 'AppID' => $model->AppID])->select('content')->asArray()->one();
-        if ($setting_data) {
-            $setting_data['content'] = to_array($setting_data['content']);
-            if (isset($setting_data['content']['trade_setting'])) {
-                $trade_setting = $setting_data['content']['trade_setting'];
-                if ($trade_setting['after_time']) {
-                    $model->finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + time();
-                }
-                if ($trade_setting['evaluate_time']) {
-                    $model->evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + time();
-                }
+        $trade_setting = StoreSetting('setting_collection', 'trade_setting');
+        if ($trade_setting) {
+            if ($trade_setting['after_time'] >= 0) {
+                $model->finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + time();
+            }
+            if ($trade_setting['evaluate_time'] >= 0) {
+                $model->evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + time();
             }
         }
         $model->received_time = time();
@@ -908,15 +900,15 @@ class IndexController extends BasicController
         $transaction = Yii::$app->db->beginTransaction(); //启动数据库事务
         if (isset($post['goods_amount']) && $post['goods_amount'] >= 0) {
 
-            $goods_amount = $model->goods_reduced + $model->goods_amount + $model->coupon_reduced;
+            $goods_amount = $model->goods_reduced + $model->goods_amount + $model->coupon_reduced + $model->promoter_reduced;
 
             $order_goods_list = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->select('id,total_amount')->asArray()->all();
 
             foreach ($order_goods_list as $v) {
-                $pay_amount = $goods_amount <= 0 ? 0 : round($v['total_amount'] * ($post['goods_amount'] / $goods_amount), 2);
+                $pay_amount = $goods_amount <= 0 ? 0 : qm_round($v['total_amount'] * ($post['goods_amount'] / $goods_amount), 2);
                 M('order', 'OrderGoods')::updateAll(['pay_amount' => $pay_amount], ['id' => $v['id']]);
             }
-            $model->goods_reduced = $goods_amount - $post['goods_amount'] - $model->coupon_reduced;
+            $model->goods_reduced = $goods_amount - $post['goods_amount'] - $model->coupon_reduced - $model->promoter_reduced;
             $model->goods_amount  = $post['goods_amount'];
         } else {
             Error('商品价格不符合要求');
@@ -971,29 +963,25 @@ class IndexController extends BasicController
         $time          = time();
         $finish_time   = null;
         $evaluate_time = null;
-        $setting_data  = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'AppID' => $AppID])->select('content')->asArray()->one();
-        if ($setting_data) {
-            $setting_data['content'] = to_array($setting_data['content']);
-            if (isset($setting_data['content']['trade_setting'])) {
-                $trade_setting = $setting_data['content']['trade_setting'];
-                if ($trade_setting['after_time']) {
-                    $finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + $time;
-                }
-                if ($trade_setting['evaluate_time']) {
-                    $evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + $time;
-                }
-                if ($trade_setting['cancel_status']) {
-                    $cancel_list = M('order', 'Order')::find()->where(['and', ['AppID' => $AppID, 'status' => 100], ['<=', 'cancel_time', $time]])->select('order_sn')->asArray()->all();
-                    if (!empty($cancel_list)) {
-                        $cancel_list = array_column($cancel_list, 'order_sn');
-                        M('order', 'Order')::updateAll(['status' => 102], ['order_sn' => $cancel_list]);
-                        $order_goods = M('order', 'OrderGoods')::find()->where(['order_sn' => $cancel_list])->select('goods_id,goods_param,goods_number')->asArray()->all();
-                        foreach ($order_goods as $value) {
-                            M('goods', 'GoodsData')::updateAllCounters(['stocks' => $value['goods_number']], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
-                            M('goods', 'Goods')::updateAllCounters(['stocks' => $value['goods_number']], ['id' => $value['goods_id']]);
-                        }
-                        M('coupon', 'UserCoupon')::updateAll(['use_data' => null, 'use_time' => null, 'status' => 0, 'order_sn' => null], ['order_sn' => $cancel_list]);
+        $trade_setting = StoreSetting('setting_collection', 'trade_setting');
+        if ($trade_setting) {
+            if ($trade_setting['after_time'] >= 0) {
+                $finish_time = (float) $trade_setting['after_time'] * 24 * 60 * 60 + $time;
+            }
+            if ($trade_setting['evaluate_time'] >= 0) {
+                $evaluate_time = (float) $trade_setting['evaluate_time'] * 24 * 60 * 60 + $time;
+            }
+            if ($trade_setting['cancel_status']) {
+                $cancel_list = M('order', 'Order')::find()->where(['and', ['AppID' => $AppID, 'status' => 100], ['<=', 'cancel_time', $time]])->select('order_sn')->asArray()->all();
+                if (!empty($cancel_list)) {
+                    $cancel_list = array_column($cancel_list, 'order_sn');
+                    M('order', 'Order')::updateAll(['status' => 102], ['order_sn' => $cancel_list]);
+                    $order_goods = M('order', 'OrderGoods')::find()->where(['order_sn' => $cancel_list])->select('goods_id,goods_param,goods_number')->asArray()->all();
+                    foreach ($order_goods as $value) {
+                        M('goods', 'GoodsData')::updateAllCounters(['stocks' => $value['goods_number']], ['goods_id' => $value['goods_id'], 'param_value' => $value['goods_param']]);
+                        M('goods', 'Goods')::updateAllCounters(['stocks' => $value['goods_number']], ['id' => $value['goods_id']]);
                     }
+                    M('coupon', 'UserCoupon')::updateAll(['use_data' => null, 'use_time' => null, 'status' => 0, 'order_sn' => null], ['order_sn' => $cancel_list]);
                 }
             }
         }

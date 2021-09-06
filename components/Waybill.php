@@ -32,6 +32,8 @@ class Waybill extends BaseExpress
     protected $payType = 1;
     /**@var string $tradeName 商品名称（最多50个字符）*/
     protected $tradeName;
+    /**@var string $note 商品规格 */
+    protected $note = '';
     /**@var string $bName 寄件方信息列表*/
     protected $bName;
     /**@var $bMobile string 手机号码*/
@@ -86,8 +88,10 @@ class Waybill extends BaseExpress
         }
         $goodsNameList = $this->order->goods;
         $goodsName = '';
+        $goodsParam = '规格:';
         foreach ($goodsNameList as $v) {
             $goodsName .= $v['goods_name'] . ';';
+            $goodsParam .= $v['goods_param'] . '*' . $v['goods_number'] . ';';
         }
         $goodsName = rtrim($goodsName, ';');
         if (mb_strlen($goodsName) > 50) {
@@ -95,6 +99,7 @@ class Waybill extends BaseExpress
             $goodsName .= '...';
         }
         $this->tradeName = $goodsName;
+        $this->note = $goodsParam;
         //寄件人信息
         $this->bName = $this->waybill->name;
         $this->bMobile = $this->waybill->mobile;

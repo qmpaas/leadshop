@@ -183,7 +183,7 @@ CREATE TABLE `heshop_initialize_prefix_goods`  (
   `unit` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '单位',
   `slideshow` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '轮播图',
   `is_video` tinyint(1) NOT NULL DEFAULT 0 COMMENT '视频开关： 0 关闭 1 启用',
-  `video` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频地址',
+  `video` varchar(8192) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频地址',
   `video_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频封面',
   `is_real` tinyint(1) NOT NULL DEFAULT 1 COMMENT '是否实物： 0 虚拟 1 实物',
   `is_sale` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否上架：0 下架 1 上架',
@@ -211,6 +211,9 @@ CREATE TABLE `heshop_initialize_prefix_goods`  (
   `is_recycle` tinyint(1) NOT NULL DEFAULT 0 COMMENT '回收站',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   `sales_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '销售额',
+  `is_promoter` tinyint(1) NULL DEFAULT 0 COMMENT '参与分销  0不参与  1参与',
+  `max_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '最高价',
+  `max_profits` decimal(10, 2) NULL DEFAULT NULL COMMENT '最高利润',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `商户id`(`merchant_id`) USING BTREE,
   INDEX `应用id`(`AppID`) USING BTREE,
@@ -257,9 +260,15 @@ CREATE TABLE `heshop_initialize_prefix_goods_data`  (
   `created_time` bigint(10) NULL DEFAULT NULL,
   `updated_time` bigint(10) NULL DEFAULT NULL,
   `deleted_time` bigint(10) NULL DEFAULT NULL,
+  `task_stock` int(10) NOT NULL DEFAULT 0 COMMENT '兑换库存',
+  `task_number` bigint(10) NOT NULL DEFAULT 1 COMMENT '兑换积分',
+  `task_price` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '兑换价格',
+  `task_limit` bigint(5) NULL DEFAULT NULL COMMENT '兑换限制',
+  `task_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否上架：0 下架 1 上架',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `商品id`(`goods_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+
 
 CREATE TABLE `heshop_initialize_prefix_goods_export`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -290,6 +299,7 @@ CREATE TABLE `heshop_initialize_prefix_goods_group`  (
   `deleted_time` bigint(10) NULL DEFAULT NULL COMMENT '删除时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   `type` tinyint(1) NULL DEFAULT 1 COMMENT '1一层  2二层  3三层',
+  `is_show` tinyint(1) NULL DEFAULT 1 COMMENT '是否显示 0不显示  1显示',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `父级id`(`parent_id`) USING BTREE,
   INDEX `商户id`(`merchant_id`) USING BTREE,
@@ -370,7 +380,6 @@ CREATE TABLE `heshop_initialize_prefix_order`  (
   `freight_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '运费金额',
   `freight_reduced` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '运费减少金额',
   `coupon_reduced` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '优惠券优惠金额',
-  `promotion_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '促销优惠金额（促销价、满减、阶梯价）',
   `status` smallint(3) NOT NULL DEFAULT 100 COMMENT '100待付款  101用户取消 102超时取消 103商户取消  201已付款(待发货)  202已发货(待收货)  203已收货 204已完成',
   `cancel_time` bigint(10) NULL DEFAULT 0 COMMENT '关闭时间',
   `send_time` bigint(10) NULL DEFAULT NULL COMMENT '发货时间',
@@ -391,6 +400,11 @@ CREATE TABLE `heshop_initialize_prefix_order`  (
   `is_evaluate` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未评价 1已评价',
   `evaluate_time` bigint(10) NULL DEFAULT NULL COMMENT '评价时间',
   `is_recycle` tinyint(1) NULL DEFAULT 0 COMMENT '是否在回收站',
+  `score_amount` bigint(10) NOT NULL DEFAULT 0 COMMENT '积分支付',
+  `total_score` bigint(10) NOT NULL DEFAULT 0 COMMENT '积分统计',
+  `type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '订单类型 base 基础订单 task 任务订单',
+  `is_promoter` tinyint(1) NULL DEFAULT 0 COMMENT '是否是分销订单 0普通订单  1自购优惠 2自购返佣 3普通分销',
+  `promoter_reduced` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '分销自购优惠',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `订单编号`(`order_sn`) USING BTREE,
   INDEX `用户id`(`UID`) USING BTREE,
@@ -425,7 +439,6 @@ CREATE TABLE `heshop_initialize_prefix_order_after`  (
   `return_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退货原因',
   `process` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '售后流程',
   `refuse_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '拒绝原因',
-  `second_refuse_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '拒绝原因',
   `actual_refund` decimal(10, 2) NULL DEFAULT NULL COMMENT '实际退款',
   `audit_time` bigint(10) NULL DEFAULT NULL COMMENT '审核时间',
   `return_time` bigint(10) NULL DEFAULT NULL COMMENT '退款时间',
@@ -434,6 +447,11 @@ CREATE TABLE `heshop_initialize_prefix_order_after`  (
   `finish_time` bigint(10) NULL DEFAULT NULL COMMENT '完成时间',
   `salesexchange_time` bigint(10) NULL DEFAULT NULL COMMENT '退货时间',
   `return_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '退款单号',
+  `second_refuse_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '第二次拒绝原因',
+  `return_score` bigint(20) NOT NULL DEFAULT 0 COMMENT '退款积分',
+  `actual_score` bigint(20) NULL DEFAULT NULL COMMENT '实际退还积分',
+  `order_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'base' COMMENT '订单类型',
+  `return_score_type` tinyint(1) NULL DEFAULT 0 COMMENT '0不退积分 1退积分',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `订单编号`(`order_sn`) USING BTREE,
   INDEX `售后编号`(`after_sn`) USING BTREE,
@@ -571,7 +589,6 @@ CREATE TABLE `heshop_initialize_prefix_order_freight_goods`  (
 CREATE TABLE `heshop_initialize_prefix_order_goods`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '订单编号',
-  `freight_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '物流编号',
   `goods_id` bigint(20) NOT NULL COMMENT '商品id',
   `goods_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '商品货号',
   `goods_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '商品名称',
@@ -584,7 +601,6 @@ CREATE TABLE `heshop_initialize_prefix_order_goods`  (
   `goods_number` int(10) NOT NULL DEFAULT 1 COMMENT '商品数量',
   `total_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '总计金额',
   `pay_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '实付金额',
-  `promotion_amount` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '促销优惠金额',
   `after_sales` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0正常 1售后',
   `created_time` bigint(10) NOT NULL COMMENT '创建时间',
   `updated_time` bigint(10) NULL DEFAULT NULL COMMENT '修改时间',
@@ -593,9 +609,11 @@ CREATE TABLE `heshop_initialize_prefix_order_goods`  (
   `is_evaluate` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0未评价 1已评价',
   `show_goods_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '商品规格键',
   `coupon_reduced` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '优惠券优惠金额',
+  `goods_score` bigint(10) NOT NULL DEFAULT 0 COMMENT '商品积分',
+  `score_amount` bigint(10) NULL DEFAULT 0 COMMENT '总计积分',
+  `promoter_reduced` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '分销自购优惠',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `订单编号`(`order_sn`) USING BTREE,
-  INDEX `物流编号`(`freight_sn`) USING BTREE,
   INDEX `商品id`(`goods_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
@@ -613,6 +631,184 @@ CREATE TABLE `heshop_initialize_prefix_order_pay`  (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE `heshop_initialize_prefix_promoter`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `level` tinyint(2) NULL DEFAULT 1 COMMENT '当前等级',
+  `start_level` tinyint(2) NULL DEFAULT 1 COMMENT '起步等级',
+  `commission` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '佣金',
+  `commission_amount` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '总计佣金',
+  `status` tinyint(2) NULL DEFAULT 0 COMMENT '-2清退后接到招募令 -1接到招募令 0普通用户 1申请待审核 2审核通过 3已拒绝 4已清退',
+  `note` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '拒绝原因',
+  `transfer_id` bigint(20) NULL DEFAULT NULL COMMENT '移交用户ID',
+  `repel_time` bigint(10) NULL DEFAULT NULL COMMENT '清退时间',
+  `invite_id` bigint(10) NOT NULL DEFAULT 0 COMMENT '邀请方ID',
+  `apply_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '申请内容json',
+  `apply_time` bigint(10) NULL DEFAULT NULL COMMENT '申请时间',
+  `join_time` bigint(10) NULL DEFAULT NULL COMMENT '加入时间',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  `invite_number` int(11) NULL DEFAULT 0 COMMENT '邀请数量',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `用户ID`(`UID`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_commission`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `beneficiary` bigint(20) NOT NULL COMMENT '受益人ID',
+  `order_goods_id` bigint(20) NOT NULL COMMENT '分销订单ID',
+  `commission` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '佣金',
+  `level` tinyint(1) NULL DEFAULT 1 COMMENT '佣金等级',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  `sales_amount` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '销售金额',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `受益人ID`(`beneficiary`) USING BTREE,
+  INDEX `分销订单ID`(`order_goods_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_goods`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `goods_id` bigint(20) NOT NULL COMMENT '商品ID',
+  `sales` int(10) NULL DEFAULT 0 COMMENT '销量',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `商品ID`(`goods_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_level`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `level` tinyint(1) NOT NULL COMMENT '等级权重',
+  `name` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '等级名称',
+  `first` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '一级佣金',
+  `second` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '二级佣金',
+  `third` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '三级佣金',
+  `is_auto` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0不允许 1允许',
+  `update_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1任意条件 2全部条件',
+  `condition` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '条件',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+INSERT INTO `heshop_initialize_prefix_promoter_level` VALUES (1, 1, '默认一级', 0, 0, 0, 0, 1, '[]', '98c08c25f8136d590c', 1, 1623231954, 0, 0, 0);
+
+CREATE TABLE `heshop_initialize_prefix_promoter_level_change_log`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `old_level` tinyint(2) NOT NULL COMMENT '之前等级',
+  `old_level_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '之前等级',
+  `new_level` tinyint(2) NOT NULL COMMENT '现在等级',
+  `new_level_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '现在等级',
+  `type` tinyint(1) NULL DEFAULT 1 COMMENT '1升级  2降级',
+  `look_status` tinyint(1) NULL DEFAULT 0 COMMENT '查看状态',
+  `push_status` tinyint(1) NULL DEFAULT 0 COMMENT '推送状态',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `用户ID`(`UID`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_lose_log`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `parent_id` bigint(20) NOT NULL COMMENT '父级ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `type` tinyint(1) NULL DEFAULT 1 COMMENT '失去下级原因  1解除  2清退  3保护期',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `父级ID`(`parent_id`) USING BTREE,
+  INDEX `用户ID`(`UID`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_material`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '素材名称',
+  `type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1图片 2视频',
+  `content` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '素材文案',
+  `pic_list` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '图片列表',
+  `video_list` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '视频',
+  `video_cover` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '视频封面',
+  `goods_id` int(11) NOT NULL DEFAULT 0 COMMENT '关联商品id',
+  `share_count` int(11) NOT NULL DEFAULT 0 COMMENT '分享次数',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '买家ID',
+  `order_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '订单号',
+  `order_goods_id` bigint(20) NOT NULL COMMENT '订单商品ID',
+  `goods_number` int(10) NOT NULL COMMENT '总共商品数量',
+  `commission_number` int(10) NOT NULL COMMENT '分佣商品数量',
+  `total_amount` decimal(10, 2) NOT NULL COMMENT '分佣金额',
+  `profits_amount` decimal(10, 2) NOT NULL COMMENT '分佣利润',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '-1已失效 0待结算 1已结算',
+  `count_rules` tinyint(1) NULL DEFAULT 1 COMMENT '计算规则  1商品实付金额  2商品利润',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `订单商品ID`(`order_goods_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_zone`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `is_admin` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为管理员',
+  `name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '素材名称',
+  `type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1图片 2视频',
+  `content` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '素材文案',
+  `pic_list` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '图片列表',
+  `video_list` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '视频',
+  `video_cover` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '视频封面',
+  `link` varchar(5096) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '跳转链接',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 72 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_promoter_zone_upvote`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NOT NULL COMMENT '用户ID',
+  `zone_id` int(11) NOT NULL COMMENT '空间动态id',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 CREATE TABLE `heshop_initialize_prefix_roles`  (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
@@ -763,11 +959,16 @@ CREATE TABLE `heshop_initialize_prefix_user`  (
   `gender` tinyint(1) NOT NULL DEFAULT 0 COMMENT '性别 0未知 1男 2女',
   `source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '来源',
   `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '帐号状态 0正常  1禁用',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父级ID',
+  `bind_time` bigint(10) NULL DEFAULT NULL COMMENT '绑定时间',
   `AppID` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否删除',
   `created_time` bigint(10) NULL DEFAULT NULL COMMENT '创建时间',
   `updated_time` bigint(10) NULL DEFAULT NULL COMMENT '更新时间',
   `deleted_time` bigint(10) NULL DEFAULT NULL COMMENT '删除事件',
+  `birthday` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '生日',
+  `area` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '地区',
+  `wechat` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '微信号',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `应用id`(`AppID`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
@@ -955,42 +1156,6 @@ CREATE TABLE `heshop_initialize_prefix_live_room` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
-
-ALTER TABLE `heshop_initialize_prefix_goods_data`
-ADD COLUMN `task_stock` int(10) NOT NULL DEFAULT '0' COMMENT '兑换库存',
-ADD COLUMN `task_number` bigint(10) NOT NULL DEFAULT '0' COMMENT '兑换积分',
-ADD COLUMN `task_price` decimal(10,2) DEFAULT NULL COMMENT '兑换价格',
-ADD COLUMN `task_limit` bigint(5) DEFAULT NULL COMMENT '兑换限制',
-ADD COLUMN `task_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否上架：0 下架 1 上架';
-
-
-ALTER TABLE `heshop_initialize_prefix_goods_group`
-ADD COLUMN `is_show`  tinyint(1) DEFAULT 1 COMMENT '是否显示 0不显示  1显示' ;
-
-
-ALTER TABLE `heshop_initialize_prefix_order`
-ADD COLUMN `score_amount` bigint(10) NOT NULL DEFAULT '0' COMMENT '积分支付',
-ADD COLUMN `total_score` bigint(10) NOT NULL DEFAULT '0' COMMENT '积分统计',
-ADD COLUMN `type` varchar(255) DEFAULT '' COMMENT '订单类型 base 基础订单 task 任务订单';
-
-
-ALTER TABLE `heshop_initialize_prefix_order_after`
-ADD COLUMN `return_score` bigint(20) NOT NULL DEFAULT '0' COMMENT '退款积分',
-ADD COLUMN `actual_score` bigint(20) DEFAULT NULL COMMENT '实际退还积分',
-ADD COLUMN `order_type` varchar(255) DEFAULT 'base' COMMENT '订单类型',
-ADD COLUMN `return_score_type` tinyint(1) DEFAULT '0' COMMENT '0不退积分 1退积分';
-
-
-
-ALTER TABLE `heshop_initialize_prefix_order_goods`
-ADD COLUMN `goods_score` bigint(10) NOT NULL DEFAULT '0' COMMENT '商品积分',
-ADD COLUMN `score_amount` bigint(10) DEFAULT '0' COMMENT '总计积分';
-
-ALTER TABLE `heshop_initialize_prefix_user`
-ADD COLUMN `birthday` varchar(50) DEFAULT NULL COMMENT '生日',
-ADD COLUMN `area` varchar(255) DEFAULT NULL COMMENT '地区',
-ADD COLUMN `wechat` varchar(50) DEFAULT NULL COMMENT '微信号';
-
 CREATE TABLE `heshop_initialize_prefix_task` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `name` varchar(255) DEFAULT NULL COMMENT '任务名称',
@@ -1043,7 +1208,7 @@ CREATE TABLE `heshop_initialize_prefix_task_goods` (
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   `task_status` tinyint(1) DEFAULT '0' COMMENT '兑换状态',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `heshop_initialize_prefix_task_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -1058,7 +1223,7 @@ CREATE TABLE `heshop_initialize_prefix_task_log` (
   `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=705 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `heshop_initialize_prefix_task_score` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -1077,7 +1242,7 @@ CREATE TABLE `heshop_initialize_prefix_task_score` (
   `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=455 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `heshop_initialize_prefix_task_user` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -1090,7 +1255,7 @@ CREATE TABLE `heshop_initialize_prefix_task_user` (
   `updated_time` int(10) DEFAULT '0' COMMENT '更新时间',
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `heshop_initialize_prefix_waybill` (
   `id` bigint(10) NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -1108,7 +1273,27 @@ CREATE TABLE `heshop_initialize_prefix_waybill` (
   `deleted_time` int(10) DEFAULT '0' COMMENT '删除时间',
   `is_deleted` tinyint(100) DEFAULT '0' COMMENT '是否删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE `heshop_initialize_prefix_goods`
-MODIFY COLUMN `video`  varchar(8192) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '视频地址' AFTER `is_video`;
+CREATE TABLE `heshop_initialize_prefix_finance`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `UID` bigint(20) NULL DEFAULT NULL COMMENT '用户ID',
+  `order_sn` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '提现订单号',
+  `price` decimal(10, 2) NOT NULL COMMENT '提现金额',
+  `service_charge` decimal(10, 2) NOT NULL DEFAULT 0.00 COMMENT '提现手续费（%）',
+  `type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '提现方式 wechatDib: \'自动到账微信零钱\', wechat: \'提现到微信\', alipay: \'提现到支付宝\',bankCard: \'提现到银行卡\'',
+  `extra` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '额外信息',
+  `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '提现状态 0--申请 1--同意 2--已打款 3--驳回',
+  `remark` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '备注',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '真实姓名',
+  `model` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '提现来源(promoter)',
+  `transfer_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0.待转账 | 1.已转账  | 2.拒绝转账',
+  `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '手机',
+  `AppID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '应用ID',
+  `merchant_id` bigint(10) NOT NULL COMMENT '商户ID',
+  `created_time` int(10) NULL DEFAULT 0 COMMENT '创建时间',
+  `updated_time` int(10) NULL DEFAULT 0 COMMENT '更新时间',
+  `deleted_time` int(10) NULL DEFAULT 0 COMMENT '删除时间',
+  `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;

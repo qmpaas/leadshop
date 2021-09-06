@@ -6,17 +6,18 @@
 
 namespace users\app;
 
+use app\components\ComPromoter;
 use coupon\models\Coupon;
 use framework\common\BasicController;
 use users\models\User;
 use Yii;
+use \framework\common\TokenHttpException;
 
 /**
  * 后台用户管理器
  */
 class IndexController extends BasicController
 {
-    public $modelClass = 'users\models\User';
 
     public function actions()
     {
@@ -32,12 +33,38 @@ class IndexController extends BasicController
         $behavior = Yii::$app->request->get('behavior', '');
 
         switch ($behavior) {
-            case 'visit': //用户设置
+            case 'visit': //用户访问
                 return $this->visit();
                 break;
-            case 'info': //用户设置
-                $UID = Yii::$app->user->identity->id;
-                return $this->modelClass::find()->where(['id' => $UID])->one();
+            case 'info': //用户详情
+                $UID = Yii::$app->user->identity->id ?? null;
+                if (!$UID) {
+                    throw new TokenHttpException('Token validation timeout', 419);
+                }
+                $user                   = User::findOne($UID);
+                $res                    = $user->toArray();
+                $res['promoter_status'] = 0;
+                $center_show            = StoreSetting('promoter_setting', 'center_show');
+                $res['promoter_show']   = $center_show === 2 ? 2 : 0;
+                $res['recruiting_show'] = 0;
+                $promoter               = $user->promoter;
+                if ($promoter) {
+                    $res['promoter_status'] = $promoter->status;
+                    if ($promoter->repel_time || $promoter->status === 2) {
+                        $res['promoter_show'] = 1;
+                    }
+                    if ($promoter->status < 0 || $promoter->status === 1 || $promoter->status === 3) {
+                        $res['recruiting_show'] = 1;
+                    }
+                }
+                return $res;
+                break;
+            case 'simple_info':
+                $UID = Yii::$app->request->get('UID', false);
+                if (!$UID) {
+                    Error('缺少ID');
+                }
+                return User::find()->where(['id' => $UID])->select('id,nickname,avatar')->one();
                 break;
             default:
                 Error('未定义操作');
@@ -49,15 +76,43 @@ class IndexController extends BasicController
     {
         $AppID = Yii::$app->params['AppID'];
         $UID   = Yii::$app->user->identity->id ?? null;
+        $res   = true;
         if ($UID) {
             $this->module->event->visit_info = ['UID' => $UID, 'AppID' => $AppID];
             $this->module->trigger('visit');
 
             $this->module->event->user_statistical = ['UID' => $UID, 'last_visit_time' => time()];
             $this->module->trigger('user_statistical');
+
+            $setting = StoreSetting('promoter_setting');
+            //无需审核,无需申请,无条件时可自动成为分销商
+            if ($setting && $setting['need_check'] === 0 && $setting['need_apply'] === 0 && $setting['conditions']['type'] === 1) {
+                $data = M('promoter', 'Promoter')::findOne(['UID' => $UID]);
+                if (empty($data) || ($data->status !== 1 && $data->status !== 2)) {
+                    $time = time();
+                    if (empty($data)) {
+                        $model               = M('promoter', 'Promoter', true);
+                        $model->UID          = $UID;
+                        $model->created_time = $time;
+                        $data                = $model;
+                    }
+                    $data->status     = 2;
+                    $data->invite_id  = 0;
+                    $data->apply_time = $time;
+                    $data->join_time  = $time;
+                    if ($data->save()) {
+                        $ComPromoter = new ComPromoter();
+                        $ComPromoter->setLevel([$UID], 3);
+                        $res = 'promoter';
+                    } else {
+                        Yii::error('自动成分销商失败');
+                    }
+                }
+
+            }
         }
 
-        return true;
+        return $res;
     }
 
     /**
@@ -67,7 +122,7 @@ class IndexController extends BasicController
     public function actionRegister()
     {
         //调用模型
-        $model    = new $this->modelClass();
+        $model    = new User;
         $postData = Yii::$app->request->post();
         //加载数据
         $model->load($postData);
@@ -94,7 +149,7 @@ class IndexController extends BasicController
     public function actionReset()
     {
         $post = Yii::$app->request->post();
-        $data = $this->modelClass::find()->where(['mobile' => $post['mobile'], 'password' => $post['password']])->one();
+        $data = User::find()->where(['mobile' => $post['mobile'], 'password' => $post['password']])->one();
         if ($data) {
             $token         = $this->getToken($data['id']);
             $data['token'] = $token;
@@ -312,13 +367,13 @@ class IndexController extends BasicController
         $coupons = Coupon::find()->where([
             'AND',
             [
-                'AppID'  => Yii::$app->params['AppID'],
-                'status' => 1,
-                'is_deleted' => 0
+                'AppID'      => Yii::$app->params['AppID'],
+                'status'     => 1,
+                'is_deleted' => 0,
             ],
             ['>', 'over_num', 0],
             ['>', 'register_limit', 0],
-            ['>', 'end_time', time()]
+            ['>', 'end_time', time()],
         ])->all();
         $success = [];
         /**@var Coupon $coupon*/

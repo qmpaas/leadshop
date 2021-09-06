@@ -33,7 +33,6 @@ class UploadController extends BasicsModules implements Map
             $file      = $upload->image_base64($content);
             $url       = $upload::$upload_way == 0 ? Yii::$app->request->hostInfo . $file['url'] : $file['url'];
         } elseif ($type == 2) {
-
             $content = $_FILES['content'];
 
             if (empty($content)) {

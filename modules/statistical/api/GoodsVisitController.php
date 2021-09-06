@@ -22,5 +22,6 @@ class GoodsVisitController extends BasicController
         $model->setScenario('save');
         $model->setAttributes($data);
         $model->save();
+        M('goods','Goods')::updateAllCounters(['visits' => 1], ['id' => $data['goods_id']]);
     }
 }

@@ -45,7 +45,8 @@ class WaybillPrint extends Waybill
                         ]
                     ],
                     'routing_info' => [],
-                    'goods_name' => $this->tradeName
+                    'goods_name' => $this->tradeName,
+                    'note' => $this->note
                 ]
             ],
         ];

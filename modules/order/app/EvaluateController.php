@@ -41,7 +41,7 @@ class EvaluateController extends BasicController
             Error('缺少订单编号');
         }
         $model = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
-        if ($model->status != 203) {
+        if ($model->status < 203) {
             Error('该订单不可评价');
         }
         if ($model->is_evaluate !== 0) {

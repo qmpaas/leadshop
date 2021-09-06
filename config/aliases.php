@@ -23,6 +23,8 @@ return [
     '@subscribe/api'      => '@leadmall/modules/subscribe/api',
     '@coupon/api'         => '@leadmall/modules/coupon/api',
     '@collect/api'        => '@leadmall/modules/collect/api',
+    '@promoter/api'       => '@leadmall/modules/promoter/api',
+    '@finance/api'        => '@leadmall/modules/finance/api',
     '@live/api'           => '@leadmall/modules/live/api',
     '@waybill/api'        => '@leadmall/modules/waybill/api',
 
@@ -42,6 +44,8 @@ return [
     '@mp/app'             => '@leadmall/modules/mp/app',
     '@subscribe/app'      => '@leadmall/modules/subscribe/app',
     '@coupon/app'         => '@leadmall/modules/coupon/app',
+    '@promoter/app'       => '@leadmall/modules/promoter/app',
+    '@finance/app'        => '@leadmall/modules/finance/app',
     '@live/app'           => '@leadmall/modules/live/app',
 
     '@demo/models'        => '@leadmall/modules/demo/models',
@@ -60,9 +64,9 @@ return [
     '@subscribe/models'   => '@leadmall/modules/subscribe/models',
     '@coupon/models'      => '@leadmall/modules/coupon/models',
     '@collect/models'     => '@leadmall/modules/collect/models',
-
+    '@promoter/models'    => '@leadmall/modules/promoter/models',
+    '@finance/models'     => '@leadmall/modules/finance/models',
     '@basics/common'      => '@leadmall/modules/basics/common',
-
     '@live/models'        => '@leadmall/modules/live/models',
 
 ];

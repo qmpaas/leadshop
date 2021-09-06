@@ -171,6 +171,54 @@ class IndexController extends BasicController
                     'time3'  => '',
                     'thing1' => '',
                     'thing9' => '',
+                ]
+            ],
+            'promoter_verify' => [
+                'id' => '18129',
+                'keyword_id_list' => [3, 1, 2],
+                'title' => '分销商申请结果通知',
+                'categoryId' => '307', // 类目id
+                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data' => [
+                    'thing3' => '',
+                    'thing1' => '',
+                    'time2' => ''
+                ]
+            ],
+            'level_change' => [
+                'id' => '22982',
+                'keyword_id_list' => [2, 4, 3],
+                'title' => '分销商升级通知',
+                'categoryId' => '307', // 类目id
+                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data' => [
+                    'thing2' => '',
+                    'thing4' => '',
+                    'time3' => ''
+                ]
+            ],
+            'promoter_withdrawal_success' => [
+                'id' => '2001',
+                'keyword_id_list' => [1, 2, 3],
+                'title' => '提现成功通知',
+                'categoryId' => '307', // 类目id
+                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data' => [
+                    'amount1' => '',
+                    'amount2' => '',
+                    'thing3' => ''
+                ]
+            ],
+            'promoter_withdrawal_error' => [
+                'id' => '3173',
+                'keyword_id_list' => [1, 2, 3],
+                'title' => '提现失败通知',
+                'categoryId' => '307', // 类目id
+                'type' => 2, // 订阅类型 2--一次性订阅 1--永久订阅
+                'data' => [
+                    'amount1' => '',
+                    'name2' => '',
+                    'time3' => ''
                 ],
             ],
             'task_refund_tpl'   => [

@@ -1,0 +1,475 @@
+{
+    "message_setting":
+    {
+        "order_pay":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "pay_success":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "order_send":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "agree_after":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "refuse_after":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "create_after":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        },
+        "return_success":
+        {
+            "sms": false,
+            "wechat_public": false,
+            "wechat_subscribe": false
+        }
+    },
+    "setting_collection":
+    {
+        "basic_setting":
+        {
+            "run_status": 1,
+            "restore_status": 0,
+            "restore_time": ""
+        },
+        "store_setting":
+        {
+            "name": "小店",
+            "logo": "HESHOP_URL_STRING/static/images/home.png",
+            "abstract": "",
+            "phone": "10086",
+            "address": "",
+            "addressList": ["浙江省", "嘉兴市", "南湖区"],
+            "province": "浙江省",
+            "city": "嘉兴市",
+            "district": "南湖区",
+            "contact_type": ["qrcode"],
+            "contact_des": "添加客服微信，咨询详情",
+            "contact_img": "",
+            "contact":
+            {
+                "phone":
+                {
+                    "bool": true,
+                    "value": "10086",
+                    "day": [],
+                    "time": ""
+                },
+                "online":
+                {
+                    "bool": false,
+                    "day": [],
+                    "time": ""
+                },
+                "friend":
+                {
+                    "bool": false,
+                    "des": "添加客服微信，咨询详情",
+                    "day": [],
+                    "time": "",
+                    "pic_url": ""
+                }
+            }
+        },
+        "trade_setting":
+        {
+            "cancel_status": 1,
+            "cancel_time": "1",
+            "received_time": "10",
+            "evaluate_status": 1,
+            "evaluate_time": "1",
+            "after_time": "20",
+            "exchange_status": 1,
+            "pay_way":
+            {
+                "wechat":
+                {
+                    "title": "微信",
+                    "value": true
+                },
+                "alipay":
+                {
+                    "title": "支付宝",
+                    "value": false
+                }
+            }
+        },
+        "goods_setting":
+        {
+            "recommend_status": 1,
+            "recommend_showpage":
+            {
+                "goodsinfo":
+                {
+                    "title": "商品详情",
+                    "value": true
+                },
+                "pay_success":
+                {
+                    "title": "支付完成",
+                    "value": true
+                },
+                "personal_center":
+                {
+                    "title": "个人中心",
+                    "value": true
+                },
+                "orderinfo":
+                {
+                    "title": "订单详情",
+                    "value": true
+                },
+                "cart":
+                {
+                    "title": "购物车",
+                    "value": true
+                },
+                "coupon_detail":
+                {
+                    "title": "优惠券详情",
+                    "value": true
+                }
+            },
+            "evaluate_show": 1,
+            "order_list_roll": 1,
+            "sales_show": 1,
+            "soldout_show": 1,
+            "recommend_goods": []
+        },
+        "user_setting":
+        {
+            "mobile_auth":
+            {
+                "join_shopping_cart":
+                {
+                    "title": "加入购物车",
+                    "value": true
+                },
+                "paybuy":
+                {
+                    "title": "支付购买",
+                    "value": true
+                },
+                "get_tickets":
+                {
+                    "title": "获取卡券",
+                    "value": false
+                }
+            },
+            "userinfo_auth":
+            {
+                "join_shopping_cart":
+                {
+                    "title": "加入购物车",
+                    "value": true
+                },
+                "paybuy":
+                {
+                    "title": "支付购买",
+                    "value": true
+                },
+                "get_tickets":
+                {
+                    "title": "获取卡券",
+                    "value": false
+                }
+            }
+        },
+        "share_setting":
+        {
+            "cover_img": "",
+            "describe": ""
+        },
+        "location_setting":
+        {
+            "tencent_key": ""
+        }
+    },
+    "goods_group_setting":
+    {
+        "group_show": 1
+    },
+    "sms_setting":
+    {
+        "platform": "aliyun",
+        "mobile_list": [""],
+        "access_key_id": "",
+        "access_key_secret": "",
+        "template_name": "",
+        "order_refund":
+        {
+            "template_id": "SMS_215343571"
+        },
+        "order_refund_success":
+        {
+            "template_id": "SMS_215333695",
+            "code": "code"
+        },
+        "order_pay":
+        {
+            "template_id": "SMS_215338588",
+            "name": "name"
+        },
+        "order_send":
+        {
+            "template_id": "SMS_215333689",
+            "code": "code"
+        },
+        "order_verify":
+        {
+            "template_id": "SMS_215353520",
+            "status": "status"
+        },
+        "captcha":
+        {
+            "template_id": "SMS_215333698",
+            "code": "code"
+        },
+        "order_pay_business":
+        {
+            "template_id": "SMS_215790099",
+            "code": "code"
+        },
+        "score_changes":
+        {
+            "template_id": "SMS_219405455",
+            "name1": "name1",
+            "name2": "name2",
+            "name3": "name3"
+        },
+        "score_due":
+        {
+            "template_id": "SMS_219400378",
+            "code": "code",
+            "date": "date"
+        },
+        "promoter_verify":
+        {
+            "template_id": "SMS_218039717",
+            "result": "result"
+        },
+        "promoter_withdrawal":
+        {
+            "template_id": "SMS_218039720",
+            "result": "result"
+        },
+        "level_change":
+        {
+            "template_id": "SMS_218029825",
+            "status": "status",
+            "name": "name"
+        },
+        "clear_identity":
+        {
+            "template_id": "SMS_218039724",
+            "name": "name"
+        },
+        "status": "0"
+    },
+    "crontab_access_token": "",
+    "apikey_99":
+    {
+        "apikey_99": ""
+    },
+    "kb_express_setting":
+    {
+        "app_id": "",
+        "app_key": "",
+        "agent_id": "",
+        "map_sdk": "QHHBZ-JIJ6J-2O7F5-F47JY-VO5T6-LCBW5"
+    },
+    "commission_setting":
+    {
+        "count_rules": 1,
+        "withdrawal_way": ["bankCard", "alipay", "wechatDib", "wechat"],
+        "min_money": "1",
+        "max_money": "100",
+        "poundage": "0"
+    },
+    "promoter_page_setting":
+    {
+        "apply":
+        {
+            "bg_url": "HESHOP_URL_STRING/static/images/promoter/join-us.png",
+            "title": "加入我们"
+        },
+        "distributor_center":
+        {
+            "title": "分销商中心",
+            "commission": "待提现佣金",
+            "all_commission_amount": "累计佣金",
+            "wait_account": "待结算佣金",
+            "is_withdrawal": "已提现佣金",
+            "promoter_order_number": "累计分销订单",
+            "all_children": "累计下线人数",
+            "goods": "分销商品",
+            "promotion_make_money": "推广赚钱"
+        },
+        "grade_center":
+        {
+            "first": "一级分",
+            "second": "二级分销",
+            "third": "三级分销",
+            "all_children": "",
+            "sales_amount": "",
+            "all_commission_amount": ""
+        },
+        "children":
+        {
+            "first": "一级",
+            "second": "二级",
+            "third": "三级"
+        },
+        "dynamic":
+        {
+            "bg_url": "HESHOP_URL_STRING/static/images/promoter/promoter_zoom_banner.png"
+        }
+    },
+    "storage_setting":
+    {
+        "way": 0,
+        "config":
+        {
+            "local": [],
+            "oss":
+            {
+                "bucket": "",
+                "domain": "",
+                "is_cname": false,
+                "access_key": "",
+                "secret_key": ""
+            },
+            "cos":
+            {
+                "bucket": "",
+                "region": "",
+                "secret_id": "",
+                "secret_key": "",
+                "domain": ""
+            },
+            "qiniu":
+            {
+                "bucket": "",
+                "domain": "",
+                "access_key": "",
+                "secret_key": ""
+            }
+        }
+    },
+    "web_setting":
+    {
+        "ico_url": "HESHOP_URL_STRING/favicon.ico",
+        "record_number_a": "浙公网安备 330XXXXX975号 ",
+        "record_number_b": " 浙B2-20XXXX1-4"
+    },
+    "openad": "base",
+    "openingad":
+    {
+        "content": [],
+        "facade":
+        {
+            "indicator_style": 2,
+            "indicator_align": "left",
+            "indicator_color": "#16B3C5",
+            "chamfer_skip": false
+        },
+        "type": 1,
+        "days": 1,
+        "submit_time": 1629374475000
+    },
+    "mysql_version": "",
+    "promoter_setting":
+    {
+        "status": 0,
+        "level_number": 3,
+        "self_buy": 1,
+        "center_show": 1,
+        "need_check": 1,
+        "need_apply": 0,
+        "apply_content": [
+        {
+            "name": "姓名"
+        }],
+        "conditions":
+        {
+            "type": 1,
+            "buy_amount": "0",
+            "buy_number": "0",
+            "goods_list": []
+        },
+        "bind_way": 1,
+        "bind_type": 1,
+        "bind_days": "120",
+        "use_agreement": 1,
+        "agreement_title": "",
+        "agreement_content": "",
+        "protect_time": 0
+    },
+    "promoter_rank":
+    {
+        "enable": 1,
+        "bg_url": "HESHOP_URL_STRING/static/images/promoter/promoter-ranking-list.png",
+        "ranking_num": "20",
+        "ranking_dimension": ["all_children", "total_bonus", "total_money"]
+    },
+    "promoter_recruit_make":
+    {
+        "title": "",
+        "content": "<img src=\"https://qmxq.oss-cn-hangzhou.aliyuncs.com/promoter/recruit-1.png\" width=\"100%\" style=\"display:block\"><div style=\"width:100%;background-color:#3a18ab;overflow:hidden\"><div style=\"padding:0 16px\"><div style=\"background-color:#fff;border-radius:8px;padding:20px 20px;font-size:13px;font-weight:500;color:#222\">【店铺名称】诚挚邀请你加入我们的分销员团队，无任何成本，不用您处理订单和售后，即可成为我们的分销员，你只需将高品质商品分享推荐给他人，赚取佣金。欢迎您和我们一起分享喜悦！<\/div><\/div><div style=\"position:relative\"><img src=\"https://qmxq.oss-cn-hangzhou.aliyuncs.com/promoter/recruit-2.png\" width=\"100%\" alt=\"\"> <span style=\"color:#fff;font-size:16px;font-weight:400;line-height:24px;position:absolute;z-index:10;top:34px;left:16px\">如何成为分销商<\/span><div style=\"background-color:#fff;border-radius:8px;margin:0 16px;padding:20px 20px;font-size:13px;font-weight:500;color:#222\">√ 阅读此招募令内容，点击底部成为分销商按钮<br>√ 根据指引，完成申请流程，提交申请信息<\/div><\/div><div style=\"position:relative\"><img src=\"https://qmxq.oss-cn-hangzhou.aliyuncs.com/promoter/recruit-3.png\" width=\"100%\" alt=\"\"> <span style=\"color:#fff;font-size:16px;font-weight:400;line-height:24px;position:absolute;z-index:10;top:34px;left:16px\">如何赚取佣金<\/span><div style=\"background-color:#fff;border-radius:8px;margin:0 16px;padding:20px 20px;font-size:13px;font-weight:500;color:#222\">A. 点击商品详情页的【分享】按钮，将商品链接或商 &nbsp;&nbsp;&nbsp;&nbsp;品海报分享给好友<br>B. 其他人通过分享的链接或海报，进入到商品详情页 &nbsp;&nbsp;&nbsp;&nbsp;并购买商品<br>C. 订单过售后时间后，系统自动结算佣金<\/div><\/div><div style=\"position:relative\"><img src=\"https://qmxq.oss-cn-hangzhou.aliyuncs.com/promoter/recruit-4.png\" width=\"100%\" alt=\"\"> <span style=\"color:#fff;font-size:16px;font-weight:400;line-height:24px;position:absolute;z-index:10;top:34px;left:16px\">如何提现佣金<\/span><div style=\"background-color:#fff;border-radius:8px;margin:0 16px;padding:20px 20px;font-size:13px;font-weight:500;color:#222\">A. 进入到分销员中心，查看待提现佣金<br>B. 点击待提现佣金，进入到提现页面，根据指引，完 &nbsp;&nbsp;&nbsp;&nbsp;成提现申请<br>C. 商家收到提现申请后，将佣金打款至提现账户<\/div><\/div><div style=\"position:relative\"><img src=\"https://qmxq.oss-cn-hangzhou.aliyuncs.com/promoter/recruit-5.png\" width=\"100%\" alt=\"\"> <span style=\"color:#fff;font-size:16px;font-weight:400;line-height:24px;position:absolute;z-index:10;top:34px;left:16px\">联系我们<\/span><div style=\"background-color:#fff;border-radius:8px;margin:0 16px;padding:8px 20px\"><div style=\"height:50px;border-bottom:1px solid #e5e5e5;line-height:50px\"><span style=\"font-size:13px;font-weight:500;color:#222;display:inline-block;width:60px;margin-right:8px\">联系人<\/span> <span style=\"font-size:13px;font-weight:500;color:#999\">请填写联系人姓名<\/span><\/div><div style=\"height:50px;border-bottom:1px solid #e5e5e5;line-height:50px\"><span style=\"font-size:13px;font-weight:500;color:#222;display:inline-block;width:60px;margin-right:8px\">手机号<\/span> <span style=\"font-size:13px;font-weight:500;color:#999\">请填写手机号<\/span><\/div><div style=\"height:50px;line-height:50px\"><span style=\"font-size:13px;font-weight:500;color:#222;display:inline-block;width:60px;margin-right:8px\">邮箱<\/span> <span style=\"font-size:13px;font-weight:500;color:#999\">请填写邮箱<\/span><\/div><\/div><\/div><div style=\"background-color:#3a18ab;overflow:hidden\"><div ref=\"button\" style=\"background-color:#ffb43e;text-align:center;width:calc(100% - 32px);height:40px;line-height:40px;border-radius:20px;border:none;cursor:pointer;color:#fff;margin:24px 16px\">申请成为分销商<\/div><\/div><\/div>"
+    },
+    "leadshop_identified_by": "GreQzUVz8uDDD-bi",
+    "copyright_information":
+    {
+        "login_img": "",
+        "admin_copyright_content": "",
+        "admin_copyright_icon": "",
+        "admin_copyright_link": "",
+        "mobile_copyright_content": "",
+        "mobile_copyright_icon": ""
+    },
+    "storage_limit":
+    {
+        "pic_limit": 1,
+        "video_limit": 1
+    },
+    "float_window":
+    {
+        "status": 1,
+        "decline": 1,
+        "stowedState": "HESHOP_URL_STRING/static/images/float-window/float-close.png",
+        "expandedState": "HESHOP_URL_STRING/static/images/float-window/float-open.png",
+        "button": ["toTop", "tell", "personalCenter", "cart", "backPage", "index"],
+        "buttonIcon":
+        {
+            "index": "HESHOP_URL_STRING/static/images/float-window/float-index.png",
+            "cart": "HESHOP_URL_STRING/static/images/float-window/float-cart.png",
+            "tell": "HESHOP_URL_STRING/static/images/float-window/float-tell.png",
+            "personalCenter": "HESHOP_URL_STRING/static/images/float-window/float-personal-center.png",
+            "toTop": "HESHOP_URL_STRING/static/images/float-window/float-toTop.png",
+            "backPage": "HESHOP_URL_STRING/static/images/float-window/float-backPage.png"
+        },
+        "pages": ["index", "goods-list", "goods-detail", "submit", "order-list", "after-order", "after-detail", "order-detail", "page"],
+        "channel": ["applet", "wechat"],
+        "customize": []
+    }
+}

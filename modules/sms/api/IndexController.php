@@ -85,9 +85,9 @@ class IndexController extends BasicController
     public function getSmsConfig()
     {
         $option = [];
-        $config = M('setting', 'Setting')::find()->where(['keyword' => 'sms_setting', 'merchant_id' => 1, 'AppID' => \Yii::$app->params['AppID']])->select('content')->asArray()->one();
+        $config = StoreSetting('sms_setting');
         if ($config) {
-            $option = json_decode($config['content'], true);
+            $option = $config;
         }
         return $this->check($option, $this->getDefault());
     }
@@ -224,7 +224,7 @@ class IndexController extends BasicController
                         'desc'  => '例如：模板内容：您的积分${name1}了${name2}，剩余${name3},则只需要填写${name1},${name2},${name3}',
                     ],
                 ],
-                'key'      => 'score',
+                'key'      => 'buyer',
             ],
             'score_due'            => [
                 'title'    => '积分到期提醒',
@@ -242,7 +242,64 @@ class IndexController extends BasicController
                         'desc'  => '例如：模板内容：您在${date}前获得的${code}积分即将到期，请及时使用,则只需填写date,code',
                     ],
                 ],
-                'key'      => 'score',
+                'key' => 'buyer'
+            ],
+            'promoter_verify' => [
+                'title' => '分销商审核结果提醒',
+                'content' => '例如：模板内容：您好，您申请的分销商身份审核结果为${result}',
+                'loading' => false,
+                'variable' => [
+                    [
+                        'key' => 'result',
+                        'value' => '模板变量',
+                        'desc' => '例如：模板内容：您好，您申请的分销商身份审核结果为${result}。，则只需填写result'
+                    ]
+                ],
+                'key' => 'buyer'
+            ],
+            'promoter_withdrawal' => [
+                'title' => '提现申请审核结果提醒',
+                'content' => '例如：模板内容：您好，您申请的提现审核${result}',
+                'loading' => false,
+                'variable' => [
+                    [
+                        'key' => 'result',
+                        'value' => '模板变量',
+                        'desc' => '例如：模板内容：您好，您申请的提现审核${result}。，则只需填写result'
+                    ]
+                ],
+                'key' => 'buyer'
+            ],
+            'level_change' => [
+                'title' => '等级变化提醒',
+                'content' => '例如：模板内容：您好，您的分销等级${status}为${name}',
+                'loading' => false,
+                'variable' => [
+                    [
+                        'key' => 'status',
+                        'value' => '模板变量',
+                        'desc' => '例如：模板内容：您好，您的分销等级${status}为${name}。，则只需填写status'
+                    ],
+                    [
+                        'key' => 'name',
+                        'value' => '模板变量',
+                        'desc' => '例如：模板内容：您好，您的分销等级${status}为${name}。，则只需填写name'
+                    ]
+                ],
+                'key' => 'buyer'
+            ],
+            'clear_identity' => [
+                'title' => '分销商身份被清退提醒',
+                'content' => '例如：模板内容：您好，您的${name}身份已被清退',
+                'loading' => false,
+                'variable' => [
+                    [
+                        'key' => 'name',
+                        'value' => '模板变量',
+                        'desc' => '例如：模板内容：您好，您的${name}身份已被清退。，则只需填写name'
+                    ]
+                ],
+                'key' => 'buyer'
             ],
         ];
     }

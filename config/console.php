@@ -5,6 +5,7 @@ $params = require __DIR__ . '/params.php';
 $config = [
     'id'         => 'basic-console',
     'basePath'   => dirname(__DIR__),
+    'timeZone'   => 'PRC',
     'components' => [
         'db'    => $db,
         'redis' => [

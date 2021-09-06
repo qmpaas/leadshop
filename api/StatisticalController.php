@@ -77,7 +77,7 @@ class StatisticalController extends BasicsModules implements Map
             'unsent'        => $unsent,
             'order_after'   => $order_after,
             'user_number'   => $user_number,
-            'income_amount' => round(($income_amount - $out_amount), 2),
+            'income_amount' => qm_round(($income_amount - $out_amount), 2),
         ];
 
         return $data;
@@ -133,7 +133,7 @@ class StatisticalController extends BasicsModules implements Map
             $order_data = $new_order_data;
 
             $visit_list[$i]      = count(array_unique($visit));
-            $pay_amount_list[$i] = round($pay_amount, 2);
+            $pay_amount_list[$i] = qm_round($pay_amount, 2);
             $num_order_list[$i]  = $num_order;
             $num_buyer_list[$i]  = count(array_unique($num_buyer));
         }
@@ -158,7 +158,7 @@ class StatisticalController extends BasicsModules implements Map
         $today_num_buyer  = array_sum($today_list['num_buyer_list']);
         return [
             'today_visit'      => $today_visit,
-            'today_pay_amount' => round($today_pay_amount, 2),
+            'today_pay_amount' => qm_round($today_pay_amount, 2),
             'today_num_order'  => $today_num_order,
             'today_num_buyer'  => $today_num_buyer,
             'yesterday_list'   => $yesterday_list,

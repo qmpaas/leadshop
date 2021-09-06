@@ -49,17 +49,9 @@ class IndexController extends BasicController
      */
     public function actionIndex()
     {
-        $merchant_id = 1;
-        $AppID       = Yii::$app->params['AppID'];
-        $where       = [
-            'merchant_id' => $merchant_id,
-            'AppID'       => $AppID,
-        ];
-        $data = M()::find()->where($where)->select('keyword,content')->asArray()->all();
-
+        $data = StoreSetting();
         $new_data = [];
         foreach ($data as $value) {
-            $value['content'] = to_array($value['content']);
             $new_data[$value['keyword']] = str2url($value['content']);
         }
         return $new_data;
@@ -89,21 +81,14 @@ class IndexController extends BasicController
             'AppID'       => $AppID,
         ];
 
-        $data = M()::find()->where($where)->select('keyword,content')->asArray()->one();
-
-        if ($data) {
-            $data['content'] = to_array($data['content']);
-            if ($content_key) {
-                if (isset($data['content'][$content_key])) {
-                    return str2url($data['content'][$content_key]);
-                } else {
-                    Error('内容不存在');
-                }
-
-            }
-            return str2url($data);
-        } else {
-            return null;
+        $data = StoreSetting($keyword,$content_key);
+        if (!$content_key) {
+            $new_data = [];
+            $new_data['keyword'] = $keyword;
+            $new_data['content'] = $data;
+            $data = $new_data;
         }
+
+        return $data;
     }
 }

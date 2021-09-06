@@ -41,6 +41,9 @@ class Goods extends CommonModels
     const virtual_sales    = ['int' => 10, 'default' => 0, 'comment' => '虚拟销量'];
     const sales            = ['int' => 10, 'default' => 0, 'comment' => '销量'];
     const sales_amount     = ['decimal' => '10,2', 'notNull', 'default' => 0, 'comment' => '销售额'];
+    const is_promoter      = ['tinyint' => 1, 'default' => 0, 'comment' => '参与分销  0不参与  1参与'];
+    const max_price        = ['decimal' => '10,2', 'comment' => '最高价'];
+    const max_profits      = ['decimal' => '10,2', 'comment' => '最高利润'];
     const AppID            = ['varchar' => 50, 'notNull', 'comment' => '应用ID'];
     const merchant_id      = ['bigint' => 10, 'notNull', 'comment' => '商户ID'];
     const created_time     = ['bigint' => 10, 'comment' => '创建时间'];
@@ -71,7 +74,7 @@ class Goods extends CommonModels
             //价格库存设置
             [['price', 'param_type', 'unit', 'stocks'], 'required', 'message' => '{attribute}不能为空'],
             [['param_type', 'stocks', 'reduce_stocks', 'virtual_sales'], 'integer', 'message' => '{attribute}必须是整数'],
-            [['price', 'line_price'], 'number', 'message' => '{attribute}必须是数字'],
+            [['price', 'line_price','max_price','max_profits'], 'number', 'message' => '{attribute}必须是数字'],
             ['virtual_sales', 'default', 'value' => 0],
 
             //物流设置
@@ -129,8 +132,8 @@ class Goods extends CommonModels
     public function scenarios()
     {
         $scenarios                      = parent::scenarios();
-        $scenarios['create']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services'];
-        $scenarios['update']            = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services'];
+        $scenarios['create']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services','max_price','max_profits'];
+        $scenarios['update']            = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services','max_price','max_profits'];
         $scenarios['collect']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover'];
 
         return $scenarios;
@@ -176,6 +179,9 @@ class Goods extends CommonModels
         return $this->hasOne('goods\models\GoodsParam', ['goods_id' => 'id'])->with(['goods_data'])->select('id,goods_id,param_data');
     }
 
+    public function getGoodsdata(){
+        return $this->hasMany('goods\models\GoodsData', ['goods_id' => 'id']);
+    }
     public function getSpecs()
     {
         return $this->hasOne('goods\models\GoodsData', ['goods_id' => 'id']);
@@ -216,6 +222,11 @@ class Goods extends CommonModels
     public function getFreight()
     {
         return $this->hasOne('logistics\models\FreightTemplate', ['id' => 'ft_id'])->select('id,name,type,freight_rules');
+    }
+
+    public function getPromoter()
+    {
+        return $this->hasOne('promoter\models\PromoterGoods', ['goods_id' => 'id']);
     }
 
 }

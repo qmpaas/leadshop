@@ -1,0 +1,2 @@
+worker.onMessage(function (res) {
+})

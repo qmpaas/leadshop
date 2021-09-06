@@ -48,6 +48,8 @@
     "leadmall/api/reset/create",
     "leadmall/app/reset/create",
     "leadmall/app/live/index",
-    "leadmall/app/cloud/index"
+    "leadmall/app/cloud/index",
+    "leadmall/app/promoterzone/index",
+    "leadmall/app/users/index"
   ]
 }

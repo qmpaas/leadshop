@@ -140,9 +140,9 @@ if (!function_exists('createPoster')) {
                 imagecopy($target_img, $canvas, 0, 0, $start_x, $start_y, $resize_w, $resize_h);
 
                 //处理图片圆角问题
-                // if ($val['radius'] > 0) {
-                //     $canvas = radius_img($target_img, $val['width'], $val['height'], $val['radius'], $val['color']);
-                // }
+                if ($val['radius'] > 0) {
+                    $canvas = radius_img($target_img, $val['width'], $val['height'], $val['radius'], $val['color']);
+                }
 
                 //一下注释的为了测试用
                 // if ($img_type == 'png') {
@@ -181,6 +181,7 @@ if (!function_exists('createPoster')) {
     }
 
 }
+
 if (!function_exists('radius_img')) {
     /**
      * 处理图片圆角问题
@@ -202,6 +203,7 @@ if (!function_exists('radius_img')) {
         list($R, $G, $B) = explode(',', $color);
         //拾取一个完全透明的颜色,最后一个参数127为全透明
         $bg = imagecolorallocatealpha($img, $R, $G, $B, 127);
+        imagecolortransparent($img, $bg);
         imagefill($img, 0, 0, $bg);
         $r = $radius; //圆 角半径
         for ($x = 0; $x < $w; $x++) {
@@ -488,6 +490,19 @@ if (!function_exists('Error')) {
     }
 }
 
+if (!function_exists('StoreSetting')) {
+    /**
+     * [Error description]
+     * @param string $value [description]
+     */
+    function StoreSetting($keyword = '', $content_key = '')
+    {
+        $class = new framework\common\StoreSetting();
+        $setting = $class->get($keyword, $content_key);
+        return str2url($setting);
+    }
+}
+
 if (!function_exists('is_object')) {
     /**
      * [is_object description]
@@ -507,7 +522,6 @@ if (!function_exists('is_object')) {
 }
 
 //用于直接写入
-
 if (!function_exists('getDirList')) {
     /**
      * 获取文件目录
@@ -717,7 +731,12 @@ if (!function_exists('to_array')) {
      */
     function to_array($json = '')
     {
-        return $json ? json_decode($json, true) : null;
+        $ret = json_decode($json, true);
+        if (json_last_error()) {
+            return $json;
+        } else {
+            return $ret;
+        }
     }
 }
 
@@ -791,6 +810,20 @@ if (!function_exists('url2str')) {
         $value_str = str_replace($url . WE7_ROOT, URL_STRING, $value_str);
         $new_value = to_array($value_str);
         return $new_value;
+    }
+}
+
+if (!function_exists('qm_round')) {
+    /**
+     * 保留小数
+     */
+    function qm_round($value, $number = 2, $type = 'round')
+    {
+        if ($type == 'floor') {
+            $multiple = pow(10, $number);
+            $value    = floor($value * $multiple+0.01) / $multiple;//避免php计算出现0.1*0.7=0.06999999**9999的情况下的向下取整问题,加上0.01
+        }
+        return number_format($value, $number, '.', '');
     }
 }
 

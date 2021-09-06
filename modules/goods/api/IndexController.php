@@ -140,6 +140,23 @@ class IndexController extends BasicController
             $where = ['and', $where, ['<=', 'created_time', $time_end]];
         }
 
+        //  是否参与分销
+        $is_promoter = $keyword['is_promoter'] ?? -1;
+        if ($is_promoter >= 0) {
+            $where = ['and', $where, ['is_promoter' => $is_promoter]];
+        }
+
+        //  是否设置成本价
+        $cost_status = $keyword['cost_status'] ?? -1;
+        if ($cost_status >= 0) {
+            if ($cost_status === 0) {
+                $where = ['and', $where, ['max_profits' => null]];
+            } else {
+                $where = ['and', $where, ['>=', 'max_profits', 0]];
+            }
+
+        }
+
         //搜索
         $search = $keyword['search'] ?? '';
         if ($search) {
@@ -209,51 +226,50 @@ class IndexController extends BasicController
         if ($is_task && $task_status) {
             switch ($tab_key) {
                 case 'onsale': //上架中
-                    $where = ['t.goods_is_sale' => 1, 't.is_recycle' => 0, 'status' => 0];
+                    $where = ['t.goods_is_sale' => 1, 't.is_recycle' => 0, 'g.status' => 0];
                     break;
                 case 'nosale': //下架中
-                    $where = ['t.goods_is_sale' => 0, 't.is_recycle' => 0, 'status' => 0];
+                    $where = ['t.goods_is_sale' => 0, 't.is_recycle' => 0, 'g.status' => 0];
                     break;
                 case 'soldout': //售罄
-                    $where = ['and', ['t.is_recycle' => 0, 'status' => 0], ['<=', 'stocks', 0]];
+                    $where = ['and', ['t.is_recycle' => 0, 'g.status' => 0], ['<=', 'g.stocks', 0]];
                     break;
                 case 'recycle': //回收站
-                    $where = ['t.is_recycle' => 1, 'is_deleted' => 0];
+                    $where = ['t.is_recycle' => 1, 'g.is_deleted' => 0];
                     break;
                 case 'drafts': //草稿箱
-                    $where = ['and', ['t.is_recycle' => 0], ['<>', 'status', 0]];
+                    $where = ['and', ['t.is_recycle' => 0], ['<>', 'g.status', 0]];
                     break;
                 default: //默认获取全部
-                    $where = ['t.is_recycle' => 0, 'status' => 0];
+                    $where = ['t.is_recycle' => 0, 'g.status' => 0];
                     break;
             }
         } else {
             switch ($tab_key) {
                 case 'onsale': //上架中
-                    $where = ['is_sale' => 1, 'is_recycle' => 0, 'status' => 0];
+                    $where = ['g.is_sale' => 1, 'g.is_recycle' => 0, 'g.status' => 0];
                     break;
                 case 'nosale': //下架中
-                    $where = ['is_sale' => 0, 'is_recycle' => 0, 'status' => 0];
+                    $where = ['g.is_sale' => 0, 'g.is_recycle' => 0, 'g.status' => 0];
                     break;
                 case 'soldout': //售罄
-                    $where = ['and', ['is_recycle' => 0, 'status' => 0], ['<=', 'stocks', 0]];
+                    $where = ['and', ['g.is_recycle' => 0, 'g.status' => 0], ['<=', 'g.stocks', 0]];
                     break;
                 case 'recycle': //回收站
-                    $where = ['is_recycle' => 1, 'is_deleted' => 0];
+                    $where = ['g.is_recycle' => 1, 'g.is_deleted' => 0];
                     break;
                 case 'drafts': //草稿箱
-                    $where = ['and', ['is_recycle' => 0], ['<>', 'status', 0]];
+                    $where = ['and', ['g.is_recycle' => 0], ['<>', 'g.status', 0]];
                     break;
                 default: //默认获取全部
-                    $where = ['is_recycle' => 0, 'status' => 0];
+                    $where = ['g.is_recycle' => 0, 'g.status' => 0];
                     break;
             }
         }
 
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
-
-        $where = ['and', $where, ['merchant_id' => $merchant_id, 'AppID' => $AppID]];
+        $where       = ['and', $where, ['g.merchant_id' => $merchant_id, 'g.AppID' => $AppID]];
 
         //商品分类筛选
         $group = $keyword['group'] ?? false;
@@ -262,12 +278,12 @@ class IndexController extends BasicController
             if (count($group) > 1) {
                 $group_arr = ['or'];
                 foreach ($group as $value) {
-                    $arr = ['like', 'group', '-' . $value . '-'];
+                    $arr = ['like', 'g.group', '-' . $value . '-'];
                     array_push($group_arr, $arr);
                 }
                 $where = ['and', $where, $group_arr];
             } else {
-                $where = ['and', $where, ['like', 'group', '-' . $group[0] . '-']];
+                $where = ['and', $where, ['like', 'g.group', '-' . $group[0] . '-']];
             }
 
         }
@@ -275,21 +291,38 @@ class IndexController extends BasicController
         //价格区间
         $price_start = $keyword['price_start'] ?? -1;
         if ($price_start !== '' && $price_start >= 0) {
-            $where = ['and', $where, ['>=', 'price', $price_start]];
+            $where = ['and', $where, ['>=', 'g.price', $price_start]];
         }
         $price_end = $keyword['price_end'] ?? -1;
         if ($price_start !== '' && $price_end >= 0) {
-            $where = ['and', $where, ['<=', 'price', $price_end]];
+            $where = ['and', $where, ['<=', 'g.price', $price_end]];
         }
 
         //时间区间
         $time_start = $keyword['time_start'] ?? false;
         if ($time_start > 0) {
-            $where = ['and', $where, ['>=', 'created_time', $time_start]];
+            $where = ['and', $where, ['>=', 'g.created_time', $time_start]];
         }
         $time_end = $keyword['time_end'] ?? false;
         if ($time_end > 0) {
-            $where = ['and', $where, ['<=', 'created_time', $time_end]];
+            $where = ['and', $where, ['<=', 'g.created_time', $time_end]];
+        }
+
+        //  是否参与分销
+        $is_promoter = $keyword['is_promoter'] ?? -1;
+        if ($is_promoter >= 0) {
+            $where = ['and', $where, ['g.is_promoter' => $is_promoter]];
+        }
+
+        //  是否设置成本价
+        $cost_status = $keyword['cost_status'] ?? -1;
+        if ($cost_status >= 0) {
+            if ($cost_status === 0) {
+                $where = ['and', $where, ['g.max_profits' => null]];
+            } else {
+                $where = ['and', $where, ['>=', 'g.max_profits', 0]];
+            }
+
         }
 
         //搜索
@@ -298,8 +331,7 @@ class IndexController extends BasicController
             //从规格表中模糊查询出货号符合要求的商品ID数组
             $param     = M('goods', 'GoodsData')::find()->where(['goods_sn' => $search])->select('goods_id')->asArray()->all();
             $goods_arr = array_column($param, 'goods_id');
-
-            $where = ['and', $where, ['or', ['like', 'name', $search], ['in', 'g.id', $goods_arr], ['g.id' => $search]]];
+            $where     = ['and', $where, ['or', ['like', 'g.name', $search], ['in', 'g.id', $goods_arr], ['g.id' => $search]]];
         }
 
         //处理排序
@@ -307,23 +339,29 @@ class IndexController extends BasicController
 
         $orderBy = [];
         if (empty($sort)) {
-            $orderBy = ['created_time' => SORT_DESC];
+            $orderBy = ['g.created_time' => SORT_DESC];
         } else {
             foreach ($sort as $key => $value) {
-                $orderBy[$key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                if ($key == 'promoter_sales') {
+                    $orderBy['p.sales'] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                } else {
+                    $orderBy['g.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                }
+
             }
         }
+
         //判断是否安装
         $task_status = $this->plugins("task", "status");
         //用于判断插件是否安装
         if ($is_task && $task_status) {
             $data = new ActiveDataProvider(
                 [
-                    'query'      => Goods::find()
+                    'query'      => M()::find()
+                        ->alias('g')
                         ->where($where)
-                        ->from(['g' => Goods::tableName()])
-                        ->joinWith('task')
-                        ->with('data')
+                        ->joinWith(['data', 'task', 'promoter as p'])
+                        ->groupBy('g.id')
                         ->orderBy($orderBy)
                         ->asArray(),
                     'pagination' => ['pageSize' => $pageSize, 'validatePage' => false],
@@ -337,11 +375,12 @@ class IndexController extends BasicController
             //剔除已经存在的积分商品
             $data = new ActiveDataProvider(
                 [
-                    'query'      => Goods::find()
+                    'query'      => M()::find()
+                        ->alias('g')
                         ->where($where)
-                        ->from(['g' => Goods::tableName()])
-                        ->andwhere(['not in', "id", $taskid_list])
-                        ->with('data')
+                        ->andwhere(['not in', "g.id", $taskid_list])
+                        ->joinWith(['data', 'promoter as p'])
+                        ->groupBy('g.id')
                         ->orderBy($orderBy)
                         ->asArray(),
                     'pagination' => ['pageSize' => $pageSize, 'validatePage' => false],
@@ -350,10 +389,11 @@ class IndexController extends BasicController
         } else {
             $data = new ActiveDataProvider(
                 [
-                    'query'      => Goods::find()
+                    'query'      => M()::find()
+                        ->alias('g')
                         ->where($where)
-                        ->with('data')
-                        ->from(['g' => Goods::tableName()])
+                        ->joinWith(['data', 'promoter as p'])
+                        ->groupBy('g.id')
                         ->orderBy($orderBy)
                         ->asArray(),
                     'pagination' => ['pageSize' => $pageSize, 'validatePage' => false],
@@ -490,8 +530,11 @@ class IndexController extends BasicController
 
         $post['goods_data'] = to_array($post['goods_data']);
 
-        $price  = null;
-        $stocks = 0;
+        $price       = null;
+        $stocks      = 0;
+        $max_price   = 0;
+        $max_profits = 0;
+        $count_rules = StoreSetting('commission_setting', 'count_rules');
         foreach ($post['goods_data'] as &$g_d) {
             if ($g_d['price'] > 9999999 || $g_d['cost_price'] > 9999999) {
                 Error('金额不能超过9999999');
@@ -501,6 +544,20 @@ class IndexController extends BasicController
             }
             if ($g_d['weight'] > 9999999) {
                 Error('重量不能超过9999999');
+            }
+            if (trim($g_d['cost_price']) === '') {
+                if ($model->is_promoter === 1) {
+                    if ($count_rules === 2) {
+                        Error('利润佣金规则下分销商品必须设置成本价');
+                    }
+                }
+                $max_profits = null;
+            }
+            if ($max_profits !== null && ($g_d['price'] - $g_d['cost_price']) > $max_profits) {
+                $max_profits = ($g_d['price'] - $g_d['cost_price']);
+            }
+            if ($g_d['price'] > $max_price) {
+                $max_price = $g_d['price'];
             }
             if ($price === null || $g_d['price'] < $price) {
                 $price = $g_d['price'];
@@ -515,8 +572,10 @@ class IndexController extends BasicController
                 "goods_sn"    => $g_d['goods_sn'],
             ];
         }
-        $post['price']  = $price;
-        $post['stocks'] = $stocks;
+        $post['price']       = $price;
+        $post['stocks']      = $stocks;
+        $post['max_price']   = $max_price;
+        $post['max_profits'] = $max_profits;
         if ($post['price'] > 9999999) {
             Error('金额不能超过9999999');
         }
@@ -622,7 +681,6 @@ class IndexController extends BasicController
 
     }
 
-
     /**
      * 一些可能需要单独做的编辑
      */
@@ -654,7 +712,6 @@ class IndexController extends BasicController
             Error('修改失败');
         }
     }
-
 
     /**
      * 批量操作

@@ -28,5 +28,5 @@ class Event extends BasicEvent
         'mobile' => '',
         'params' => [],
     ]; //短信参数
-    public $order_after = null; //售后事件
+    public $order_after         = null; //售后事件
 }

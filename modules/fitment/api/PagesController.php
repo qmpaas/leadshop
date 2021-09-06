@@ -41,7 +41,7 @@ class PagesController extends BasicController
                 return $this->firstPage();
                 break;
             default:
-                return $this->list();
+                return $this->getList();
                 break;
         }
     }
@@ -60,7 +60,7 @@ class PagesController extends BasicController
      * 获取设置列表
      * @return [type] [description]
      */
-    function list() {
+    public function getList() {
         //获取头部信息
         $headers = Yii::$app->getRequest()->getHeaders();
         //获取分页信息

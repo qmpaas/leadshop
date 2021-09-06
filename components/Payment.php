@@ -10,8 +10,10 @@
 namespace app\components;
 
 use app\forms\CommonWechat;
+use finance\models\Finance;
 use framework\wechat\Lib\Tools;
 use order\models\Order;
+use users\models\User;
 use yii\base\Component;
 use yii\web\Response;
 
@@ -131,6 +133,33 @@ class Payment extends Component
         } catch (\Exception $e) {
             Error($e->getMessage());
             $t->rollBack();
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param Finance $finance
+     * @param $desc
+     * @param $callback
+     * @return mixed
+     */
+    public function transfer($user, $finance, $desc, $callback)
+    {
+        try {
+            $wechat = new CommonWechat(['AppID' => \Yii::$app->params['AppID']]);
+            $pay    = $wechat->getWechatPay([], $user->oauth->type);
+            if (!$pay) {
+                throw new \Exception('请联系管理员配置支付信息');
+            }
+            $res = $pay->transfers($user->oauth->oauthID, $finance->price * 100, $finance->order_sn, $desc);
+            if ($res) {
+                $res = $callback();
+                return $res;
+            } else {
+                Error($pay->errMsg);
+            }
+        } catch (\Exception $e) {
+            Error($e->getMessage());
         }
     }
 }

@@ -97,28 +97,24 @@ class HandleController extends BasicController
         $behavior = Yii::$app->request->get('behavior', 'deliver');
 
         if ($behavior == 'waybill') {
-            $list = Yii::$app->request->post('list');
+            $list      = Yii::$app->request->post('list');
             $waybillId = Yii::$app->request->post('waybill_id');
         } else {
             $list = Yii::$app->request->post();
         }
 
         if (!is_array($list)) {
-          Error('数据格式错误');
+            Error('数据格式错误');
         }
 
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
 
         $received_time = 0;
-        $setting_data  = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $merchant_id, 'AppID' => $AppID])->select('content')->asArray()->one();
-        if ($setting_data) {
-            $setting_data['content'] = to_array($setting_data['content']);
-            if (isset($setting_data['content']['trade_setting'])) {
-                $trade_setting = $setting_data['content']['trade_setting'];
-                if ($trade_setting['received_time']) {
-                    $received_time = (float) $trade_setting['received_time'] * 24 * 60 * 60 + time();
-                }
+        $trade_setting = StoreSetting('setting_collection', 'trade_setting');
+        if ($trade_setting) {
+            if ($trade_setting['received_time']) {
+                $received_time = (float) $trade_setting['received_time'] * 24 * 60 * 60 + time();
             }
         }
         $send_time = time();
@@ -156,30 +152,30 @@ class HandleController extends BasicController
             $model->status        = 202;
 
             if ($behavior == 'waybill') {
-               try {
-                   /**@var Waybill $waybill*/
-                   $waybill = Waybill::find()->where(['id' => $waybillId])->one();
-                   if (!$waybill) {
-                     Error('发货地址不存在');
-                   }
-                   $data = (new \app\components\WaybillPrint())->query([
-                     'order_sn' => $v[0],
-                     'waybill_id' => $waybillId
-                   ]);
-                   $json = file_get_contents(__DIR__.'/../../setting/app/express.json');
-                   $jsonArray = array_column(to_array($json), null, 'code');
-                   $companyName = $jsonArray[$waybill->code]['name'] ?? '';
-                   $freight_data = [
-                     'order_sn'          => $v[0],
-                     'type'              => 3,
-                     'logistics_company' => $companyName,
-                     'freight_sn'        => $data['freight_sn'],
-                   ];
-               } catch (\Exception $e) {
-                   array_push($v, '获取电子面单失败' . $e->getMessage());
-                   array_push($error_data, $v);
-                   continue;
-               }
+                try {
+                    /**@var Waybill $waybill*/
+                    $waybill = Waybill::find()->where(['id' => $waybillId])->one();
+                    if (!$waybill) {
+                        Error('发货地址不存在');
+                    }
+                    $data = (new \app\components\WaybillPrint())->query([
+                        'order_sn'   => $v[0],
+                        'waybill_id' => $waybillId,
+                    ]);
+                    $json         = file_get_contents(__DIR__ . '/../../setting/app/express.json');
+                    $jsonArray    = array_column(to_array($json), null, 'code');
+                    $companyName  = $jsonArray[$waybill->code]['name'] ?? '';
+                    $freight_data = [
+                        'order_sn'          => $v[0],
+                        'type'              => 3,
+                        'logistics_company' => $companyName,
+                        'freight_sn'        => $data['freight_sn'],
+                    ];
+                } catch (\Exception $e) {
+                    array_push($v, '获取电子面单失败' . $e->getMessage());
+                    array_push($error_data, $v);
+                    continue;
+                }
             } else {
                 $freight_data = [
                     'order_sn'          => $v[0],

@@ -34,7 +34,7 @@ class IndexController extends BasicController
                 return $this->userCoupon();
                 break;
             default:
-                return $this->list();
+                return $this->getList();
                 Error('未知操作');
                 break;
         }
@@ -98,7 +98,7 @@ class IndexController extends BasicController
         return $data;
     }
 
-    function list() {
+    public function getList() {
         //获取头部信息
         $headers = \Yii::$app->getRequest()->getHeaders();
         //获取分页信息
