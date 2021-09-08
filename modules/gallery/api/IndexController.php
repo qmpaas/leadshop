@@ -341,6 +341,7 @@ class IndexController extends BasicController
                 }
                 $get_url             = $this->upload();
                 $post['title']       = $post['title'] ?? $get_url['title'];
+                $post['title']       = strlen($post['title']) > 32 ? substr($post['title'], 0, 32) : $post['title'];
                 $post['size']        = $get_url['size'];
                 $post['url']         = $get_url['url'];
                 $post['thumbnail']   = $get_url['thumbnail'] ?? '';

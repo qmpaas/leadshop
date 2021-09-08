@@ -126,7 +126,7 @@ class OrderAfter extends CommonModels
      */
     public function getGoods()
     {
-        return $this->hasMany('order\models\OrderGoods', ['order_sn' => 'order_sn'])->select('id,order_sn,freight_sn,goods_name,goods_id,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount');
+        return $this->hasMany('order\models\OrderGoods', ['order_sn' => 'order_sn'])->select('id,order_sn,goods_name,goods_id,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount');
     }
 
     /**

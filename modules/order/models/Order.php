@@ -185,7 +185,7 @@ class Order extends CommonModels
     {
         $Goods = 'order\models\OrderGoods';
         return $this->hasMany($Goods::className(), ['order_sn' => 'order_sn'])
-            ->select('id,order_sn,freight_sn,goods_id,goods_name,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount')
+            ->select('id,order_sn,goods_id,goods_name,goods_sn,goods_image,goods_param,show_goods_param,goods_price,goods_weight,goods_number,total_amount,pay_amount,after_sales,goods_score,score_amount')
             ->with('after')
             ->from(['u' => $Goods::tableName()]);
     }
