@@ -457,7 +457,7 @@ class IndexController extends BasicController
         unset($result['freight']);
 
         //处理包邮规则展示
-        if (is_array($result['package']['free_area'])) {
+        if ($result['pfr_status'] && is_array($result['package']['free_area'])) {
             foreach ($result['package']['free_area'] as $key => &$value) {
                 $value['area'] = implode('、', array_column($value['area'], 'name'));
             }

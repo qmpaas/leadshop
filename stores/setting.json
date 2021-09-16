@@ -455,6 +455,7 @@
     "float_window":
     {
         "status": 1,
+        "move": 0,
         "decline": 1,
         "stowedState": "HESHOP_URL_STRING/static/images/float-window/float-close.png",
         "expandedState": "HESHOP_URL_STRING/static/images/float-window/float-open.png",

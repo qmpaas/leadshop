@@ -16,7 +16,7 @@ class AccessToken
 
     /**
      * 获取Token信息
-     * 超时时间:21600
+     * 超时时间:2592000
      * 单位是秒
      * @param  string $id [description]
      * @return [type]      [description]
@@ -33,8 +33,7 @@ class AccessToken
 
         if ($type == 1) {
             $origin     = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
-            $expiration = isset(Yii::$app->params['expiration']) ? Yii::$app->params['expiration'] : 3600;
-            $expiration = 86400;
+            $expiration = 2592000;
         } else {
             $origin     = "refresh";
             $expiration = 2592000;

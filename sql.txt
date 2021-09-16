@@ -1,0 +1,1 @@
+ALTER TABLE `heshop_initialize_prefix_goods` ADD COLUMN `pfr_status`  tinyint(1) NULL DEFAULT 0 COMMENT '包邮  0关闭  1开启';

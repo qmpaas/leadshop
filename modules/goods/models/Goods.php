@@ -30,6 +30,7 @@ class Goods extends CommonModels
     const ft_type          = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '运费设置  1统一价格 2使用模板'];
     const ft_price         = ['decimal' => '10,2', 'default' => 0, 'comment' => '统一运费'];
     const ft_id            = ['bigint' => 10, 'comment' => '运费模板ID'];
+    const pfr_status       = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '包邮设置  0不启用  1启用'];
     const pfr_id           = ['bigint' => 10, 'comment' => '包邮规则ID'];
     const limit_buy_status = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '限购状态 0不限制 1限制'];
     const limit_buy_type   = ['varchar' => 50, 'comment' => '限购周期 day天 week周  month月  all永久'];
@@ -74,7 +75,7 @@ class Goods extends CommonModels
             //价格库存设置
             [['price', 'param_type', 'unit', 'stocks'], 'required', 'message' => '{attribute}不能为空'],
             [['param_type', 'stocks', 'reduce_stocks', 'virtual_sales'], 'integer', 'message' => '{attribute}必须是整数'],
-            [['price', 'line_price','max_price','max_profits'], 'number', 'message' => '{attribute}必须是数字'],
+            [['price', 'line_price', 'max_price', 'max_profits'], 'number', 'message' => '{attribute}必须是数字'],
             ['virtual_sales', 'default', 'value' => 0],
 
             //物流设置
@@ -87,7 +88,11 @@ class Goods extends CommonModels
                 'when' => function ($model) {
                     return $model->ft_type === 2 ? true : false;
                 }, 'message' => '{attribute}不能为空'],
-            [['ft_type', 'pfr_id', 'ft_id'], 'integer', 'message' => '{attribute}必须是整数'],
+            ['pfr_id', 'required',
+                'when' => function ($model) {
+                    return $model->pfr_status === 1 ? true : false;
+                }, 'message' => '{attribute}不能为空'],
+            [['ft_type', 'pfr_id', 'ft_id', 'pfr_status'], 'integer', 'message' => '{attribute}必须是整数'],
             [['ft_price'], 'number', 'message' => '{attribute}必须是数字'],
 
             //其他设置
@@ -131,10 +136,10 @@ class Goods extends CommonModels
      */
     public function scenarios()
     {
-        $scenarios                      = parent::scenarios();
-        $scenarios['create']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services','max_price','max_profits'];
-        $scenarios['update']            = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services','max_price','max_profits'];
-        $scenarios['collect']            = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover'];
+        $scenarios            = parent::scenarios();
+        $scenarios['create']  = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_id', 'pfr_status','limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services', 'max_price', 'max_profits'];
+        $scenarios['update']  = ['name', 'group', 'slideshow', 'is_video', 'video', 'video_cover', 'price', 'line_price', 'param_type', 'unit', 'stocks', 'virtual_sales', 'status', 'ft_type', 'ft_price', 'ft_id', 'pfr_status','pfr_id', 'limit_buy_status', 'limit_buy_type', 'limit_buy_value', 'is_sale', 'min_number', 'services', 'max_price', 'max_profits'];
+        $scenarios['collect'] = ['name', 'group', 'slideshow', 'is_video', 'merchant_id', 'AppID', 'video', 'video_cover'];
 
         return $scenarios;
     }
@@ -179,7 +184,8 @@ class Goods extends CommonModels
         return $this->hasOne('goods\models\GoodsParam', ['goods_id' => 'id'])->with(['goods_data'])->select('id,goods_id,param_data');
     }
 
-    public function getGoodsdata(){
+    public function getGoodsdata()
+    {
         return $this->hasMany('goods\models\GoodsData', ['goods_id' => 'id']);
     }
     public function getSpecs()

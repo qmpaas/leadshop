@@ -585,6 +585,20 @@ class IndexController extends BasicController
 
         $post['services'] = N('services', 'array') ? to_json($post['services']) : to_json([]);
 
+        if ($post['ft_id']) {
+            $ft_check = M('logistics','FreightTemplate')::find()->where(['id'=>$post['ft_id'],'is_deleted'=>0])->exists();
+            if (!$ft_check) {
+                Error('运费模板不存在');
+            }
+        }
+
+        if ($post['pfr_id']) {
+            $pfr_check = M('logistics','PackageFreeRules')::find()->where(['id'=>$post['pfr_id'],'is_deleted'=>0])->exists();
+            if (!$pfr_check) {
+                Error('包邮规则不存在');
+            }
+        }
+
         $model->setScenario($scenarios);
         $model->setAttributes($post);
         if ($model->validate()) {

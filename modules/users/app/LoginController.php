@@ -193,7 +193,7 @@ abstract class LoginController extends BasicController
             ->permittedFor($origin) // Configures the audience (aud claim)
             ->identifiedBy(Yii::$app->params['AppID'] ? Yii::$app->params['AppID'] : '', true) // Configures the id (jti claim), replicating as a header item
             ->issuedAt($time) // Configures the time that the token was issue (iat claim)
-            ->expiresAt($time + 103680) // Configures the expiration time of the token (exp claim)
+            ->expiresAt($time + 86400 * 30) // Configures the expiration time of the token (exp claim)
             ->withClaim('id', $id) // Configures a new claim, called "id"
             ->getToken($signer, $key); // Retrieves the generated token
         return (string) $token;

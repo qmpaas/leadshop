@@ -193,6 +193,7 @@ CREATE TABLE `heshop_initialize_prefix_goods`  (
   `ft_type` tinyint(1) NOT NULL DEFAULT 1 COMMENT '运费设置  1统一价格 2使用模板',
   `ft_price` decimal(10, 2) NULL DEFAULT NULL COMMENT '统一运费',
   `ft_id` bigint(10) NULL DEFAULT NULL COMMENT '运费模板ID',
+  `pfr_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '包邮设置  0关闭  1开启',
   `pfr_id` bigint(10) NULL DEFAULT NULL COMMENT '包邮规则ID',
   `limit_buy_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '限购状态 0不限制 1限制',
   `limit_buy_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '限购周期 day天 week周  month月  all永久',

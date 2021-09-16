@@ -866,6 +866,7 @@ class IndexController extends BasicController
                     $v['goods_cost_price'] = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['cost_price'] ? $goods_info[$v['goods_param']]['cost_price'] : 0;
                     $v['goods_weight']     = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
                     $v['goods_image']      = $goods_image;
+                    $v['pfr_status']       = $value['pfr_status'];
                     $v['freight']          = $value['freight'];
                     $v['package']          = $value['package'];
                     $v['ft_type']          = $value['ft_type'];
@@ -1067,6 +1068,7 @@ class IndexController extends BasicController
                     $v['goods_weight']     = isset($goods_info[$v['goods_param']]) && $goods_info[$v['goods_param']]['weight'] ? $goods_info[$v['goods_param']]['weight'] : 0;
                     $v['goods_image']      = $goods_image;
                     $v['freight']          = $value['freight'];
+                    $v['pfr_status']       = $value['pfr_status'];
                     $v['package']          = $value['package'];
                     $v['ft_type']          = $value['ft_type'];
                     $v['ft_price']         = $value['ft_price'];
@@ -1102,6 +1104,7 @@ class IndexController extends BasicController
             $goods_price = $value['goods_number'] * $value['goods_price'];
 
             unset($value['freight']);
+            unset($value['pfr_status']);
             unset($value['package']);
             unset($value['ft_type']);
             unset($value['ft_price']);
@@ -1146,6 +1149,7 @@ class IndexController extends BasicController
             $goods_price = $value['goods_number'] * $value['goods_price'];
             $goods_score = $value['goods_number'] * $value['goods_score'];
             unset($value['freight']);
+            unset($value['pfr_status']);
             unset($value['package']);
             unset($value['ft_type']);
             unset($value['ft_price']);
@@ -1304,7 +1308,7 @@ class IndexController extends BasicController
                 }
 
                 //包邮计算
-                if (is_array($value['package']['free_area'])) {
+                if ($value['pfr_status'] && is_array($value['package']['free_area'])) {
                     foreach ($value['package']['free_area'] as $free_area) {
                         $province = array_column($free_area['area'], null, 'name');
                         if (array_key_exists($consignee_info['province'], $province)) {
