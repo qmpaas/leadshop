@@ -103,6 +103,10 @@ class EvaluateController extends BasicController
 
         $list = $data->getModels();
         foreach ($list as $key => &$value) {
+            if (empty($value['user'])) {
+                $value['user']['nickname'] = $value['ai_nickname'];
+                $value['user']['avatar'] = $value['ai_avatar'];
+            }
             $value['images'] = to_array($value['images']);
         }
         //将所有返回内容中的本地地址代替字符串替换为域名

@@ -57,7 +57,7 @@
             "name": "小店",
             "logo": "HESHOP_URL_STRING/static/images/home.png",
             "abstract": "",
-            "phone": "10086",
+            "phone": "",
             "address": "",
             "addressList": ["浙江省", "嘉兴市", "南湖区"],
             "province": "浙江省",
@@ -71,7 +71,7 @@
                 "phone":
                 {
                     "bool": true,
-                    "value": "10086",
+                    "value": "",
                     "day": [],
                     "time": ""
                 },

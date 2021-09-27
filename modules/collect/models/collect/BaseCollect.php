@@ -18,6 +18,10 @@ abstract class BaseCollect extends BaseObject
 
     public $collectData;
 
+    public $itemParam = 'itemid';
+
+    public $params = [];
+
     /**
      * 采集的链接
      * @var
@@ -76,7 +80,7 @@ abstract class BaseCollect extends BaseObject
 
     public function init()
     {
-        $this->setTimeout('30');
+        $this->setTimeout('180');
         $this->name = $this->getName();
         $this->goods = new Goods();
         $model = Setting::findOne(['AppID' => \Yii::$app->params['AppID'], 'merchant_id' => 1, 'keyword' => 'apikey_99']);
@@ -132,6 +136,12 @@ abstract class BaseCollect extends BaseObject
         return $this;
     }
 
+    public function setParams(array $params)
+    {
+        $this->params = $params;
+        return $this;
+    }
+
     /**
      * @param $start
      * @param $end
@@ -158,12 +168,15 @@ abstract class BaseCollect extends BaseObject
         $this->init();
         $url = $this->getUrl();
         $itemId = $this->getItemId($this->link);
-        $this->collectData = $this->get($url, ['apikey' => $this->apiKey, 'itemid' => $itemId]);
+        $params = array_merge(['apikey' => $this->apiKey, $this->itemParam => $itemId], $this->params);
+        $this->collectData = $this->get($url, $params);
         if ($this->collectData['retcode'] != '0000') {
             if ($this->collectData['retcode'] == '4013') {
                 throw new LimitException($this->collectData['data'] ?? $this->collectData['message']);
             } elseif ($this->collectData['retcode'] == '4005') {
                 throw new AuthException($this->collectData['data'] ?? $this->collectData['message']);
+            } elseif ($this->collectData['retcode'] == '2000') {
+                throw new NoresultException('此链接数据有误，请更换链接重试');
             }
             throw new CommonException($this->collectData['data'] ?? $this->collectData['message']);
         }

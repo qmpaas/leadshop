@@ -125,15 +125,15 @@ if (!function_exists('createPoster')) {
                 /* 绘制居中缩放图像 */
                 $canvas = imagecreatetruecolor($resize_w, $resize_h);
                 /* 设置透明 */
-                $color = imagecolorallocate($canvas, 255, 255, 255);
-                imagecolortransparent($canvas, $color);
+                $color = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+                // imagecolortransparent($canvas, $color);
                 imagefill($canvas, 0, 0, $color);
 
                 imagecopyresampled($canvas, $res, 0, 0, 0, 0, $resize_w, $resize_h, $source_w, $source_h);
                 $target_img = imagecreatetruecolor($target_w, $target_h);
                 /* 设置透明 */
-                $color = imagecolorallocate($target_img, 255, 255, 255);
-                imagecolortransparent($target_img, $color);
+                $color = imagecolorallocatealpha($target_img, 0, 0, 0,127);
+                // imagecolortransparent($target_img, $color);
                 imagefill($target_img, 0, 0, $color);
 
                 /* 图层拷贝 */
@@ -1018,3 +1018,49 @@ if (!function_exists('app_version')) {
         return isset($versionData[$type]) ? $versionData[$type] : '0.0.0';
     }
 }
+
+if (function_exists('mb_substr_replace') === false)
+{
+    function mb_substr_replace($string, $replacement, $start, $length = null, $encoding = null)
+    {
+        if (extension_loaded('mbstring') === true)
+        {
+            $string_length = (is_null($encoding) === true) ? mb_strlen($string) : mb_strlen($string, $encoding);
+
+            if ($start < 0)
+            {
+                $start = max(0, $string_length + $start);
+            }
+
+            else if ($start > $string_length)
+            {
+                $start = $string_length;
+            }
+
+            if ($length < 0)
+            {
+                $length = max(0, $string_length - $start + $length);
+            }
+
+            else if ((is_null($length) === true) || ($length > $string_length))
+            {
+                $length = $string_length;
+            }
+
+            if (($start + $length) > $string_length)
+            {
+                $length = $string_length - $start;
+            }
+
+            if (is_null($encoding) === true)
+            {
+                return mb_substr($string, 0, $start) . $replacement . mb_substr($string, $start + $length, $string_length - $start - $length);
+            }
+
+            return mb_substr($string, 0, $start, $encoding) . $replacement . mb_substr($string, $start + $length, $string_length - $start - $length, $encoding);
+        }
+
+        return (is_null($length) === true) ? substr_replace($string, $replacement, $start) : substr_replace($string, $replacement, $start, $length);
+    }
+}
+

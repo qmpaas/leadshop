@@ -47,6 +47,6 @@
 <div id="app"></div>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script src="/assets/wechat/static/js/chunk-vendors.310890d9.js"></script>
-<script src="/assets/wechat/static/js/index.b2e11c5f.js"></script>
+<script src="/assets/wechat/static/js/index.3200d5b5.js"></script>
 </body>
 </html>

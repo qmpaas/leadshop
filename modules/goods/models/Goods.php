@@ -8,7 +8,54 @@
 namespace goods\models;
 
 use framework\common\CommonModels;
+use order\models\OrderEvaluate;
 
+/**
+ * This is the model class for table "{{%goods}}".
+ *
+ * @property int $id
+ * @property string $name 商品标题
+ * @property float $price 商品价格
+ * @property float|null $line_price 商品划线价
+ * @property string $group 商品分类列表
+ * @property int $status 商品状态： 0全部完成  1第一步完成  2第二步完成  3第三部完成
+ * @property int $param_type 规格类型：1单规格 2 多规格
+ * @property string|null $unit 单位
+ * @property string $slideshow 轮播图
+ * @property int $is_video 视频开关： 0 关闭 1 启用
+ * @property string|null $video 视频地址
+ * @property string|null $video_cover 视频封面
+ * @property int $is_real 是否实物： 0 虚拟 1 实物
+ * @property int $is_sale 是否上架：0 下架 1 上架
+ * @property string|null $tags 标签
+ * @property int $stocks 库存数量
+ * @property int $reduce_stocks 减库方式：1 付款减库存 2 拍下减库存
+ * @property int $ft_type 运费设置  1统一价格 2使用模板
+ * @property float|null $ft_price 统一运费
+ * @property int|null $ft_id 运费模板ID
+ * @property int|null $pfr_id 包邮规则ID
+ * @property int $limit_buy_status 限购状态 0不限制 1限制
+ * @property string|null $limit_buy_type 限购周期 day天 week周  month月  all永久
+ * @property int|null $limit_buy_value 限购数量
+ * @property int $min_number 起购数量
+ * @property int $sort 排序
+ * @property string|null $services 产品服务列表
+ * @property int $visits 访问量
+ * @property int $virtual_sales 虚拟销售量
+ * @property int $sales 销售量
+ * @property int $merchant_id 商户ID
+ * @property string $AppID 应用ID
+ * @property int $created_time 创建时间
+ * @property int|null $updated_time 修改时间
+ * @property int|null $deleted_time 删除时间
+ * @property int $is_deleted 是否删除
+ * @property float $sales_amount 销售额
+ * @property int|null $is_recycle 是否在回收站
+ * @property int|null $is_promoter 参与分销  0不参与  1参与
+ * @property float|null $max_price 最高价
+ * @property float|null $max_profits 最高利润
+ * @property OrderEvaluate $evaluate 商品评价
+ */
 class Goods extends CommonModels
 {
     const id               = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
@@ -235,4 +282,8 @@ class Goods extends CommonModels
         return $this->hasOne('promoter\models\PromoterGoods', ['goods_id' => 'id']);
     }
 
+    public function getEvaluate()
+    {
+        return $this->hasMany(OrderEvaluate::className(), ['goods_id' => 'id']);
+    }
 }

@@ -74,27 +74,13 @@ class PromoterLevel extends CommonModels
                 if (!$level) {
                     $level = 3;
                 }
-                $last = null;
-                switch ($level) {
-                    case 2:
-                        $lastText = '二级分销佣金';
-                        $levelVariable = 'second';
-                        break;
-                    case 3:
-                        $lastText = '三级分销佣金';
-                        $levelVariable = 'third';
-                        break;
-                    case 1:
-                    default:
-                        $lastText = '一级分销佣金';
-                        $levelVariable = 'first';
-                        break;
+                $lastText = '一级分销佣金';
+                $levelVariable = 'first';
+                if ($level >= 2 && $this->first < $this->second) {
+                    Error('一级分销佣金需大于或等于二级分销佣金');
                 }
-                if ($level >= 2 && $this->first <= $this->second) {
-                    Error('一级分销佣金需大于二级分销佣金');
-                }
-                if ($level == 3 && $this->second <= $this->third) {
-                    Error('二级分销佣金需大于三级分销佣金');
+                if ($level == 3 && $this->second < $this->third) {
+                    Error('二级分销佣金需大于或等于三级分销佣金');
                 }
 
                 /**@var PromoterLevel $front */
@@ -103,9 +89,9 @@ class PromoterLevel extends CommonModels
                     ['AppID' => \Yii::$app->params['AppID']],
                     ['is_deleted' => 0],
                     ['<', 'level', $this->level]
-                ])->one();
-                if ($front && $front->first >= $this->$levelVariable) {
-                    Error($lastText . '需大于' . $front->name . '的一级分销佣金' . $front->first);
+                ])->orderBy(['level' => SORT_DESC])->one();
+                if ($front && $front->first > $this->$levelVariable) {
+                    Error($lastText . '需大于或等于' . $front->name . '的一级分销佣金' . $front->first);
                 }
                 /**@var PromoterLevel $backend */
                 $backend = PromoterLevel::find()->where([
@@ -113,9 +99,9 @@ class PromoterLevel extends CommonModels
                     ['AppID' => \Yii::$app->params['AppID']],
                     ['is_deleted' => 0],
                     ['>', 'level', $this->level]
-                ])->one();
-                if ($backend && $backend->$levelVariable <= $this->first) {
-                    Error('一级分销佣金需小于' . $backend->name . '的'. $lastText . $backend->$levelVariable);
+                ])->orderBy(['level' => SORT_ASC])->one();
+                if ($backend && $backend->$levelVariable < $this->first) {
+                    Error('一级分销佣金需小于或等于' . $backend->name . '的'. $lastText . $backend->$levelVariable);
                 }
             }],
         ];

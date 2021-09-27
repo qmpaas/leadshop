@@ -1,2 +1,1 @@
-worker.onMessage(function (res) {
-})
+worker.onMessage(function (res) {});

@@ -1,0 +1,20 @@
+{
+    "name": "评价助手",
+    "identifie": "evaluate",
+    "version": "v1.0.0",
+    "ability": "",
+    "description": "leadshop评价助手介绍",
+    "keywords": ["yii2", "plugins", "basic", "project template"],
+    "author": "浙江禾成云计算开发团队",
+    "homepage": "http://www.leadshop.vip",
+    "type": "activity",
+    "status": 1,
+    "require":
+    {
+        "leadshop": ">=1.3.5"
+    },
+    "config":
+    {
+
+    }
+}

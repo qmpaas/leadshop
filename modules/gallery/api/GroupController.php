@@ -48,6 +48,7 @@ class GroupController extends BasicController
         $parent_id = intval($parent_id);
         $type      = Yii::$app->request->get('type', -1);
         $type      = intval($type);
+        $search      = Yii::$app->request->get('search', '');
 
         $merchant_id = 1;
         $AppID       = Yii::$app->params['AppID'];
@@ -71,6 +72,20 @@ class GroupController extends BasicController
         //获取顶级分组时 获取未分组
         if ($parent_id === 0 || $parent_id === -1) {
             $where = ['or', ['id' => 1], $where];
+        }
+        if ($search) {
+            $where = ['and',$where,['like','name',$search]];
+            $ids = [];
+            $children = $this->modelClass::find()->where($where)->select('id')->asArray()->all();
+            $children = array_column($children, 'id');
+            $ids = array_merge($ids,$children);
+            if (count($children)) {
+                $children2 = $this->modelClass::find()->where(['parent_id'=>$children])->select('id')->asArray()->all();
+                $children2 = array_column($children2, 'id');
+                $ids = array_merge($ids,$children2);
+            }
+            $where = ['id'=>$ids];
+
         }
         return $this->modelClass::find()->where($where)->orderBy(['sort' => SORT_DESC, 'created_time' => SORT_DESC])->asArray()->all();
     }

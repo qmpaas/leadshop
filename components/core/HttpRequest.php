@@ -45,7 +45,7 @@ trait HttpRequest
         $response = $client->{$method}($url, $options);
         return $this->unwrapResponse($response);
     }
-    
+
     protected function unwrapResponse($response)
     {
         $contents = $response->getBody()->getContents();
