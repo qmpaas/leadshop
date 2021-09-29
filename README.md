@@ -36,11 +36,14 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 <a href="https://www.leadshop.vip/thread/35" target="_blank"> **查看常见问题/安装教程** </a>
 
 ## 下期更新计划
-* <a href="https://www.leadshop.vip/category/9?search_ids=9" target="_blank"> **【预告】电子面单/商品参数/商品副标题/开屏广告/小程序跳转/发布商品等功能的开发及优化** </a>
+* <a href="https://www.leadshop.vip/category/9?search_ids=9
+" target="_blank"> **【已上线】评价助手功能已上线，提交商品转化率，缩短买家决策时间的利器！！！** </a>
+* <a href="https://mp.weixin.qq.com/s/Xo4cHPpSWjEnpoo0XgtYyg
+" target="_blank"> **【已上线】万众瞩目的分销功能，玩转私域流量的核武器正式上线啦！！！** </a>
 
 * <a href="https://mp.weixin.qq.com/s/WxA_kQIdx0H95ctkVMxlhg" target="_blank"> **【已上线】LEADSHOP第一款围绕积分开发的插件 ——【任务中心插件】详细介绍及视频演示** </a>
 
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210726/2.png)
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210927/2.png)
 
 ## 更新历史
 * <a href="http://help.leadshop.vip/2278957" target="_blank"> **点击查看往期更新历史** </a>
@@ -165,7 +168,7 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 
 ## Leadshop功能简介
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/1.png)
-![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210726/2.png)
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210927/2.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/3.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/4.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/5.png)
@@ -175,7 +178,14 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/Sku1Gh8F1YVo1DVeaMNUYuAYxOXjgwWJhha9zMAo.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/JFSyAHgTf2k1aiG55Oxdd7ttGPaSNKWRKg1RiprI.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/QFEIO51KGEi2KQPTH965nEqD5YnTYy8Np9o5E5Rh.png)
-![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/28/pqTYMEwxvz5md9n6bhCfgUYRhA08ByIIbRMscY4q.png)
+![12](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/mvOV9k6IMeov8OTled00HyVSon4K65E2zTMDdMyK.png)
+![13](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/H4JBrvrTN16qALVMMAKzBH5xRQk2k8nulTAT5DWx.png)
+![14](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/HWNxrM5AJ7TNap6AoPTmqFIKjck3IdJ9dTqcGDAd.png)
+![15](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/7tJo3pYp4kv4Kb6REuWDDRvOnu3dFL0uJ19j0bpS.png)
+![16](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/jGwlZKfE09KoRVgpP2HO6kb6iilAFnN0FiWEKu7F.png)
+![17](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/09/10/PGbOY5tKji7Li6uUKBXFCmFR0H4Az7I3Jwqe6MFU.png)
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210927/4.png)
+![展示图](https://qmxq.oss-cn-hangzhou.aliyuncs.com/readme/20210927/5.png)
 ![展示图](https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/readme/9.png)
 
 ## 使用须知
