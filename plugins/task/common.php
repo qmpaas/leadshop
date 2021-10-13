@@ -702,7 +702,7 @@ class common extends BasicsCommon
                 'number'  => $changeNum,
                 'balance' => $balance,
                 'remark'  => $remark,
-                'time'    => date("Y年m月d日 H:m", time()),
+                'time'    => date("Y年m月d日 H:i", time()),
             ]));
         $UserData = \users\models\User::find()->where(["id" => $UID])->one();
 

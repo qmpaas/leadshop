@@ -1163,14 +1163,16 @@ class IndexController extends BasicController
 
         $total_amount = $goods_amount + $freight_amount;
         $return_data  = [
-            'total_score'    => $total_score,
-            'total_amount'   => $total_amount,
-            'goods_amount'   => $goods_amount,
-            'pay_amount'     => $total_amount,
-            'freight_amount' => $freight_amount,
-            'coupon_reduced' => 0,
-            'merchant_id'    => $merchant_id,
-            'goods_data'     => $goods,
+            'total_score'      => $total_score,
+            'total_amount'     => $total_amount,
+            'goods_amount'     => $goods_amount,
+            'pay_amount'       => $total_amount,
+            'freight_amount'   => $freight_amount,
+            'coupon_reduced'   => 0,
+            'is_promoter'      => 0,
+            'promoter_reduced' => 0,
+            'merchant_id'      => $merchant_id,
+            'goods_data'       => $goods,
         ];
 
         $return_data = $this->buildReducePrice($return_data);

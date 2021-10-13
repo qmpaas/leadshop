@@ -90,7 +90,7 @@ class BaseController extends BasicsModules
                     $timeB = strtotime("+1 day", strtotime($Y . $_M . $_D));
                     //标签执行清零时的时间
                     $timeC = strtotime("+1 day", strtotime($Y . $M . $D));
-                    P2(["获得时间", [$timeA, date('Y-m-d H:m:s', $timeA)], [$timeB, date('Y-m-d H:m:s', $timeB)], [$timeC, date('Y-m-d H:m:s', $timeC)]]);
+                    P2(["获得时间", [$timeA, date('Y-m-d H:i:s', $timeA)], [$timeB, date('Y-m-d H:i:s', $timeB)], [$timeC, date('Y-m-d H:i:s', $timeC)]]);
                     //处理年月日
                     $money_count = $this->ModelScore::find()->select(["sum(number) as total", "UID"])
                         ->where(['status' => 1, 'type' => 'add'])
@@ -146,7 +146,7 @@ class BaseController extends BasicsModules
                     //标签执行清零时的时间
                     $timeC = strtotime("+1 day", strtotime($Y . $M . $D));
 
-                    P2(["获得时间", [$timeA, date('Y-m-d H:m:s', $timeA)], [$timeB, date('Y-m-d H:m:s', $timeB)], [$timeC, date('Y-m-d H:m:s', $timeC)]]);
+                    P2(["获得时间", [$timeA, date('Y-m-d H:i:s', $timeA)], [$timeB, date('Y-m-d H:i:s', $timeB)], [$timeC, date('Y-m-d H:i:s', $timeC)]]);
 
                     //处理年月日
                     $money_count = $this->ModelScore::find()->select(["sum(number) as total", "UID"])

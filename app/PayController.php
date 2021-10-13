@@ -29,12 +29,9 @@ class PayController extends BasicsModules implements Map
         if (empty($model)) {
             Error('订单不存在');
         }
-        $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => $model->merchant_id, 'AppID' => $model->AppID])->select('content')->asArray()->one();
-        if ($setting_data) {
-            $setting_data['content'] = to_array($setting_data['content']);
-            if ($setting_data['content']['basic_setting']['run_status'] != 1) {
-                Error('店铺打烊中');
-            }
+        $basic_setting = StoreSetting('setting_collection', 'basic_setting');
+        if ($basic_setting && $basic_setting['run_status'] != 1) {
+            Error('店铺打烊中');
         }
         if ($model->status !== 100) {
             Error('该订单不可支付');

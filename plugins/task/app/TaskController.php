@@ -204,7 +204,7 @@ class TaskController extends BasicsModules
                         'number'  => $number,
                         'balance' => $UserClass->number,
                         'remark'  => $remark,
-                        'time'    => date("Y年m月d日 H:m", time()),
+                        'time'    => date("Y年m月d日 H:i", time()),
                     ]));
 
                 $UserData = \users\models\User::find()->where(["id" => $UID])->one();

@@ -659,7 +659,7 @@ class AfterController extends BasicController
                     'number'  => $model->actual_score,
                     'balance' => $balance,
                     'remark'  => "订单退款退积分",
-                    'time'    => date("Y年m月d日 H:m", time()),
+                    'time'    => date("Y年m月d日 H:i", time()),
                 ]));
 
             //判断手机号是否存在

@@ -99,7 +99,7 @@ class IndexController extends BasicController
         $data['wait_account']          = qm_round($data['all_commission_amount'] - $data['commission_amount']);
         $data['is_withdrawal']         = qm_round($data['commission_amount'] - $data['commission']);
 
-        $level_data         = PromoterLevel::find()->where(['and', ['>=', 'level', $data['level']], ['AppID' => $AppID, 'is_deleted' => 0], ['or', ['is_auto' => 1], ['level' => 1]]])->select('name,level,condition')->orderBy(['level' => SORT_ASC])->limit(2)->asArray()->all();
+        $level_data         = PromoterLevel::find()->where(['and', ['>=', 'level', $data['level']], ['AppID' => $AppID, 'is_deleted' => 0], ['or', ['is_auto' => 1], ['level' => $data['level']]]])->select('name,level,condition')->orderBy(['level' => SORT_ASC])->limit(2)->asArray()->all();
         $data['level_name'] = $level_data[0]['name'];
         $next_level         = $level_data[1] ?? null;
         if (!empty($next_level)) {

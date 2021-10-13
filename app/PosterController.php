@@ -318,10 +318,6 @@ class PosterController extends BasicsModules implements Map
     public function coupon($type, $coupon_id, $scene)
     {
         $model    = M('coupon', 'Coupon')::findOne($coupon_id);
-        $mpConfig = isset(Yii::$app->params['apply']['weapp']) ? Yii::$app->params['apply']['weapp'] : null;
-        if (!$mpConfig || !$mpConfig['AppID'] || !$mpConfig['AppSecret']) {
-            Error('渠道参数不完整。');
-        }
 
         $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => 1, 'AppID' => Yii::$app->params['AppID']])->select('content')->asArray()->one();
 
@@ -473,11 +469,6 @@ class PosterController extends BasicsModules implements Map
             ->where(['goods_id' => $goods_id])
             ->asArray()
             ->one();
-
-        $mpConfig = isset(Yii::$app->params['apply']['weapp']) ? Yii::$app->params['apply']['weapp'] : null;
-        if (!$mpConfig || !$mpConfig['AppID'] || !$mpConfig['AppSecret']) {
-            Error('渠道参数不完整。');
-        }
 
         $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => 1, 'AppID' => Yii::$app->params['AppID']])->select('content')->asArray()->one();
 
@@ -646,11 +637,6 @@ class PosterController extends BasicsModules implements Map
     public function goods($type, $goods_id, $scene)
     {
         $model = M('goods', 'Goods')::find()->where(['id' => $goods_id])->one();
-
-        $mpConfig = isset(Yii::$app->params['apply']['weapp']) ? Yii::$app->params['apply']['weapp'] : null;
-        if (!$mpConfig || !$mpConfig['AppID'] || !$mpConfig['AppSecret']) {
-            Error('渠道参数不完整。');
-        }
 
         $setting_data = M('setting', 'Setting')::find()->where(['keyword' => 'setting_collection', 'merchant_id' => 1, 'AppID' => Yii::$app->params['AppID']])->select('content')->asArray()->one();
 

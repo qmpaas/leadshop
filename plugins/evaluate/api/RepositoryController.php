@@ -64,6 +64,7 @@ class RepositoryController extends BasicsModules
                 $newList[] = $newItem;
             }
         }
+        $newList = str2url($newList);
         $data->setModels($newList);
         return $data;
     }
