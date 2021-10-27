@@ -4,6 +4,7 @@
  * @link https://www.leadshop.vip/
  * @copyright Copyright ©2020-2021 浙江禾成云计算有限公司
  */
+
 namespace order\app;
 
 use framework\common\BasicController;
@@ -12,7 +13,6 @@ use yii\data\ActiveDataProvider;
 
 class IndexController extends BasicController
 {
-
     /**
      * 重写父类
      * @return [type] [description]
@@ -133,7 +133,6 @@ class IndexController extends BasicController
 
     public function tabcount()
     {
-
         $UID   = Yii::$app->user->identity->id;
         $where = ['order.UID' => $UID, 'buyer.is_deleted' => 0];
 
@@ -214,7 +213,6 @@ class IndexController extends BasicController
                     }
                 }
             }
-
         }
         if (count($result['freight']) === 1 && empty($result['freight'][0]['goods'])) {
             $order_goods = M('order', 'OrderGoods')::find()->where(['order_sn' => $result['order_sn']])->select('id,goods_name,goods_number,goods_image')->asArray()->all();
@@ -377,7 +375,6 @@ class IndexController extends BasicController
                     $transaction->rollBack(); //事务回滚
                     Error('下单失败');
                 }
-
             } else {
                 $transaction->rollBack(); //事务回滚
                 return $model;
@@ -544,7 +541,6 @@ class IndexController extends BasicController
         } else {
             Error('删除失败');
         }
-
     }
 
     /**
@@ -676,7 +672,6 @@ class IndexController extends BasicController
                         // if (!$TaskUser || $TaskUser->number < $return_data[$merchant_id]['total_score']) {
                         //     Error("当前积分余额：" . $TaskUser->number, 416);
                         // }
-
                     } else {
                         $return_data[$merchant_id] = $this->buildAmount($value, $consignee_info, $merchant_id);
                     }
@@ -750,7 +745,6 @@ class IndexController extends BasicController
                 } else {
                     Error($value['name'] . '不存在或已下架');
                 }
-
             }
 
             $value['freight']['freight_rules'] = $value['freight'] ? to_array($value['freight']['freight_rules']) : null;
@@ -786,7 +780,6 @@ class IndexController extends BasicController
                         } else {
                             Error($value['name'] . '库存不足');
                         }
-
                     }
                     //起购数量判断
                     if ($value['min_number'] > $goods_data_number_count[$v['goods_id']]) {
@@ -795,7 +788,6 @@ class IndexController extends BasicController
                         } else {
                             Error($value['name'] . $value['min_number'] . '份起购');
                         }
-
                     }
                     //限购判断
                     if ($value['limit_buy_status'] === 1) {
@@ -828,7 +820,7 @@ class IndexController extends BasicController
                             ->joinWith([
                                 'order as order',
                             ])
-                            ->where(['and', ['>', 'order.status', 200], ['>=', 'order.created_time', $limit_time], ['order.UID' => $UID, 'goods.goods_id' => $value['id']]])
+                            ->where(['and', ['or', ['order.status' => 100], ['>', 'order.status', 200]], ['>=', 'order.created_time', $limit_time], ['order.UID' => $UID, 'goods.goods_id' => $value['id']]])
                             ->SUM('goods.goods_number');
                         //算上当前购买量后的购买总数
                         if (($goods_number + $goods_data_number_count[$v['goods_id']]) > $value['limit_buy_value']) {
@@ -843,7 +835,6 @@ class IndexController extends BasicController
                                     Error('您' . $limit_buy_type . '还可以购买' . $value['name'] . ' ' . $can_buy_num . ' 份');
                                 }
                             }
-
                         }
                     }
 
@@ -993,7 +984,7 @@ class IndexController extends BasicController
                             ->joinWith([
                                 'order as order',
                             ])
-                            ->where(['and', ['>', 'order.status', 200], [
+                            ->where(['and', ['or', ['order.status' => 100], ['>', 'order.status', 200]], [
                                 'order.UID'         => $UID,
                                 'order.type'        => 'task',
                                 'goods.goods_id'    => $value['id'],
@@ -1112,7 +1103,6 @@ class IndexController extends BasicController
             $value['pay_amount']       = $goods_price;
             $value['coupon_reduced']   = 0;
             $value['promoter_reduced'] = 0;
-
         }
 
         $total_amount = $goods_amount + $freight_amount;
@@ -1131,7 +1121,6 @@ class IndexController extends BasicController
         $return_data = $this->buildReducePrice($return_data);
 
         return $return_data;
-
     }
 
     /**
@@ -1178,7 +1167,6 @@ class IndexController extends BasicController
         $return_data = $this->buildReducePrice($return_data);
 
         return $return_data;
-
     }
 
     /**
@@ -1241,7 +1229,6 @@ class IndexController extends BasicController
                                         //取用首件平均价高的
                                         $first_price     = $freight_rules['first']['price'];
                                         $first_price_key = $k;
-
                                     } elseif (($first_freight_rules['first']['price'] / $first_freight_rules['first']['number']) == ($freight_rules['first']['price'] / $freight_rules['first']['number'])) {
                                         //首件平均价相等,判断续件价格
                                         if ($first_freight_rules['continue']['price'] < $freight_rules['continue']['price']) {
@@ -1283,7 +1270,6 @@ class IndexController extends BasicController
                     //固定邮费
                     $freight = $value['ft_price'];
                 } else {
-
                     $freight_rules = $value['freight_rules'];
                     if (!empty($freight_rules)) {
                         if ($value['freight']['type'] == 1) {
@@ -1295,7 +1281,6 @@ class IndexController extends BasicController
                         }
 
                         if ($first_price_key == $key) {
-
                             $freight += $freight_rules['first']['price']; //首件首重费用
 
                             $continue = $f_number - $freight_rules['first']['number']; //判断是否超出首件数量或首重重量
@@ -1306,7 +1291,6 @@ class IndexController extends BasicController
                             $freight += ceil($continue / $freight_rules['continue']['number']) * $freight_rules['continue']['price'];
                         }
                     }
-
                 }
 
                 //包邮计算
@@ -1348,7 +1332,6 @@ class IndexController extends BasicController
                 }
             }
             $freight_amount += $freight;
-
         }
 
         return [
@@ -1369,6 +1352,8 @@ class IndexController extends BasicController
         foreach ($goods_list as &$goods) {
             $goods['group'] = array_unique(explode('-', trim($goods['group'], '-')));
         }
+
+        $goods_amount = $data['goods_amount'];
 
         //执行优惠券计算
         $user_coupon_id = Yii::$app->request->post('user_coupon_id', false);
@@ -1439,14 +1424,9 @@ class IndexController extends BasicController
             }
 
             $data['coupon_reduced'] = $data['goods_amount'] < $u_c_info['coupon']['sub_price'] ? $data['goods_amount'] : $u_c_info['coupon']['sub_price'];
-            $goods_amount           = $data['goods_amount'] - $data['coupon_reduced'];
+            $goods_amount           = $goods_amount - $data['coupon_reduced'];
             $discount               = $data['goods_amount'] > 0 ? $goods_amount / $data['goods_amount'] : 0;
             $data['pay_amount']     = $data['pay_amount'] - $data['coupon_reduced'];
-
-            //预请求,显示原来价格
-            if ($calculate != 'calculate') {
-                $data['goods_amount'] = $goods_amount;
-            }
 
             foreach ($data['goods_data'] as &$value) {
                 $goods_pay_amount        = qm_round($value['pay_amount'] * $discount, 2);
@@ -1487,13 +1467,15 @@ class IndexController extends BasicController
                     }
 
                     $data['pay_amount'] = $data['pay_amount'] - $data['promoter_reduced'];
-
+                    $goods_amount       = $goods_amount - $data['promoter_reduced'];
                 }
             }
         }
+        //预请求,显示原来价格
+        if ($calculate != 'calculate') {
+            $data['goods_amount'] = $goods_amount;
+        }
 
         return $data;
-
     }
-
 }

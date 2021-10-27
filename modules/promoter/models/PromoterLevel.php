@@ -155,8 +155,8 @@ class PromoterLevel extends CommonModels
             }
             if ($level->update_type == 2 &&
                 (($condition['all_children']['checked'] && $allChildren > $condition['all_children']['num']) &&
-                    ($condition['total_bonus']['num'] && $totalBonus > $condition['total_bonus']['num']) &&
-                    ($condition['total_money']['num'] && $totalMoney > $condition['total_money']['num']))
+                    ($condition['total_bonus']['checked'] && $totalBonus > $condition['total_bonus']['num']) &&
+                    ($condition['total_money']['checked'] && $totalMoney > $condition['total_money']['num']))
             ) {
                 return $level;
             }

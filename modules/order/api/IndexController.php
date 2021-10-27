@@ -85,7 +85,7 @@ class IndexController extends BasicController
             $result['freight'][0]['goods'] = $new_goods;
         }
         $result                 = str2url($result);
-        $result['goods_amount'] = $result['goods_amount'] + $result['coupon_reduced'];
+        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']+ $result['promoter_reduced']);
         return $result;
     }
 
@@ -519,7 +519,7 @@ class IndexController extends BasicController
             $result['freight'][0]['goods'] = $new_goods;
         }
         $result                 = str2url($result);
-        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']);
+        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']+ $result['promoter_reduced']);
         return $result;
     }
 

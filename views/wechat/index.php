@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>applet</title>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    <script>document.addEventListener('DOMContentLoaded', function () {
         document.documentElement.style.fontSize = document.documentElement.clientWidth / 20 + 'px';
     });
 
@@ -33,6 +31,7 @@
         echo "window.siteinfo.tabBar = " . json_encode($tabBar);
     }?>
 
+
     var coverSupport =
         'CSS' in window &&
         typeof CSS.supports === 'function' &&
@@ -41,17 +40,14 @@
         '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
         (coverSupport ? ', viewport-fit=cover' : '') +
         '" />'
-    );
-
-    </script>
-    <link rel="stylesheet" href="/assets/wechat/static/index.d0f128df.css">
+    );</script>
+    <link rel="stylesheet" href="/assets/wechat/static/index.f4fc78fe.css">
 </head>
-
-<body><noscript><strong>Please enable JavaScript to continue.</strong></noscript>
-    <div id="app"></div>
-    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-    <script src="/assets/wechat/static/js/chunk-vendors.26dbbd2c.js"></script>
-    <script src="/assets/wechat/static/js/index.2c5cd205.js"></script>
+<body>
+<noscript><strong>Please enable JavaScript to continue.</strong></noscript>
+<div id="app"></div>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script src="/assets/wechat/static/js/chunk-vendors.310890d9.js"></script>
+<script src="/assets/wechat/static/js/index.96ffb601.js"></script>
 </body>
-
 </html>
