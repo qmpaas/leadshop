@@ -16,7 +16,7 @@ class OrderAfter extends CommonModels
     const after_sn              = ['varchar' => 50, 'notNull', 'comment' => '售后单号'];
     const return_sn             = ['varchar' => 50, 'comment' => '退款单号'];
     const UID                   = ['bigint' => 20, 'notNull', 'comment' => '用户ID'];
-    const order_goods_id        = ['bigint' => 20, 'notNull', 'comment' => '订单商品ID'];
+    const order_goods_id        = ['bigint' => 20, 'notNull', 'comment' => '订单商品ID,0代表整单退款'];
     const type                  = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '0退款 1退货退款 2换货'];
     const source                = ['varchar' => 50, 'notNull', 'comment' => '来源'];
     const return_number         = ['int' => 10, 'notNull', 'default' => 1, 'comment' => '退货数量'];

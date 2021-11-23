@@ -22,7 +22,7 @@ use order\models\OrderEvaluate;
 class EvaluateGoods extends CommonModels
 {
     const id = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
-    const goods_id = ['bigkey' => 20, 'unique', 'comment' => '商品id'];
+    const goods_id = ['bigint' => 20, 'unique', 'comment' => '商品id'];
     const created_time = ['int' => 10, 'default' => 0, 'comment' => '创建时间'];
     const updated_time = ['int' => 10, 'default' => 0, 'comment' => '修改时间'];
     const deleted_time = ['int' => 10, 'default' => 0, 'comment' => '删除时间'];

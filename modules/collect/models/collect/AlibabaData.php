@@ -149,7 +149,7 @@ class AlibabaData extends BaseCollect
                 }
                 $temp = [
                     'value' => mb_substr($value['name'], 0, 20),
-                    'image' => $flag ? $this->handleImg($this->changeImgUrl($value['imageUrl'])) : '',
+                    'image' => ($flag && isset($value['imageUrl'])) ? $this->handleImg($this->changeImgUrl($value['imageUrl'])) : '',
                 ];
                 if ($flag) {
                     array_unshift($goodsParamItem, $temp);

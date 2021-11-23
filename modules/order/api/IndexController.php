@@ -85,7 +85,7 @@ class IndexController extends BasicController
             $result['freight'][0]['goods'] = $new_goods;
         }
         $result                 = str2url($result);
-        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']+ $result['promoter_reduced']);
+        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced'] + $result['promoter_reduced']);
         return $result;
     }
 
@@ -411,19 +411,34 @@ class IndexController extends BasicController
             Error('订单不存在');
         }
 
-        $bag_name_id = M('order', 'OrderFreight')::find()->where(['order_sn' => $result['order_sn']])->orderBy(['id' => SORT_ASC])->select('id')->all();
-        $bag_name_id = array_column($bag_name_id, 'id');
-        foreach ($result['goods'] as &$goods) {
-            $goods['send_number'] = 0;
-            if (!empty($goods['bag'])) {
-                foreach ($goods['bag'] as &$v) {
-                    $v['bag_name_num'] = array_search($v['freight_id'], $bag_name_id) + 1;
-                    $goods['send_number'] += $v['bag_goods_number'];
+        $bag_name_id     = M('order', 'OrderFreight')::find()->where(['order_sn' => $result['order_sn']])->orderBy(['id' => SORT_ASC])->select('id')->all();
+        $bag_name_id     = array_column($bag_name_id, 'id');
+        $new_order_goods = [];
+        foreach ($result['goods'] as $goods) {
+            if ($goods['after']) {
+                foreach ($goods['after'] as $after_v) {
+                    if ($after_v['order_goods_id'] === $goods['id']) {
+                        $goods['goods_number'] -= $after_v['return_number'];
+                        break;
+                    }
                 }
             }
-            $goods['wait_number'] = $goods['goods_number'] - $goods['send_number'];
+
+            if ($goods['goods_number']) {
+                $goods['send_number'] = 0;
+                if (!empty($goods['bag'])) {
+                    foreach ($goods['bag'] as &$v) {
+                        $v['bag_name_num'] = array_search($v['freight_id'], $bag_name_id) + 1;
+                        $goods['send_number'] += $v['bag_goods_number'];
+                    }
+                }
+                $goods['wait_number'] = $goods['goods_number'] - $goods['send_number'];
+                array_push($new_order_goods, $goods);
+            }
 
         }
+
+        $result['goods'] = $new_order_goods;
 
         $result = str2url($result);
         return $result;
@@ -519,7 +534,7 @@ class IndexController extends BasicController
             $result['freight'][0]['goods'] = $new_goods;
         }
         $result                 = str2url($result);
-        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced']+ $result['promoter_reduced']);
+        $result['goods_amount'] = qm_round($result['goods_amount'] + $result['coupon_reduced'] + $result['promoter_reduced']);
         return $result;
     }
 
@@ -715,13 +730,21 @@ class IndexController extends BasicController
         if ($freight_model->validate()) {
             if ($freight_model->save()) {
 
-                $order_goods         = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->select('id,goods_number')->asArray()->all();
+                $order_goods         = M('order', 'OrderGoods')::find()->where(['order_sn' => $model->order_sn])->with('after')->select('id,order_sn,goods_number')->asArray()->all();
                 $order_freight_goods = M('order', 'OrderFreightGoods')::find()->where(['order_goods_id' => array_column($order_goods, 'id')])->select('order_goods_id,bag_goods_number')->asArray()->all();
 
                 $all_goods_number      = 0; //商品总数
                 $all_bag_goods_number  = 0; //包裹中总数
                 $all_post_goods_number = 0; //此次发货数
                 foreach ($order_goods as &$o_g) {
+                    if ($o_g['after']) {
+                        foreach ($o_g['after'] as $after_v) {
+                            if ($after_v['order_goods_id'] === $o_g['id']) {
+                                $o_g['goods_number'] -= $after_v['return_number'];
+                                break;
+                            }
+                        }
+                    }
                     $all_goods_number += $o_g['goods_number'];
                     $o_g['send_number'] = 0;
                 }

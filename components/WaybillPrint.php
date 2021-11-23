@@ -15,6 +15,7 @@ class WaybillPrint extends Waybill
 
     public function getResult()
     {
+        $this->orderSn = $this->orderSn . get_random(6);
         $params = [
             'print_type' => $this->printType,
             'print_data' => [
