@@ -1,7 +1,3 @@
-## 广告位
-Leadshop去版权及包安装的增值服务已上线，有需要的小伙伴可以点击传送门了解下
-<a href="https://www.leadshop.vip/goods/author?chunk=1628218143275" target="_blank"> **传送门** </a>
-
 ## 项目介绍
 Leadshop是一款提供持续更新迭代服务的企业级商用电商软件，旨在打造极致的用户体验！
 
@@ -48,9 +44,6 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 ## 更新历史
 * <a href="http://help.leadshop.vip/2278957" target="_blank"> **点击查看往期更新历史** </a>
 
-## 论坛交流
-* <a href="https://www.leadshop.vip/forum" target="_blank"> **点击进入Leadshop官方论坛** </a>
-
 ## 体验后台
 * <a href="https://demo.leadshop.vip" target="_blank"> **demo.leadshop.vip** </a>
 
@@ -60,7 +53,7 @@ Linux+Nginx+PHP7.4+MySQL5.7.3以上
 
 * <a href="https://app.cloud.tencent.com/?app=Leadshop" target="_blank"> **点击进入腾讯云开源中心在线体验** </a>
  <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/07/23/lBE6wgjWIoVsYzOO839I56FdgkUz0dLpl0KES7Pe.png">
-* 扫码关注“企码星球”体验Leadshop公众号+小程序
+* 扫码关注“LEADSHOP”公众号，体验Leadshop公众号+小程序
 <br>
  <img border="0" src="https://leadshop-1302407761.cos.ap-shanghai.myqcloud.com/public/attachments/2021/05/14/SPpkWJfKviDWHsO7e0Yh6ZUohHX718rc7gzyUlff.jpg">
 

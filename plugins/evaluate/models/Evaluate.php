@@ -20,7 +20,7 @@ use framework\common\CommonModels;
 class Evaluate extends CommonModels
 {
     const id = ['bigkey' => 20, 'unique', 'comment' => 'ID'];
-    const repository_id = ['bigkey' => 20, 'unique', 'comment' => '评论库id'];
+    const repository_id = ['bigint' => 20, 'unique', 'comment' => '评论库id'];
     const star = ['tinyint' => 1, 'notNull', 'comment' => '星级'];
     const content = ['text' => 0, 'notNull', 'comment' => '评论内容'];
     const images = ['text' => 0, 'comment' => '评论图片'];

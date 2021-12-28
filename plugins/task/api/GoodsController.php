@@ -348,6 +348,10 @@ class GoodsController extends BasicsModules
                     $goods_body['task_stock'] = 0;
                     //循环保存数据
                     foreach ($data['param'] as $i => $item) {
+                        if ($i == 0) {
+                            $goods_body['task_number'] = $item['task_number']; //兑换积分值
+                            $goods_body['task_price']  = $item['task_price']; //兑换金额
+                        }
                         //对比获得最小值
                         $task_number = $goods_body['task_number'];
                         $task_price  = $goods_body['task_price'];

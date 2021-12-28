@@ -429,7 +429,7 @@ class IndexController extends BasicController
             'param',
             'body',
             'coupon' => function ($q) {
-                $q->with(['info' => function ($q2) {$q2->select('id,name');}]);
+                $q->with(['info' => function ($q2) {$q2->select('id,name,over_num');}]);
             },
         ])->asArray()->one();
         if (empty($result)) {
