@@ -192,6 +192,7 @@ class Upload
         }
         self::$size = $file->size;
         $ext      = $file->getExtension();
+        $this->validateExt($ext);
         $path     = $this->get_url('video'); //获取当日目录
         self::$path = '/' . $path . '/' . md5(get_sn()) . ".{$ext}"; //设置视频路径
         //本地上传
@@ -309,5 +310,13 @@ class Upload
             'error' => 0,
             'size' => $size,
         ]);
+    }
+
+    private function validateExt($ext)
+    {
+        if (!in_array($ext, ['mp4', 'ogg'])) {
+            Error('不支持的视频类型');
+        }
+        return true;
     }
 }
