@@ -286,8 +286,9 @@ class IndexController extends BasicController
                 if (in_array($key, ['buy_number', 'buy_amount', 'last_buy_time', 'last_visit_time'])) {
                     $orderBy['statistical.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
                 } else {
-
-                    $orderBy['user.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    if (!sql_check($key)) {
+                        $orderBy['user.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    }
                 }
             }
         }

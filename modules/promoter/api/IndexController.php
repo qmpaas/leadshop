@@ -169,7 +169,9 @@ class IndexController extends BasicController
                 } elseif ($key == 'sales_amount' || $key == 'all_commission_amount') {
                     $orderBy['com.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
                 } else {
-                    $orderBy['p.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    if (!sql_check($key)) {
+                        $orderBy['p.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    }
                 }
 
             }
@@ -631,10 +633,10 @@ class IndexController extends BasicController
 
         $model->status    = 2;
         $model->join_time = time();
-        $invite_nickname = '';
+        $invite_nickname  = '';
         if ($model->invite_id < 0) {
             $model->invite_id = abs($model->invite_id);
-            $invite_user = User::findOne($model->invite_id);
+            $invite_user      = User::findOne($model->invite_id);
             if ($invite_user) {
                 $invite_nickname = $invite_user->nickname;
             }
@@ -675,8 +677,8 @@ class IndexController extends BasicController
                 ],
             ];
             $this->module->trigger('send_sms');
-            $model->apply_content = to_array($model->apply_content);
-            $data = $model->toArray();
+            $model->apply_content    = to_array($model->apply_content);
+            $data                    = $model->toArray();
             $data['invite_nickname'] = $invite_nickname;
             return $data;
         } else {

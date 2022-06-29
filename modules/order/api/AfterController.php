@@ -310,7 +310,9 @@ class AfterController extends BasicController
             $orderBy = ['after.created_time' => SORT_DESC];
         } else {
             foreach ($sort as $key => $value) {
-                $orderBy['after.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                if (!sql_check($key)) {
+                    $orderBy['after.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                }
             }
         }
 
@@ -517,13 +519,13 @@ class AfterController extends BasicController
         } else {
             //退款
             $model->status = 111;
-            $order_sn = $model->order_sn;
-            $order_info = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
+            $order_sn      = $model->order_sn;
+            $order_info    = M('order', 'Order')::find()->where(['order_sn' => $order_sn])->one();
             if ($order_info->status === 201 && $order_info->freight_amount > 0 && $model->order_goods_id) {
-                $a_g_count = OrderAfter::find()->where(['and',['order_sn'=>$order_sn],['>','status',110],['<','status',201]])->sum('return_number');//退款商品数
+                $a_g_count = OrderAfter::find()->where(['and', ['order_sn' => $order_sn], ['>', 'status', 110], ['<', 'status', 201]])->sum('return_number'); //退款商品数
                 $a_g_count = $a_g_count ?: 0;
-                $o_g_count = M('order', 'OrderGoods')::find()->where(['order_sn'=>$order_sn])->sum('goods_number');//订单商品数
-                if (($a_g_count+$model->return_number) >= $o_g_count) {
+                $o_g_count = M('order', 'OrderGoods')::find()->where(['order_sn' => $order_sn])->sum('goods_number'); //订单商品数
+                if (($a_g_count + $model->return_number) >= $o_g_count) {
                     $model->return_freight = $order_info->freight_amount;
                     $model->return_amount += $model->return_freight;
                 }
@@ -579,13 +581,13 @@ class AfterController extends BasicController
         $return_sn = get_sn('rsn');
 
         return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
-            $time                     = time();
-            $model->actual_refund     = $actual_refund;
-            $model->actual_score      = $actual_score;
-            $model->return_sn         = $return_sn;
-            $model->status            = 200;
-            $model->return_time       = $time;
-            $model->finish_time       = $time;
+            $time                 = time();
+            $model->actual_refund = $actual_refund;
+            $model->actual_score  = $actual_score;
+            $model->return_sn     = $return_sn;
+            $model->status        = 200;
+            $model->return_time   = $time;
+            $model->finish_time   = $time;
 
             $process = to_array($model->process);
             array_unshift($process, ['label' => '卖家', 'content' => '退款' . date('Y-m-d H:i:s', $time)]);
@@ -739,13 +741,13 @@ class AfterController extends BasicController
         ];
         $return_sn = get_sn('rsn');
         return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
-            $time                     = time();
-            $model->actual_refund     = $actual_refund;
-            $model->actual_score      = $actual_score;
-            $model->return_sn         = $return_sn;
-            $model->status            = 200;
-            $model->return_time       = $time;
-            $model->finish_time       = $time;
+            $time                 = time();
+            $model->actual_refund = $actual_refund;
+            $model->actual_score  = $actual_score;
+            $model->return_sn     = $return_sn;
+            $model->status        = 200;
+            $model->return_time   = $time;
+            $model->finish_time   = $time;
 
             $process = to_array($model->process);
             array_unshift($process, ['label' => '卖家', 'content' => '确认收货并退款' . date('Y-m-d H:i:s', $time)]);

@@ -908,6 +908,13 @@ if (!function_exists('dd')) {
     }
 }
 
+if (!function_exists('sql_check')) {
+    function sql_check($str)
+    {
+        return preg_match("/select|insert|update|delete|\'|\/\*|\*|\.\.\/|\.\/|union|into|load_file|outfile/i", $str); // 进行过滤
+    }
+}
+
 if (!function_exists('make_dir')) {
     /**
      * Create the directory by pathname

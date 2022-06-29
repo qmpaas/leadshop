@@ -345,7 +345,9 @@ class IndexController extends BasicController
                 if ($key == 'promoter_sales') {
                     $orderBy['p.sales'] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
                 } else {
-                    $orderBy['g.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    if (!sql_check($key)) {
+                        $orderBy['g.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                    }
                 }
 
             }

@@ -46,9 +46,10 @@ class GoodsController extends BasicController
         $commission_key = $setting['count_rules'] == 1 ? 'max_price' : 'max_profits';
         $sort_key       = $get['sort_key'] ?? $commission_key;
         $sort_value     = $get['sort_value'] ?? 'DESC';
-        if ($sort_key) {
+        $orderBy = [];
+        if ($sort_key && !sql_check($sort_key)) {
             $sort_key      = $sort_key == 'commission' ? $commission_key : $sort_key;
-            $key           = $sort_key == 'sales'?'p.' . $sort_key:'g.' . $sort_key;
+            $key           = $sort_key == 'sales' ? 'p.' . $sort_key : 'g.' . $sort_key;
             $orderBy[$key] = $sort_value === 'ASC' ? SORT_ASC : SORT_DESC;
         }
 
@@ -76,13 +77,13 @@ class GoodsController extends BasicController
         foreach ($list as &$value) {
             $value['slideshow'] = to_array($value['slideshow']);
             yii::error([$commission_key, $value[$commission_key], $scale]);
-        $value['commission'] = qm_round($value[$commission_key] * $scale, 2, 'floor');
-    }
+            $value['commission'] = qm_round($value[$commission_key] * $scale, 2, 'floor');
+        }
 
-    //将所有返回内容中的本地地址代替字符串替换为域名
-    $list = str2url($list);
-    $data->setModels($list);
-    return $data;
-}
+        //将所有返回内容中的本地地址代替字符串替换为域名
+        $list = str2url($list);
+        $data->setModels($list);
+        return $data;
+    }
 
 }

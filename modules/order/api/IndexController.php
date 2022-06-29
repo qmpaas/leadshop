@@ -322,7 +322,9 @@ class IndexController extends BasicController
             $orderBy = ['order.created_time' => SORT_DESC];
         } else {
             foreach ($sort as $key => $value) {
-                $orderBy['order.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                if (!sql_check($key)) {
+                    $orderBy['order.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                }
             }
         }
 

@@ -52,7 +52,9 @@ class LabelController extends BasicController
             $orderBy = ['created_time' => SORT_DESC];
         } else {
             foreach ($sort as $key => $value) {
-                $orderBy[$key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                if (!sql_check($key)) {
+                    $orderBy[$key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+                }
             }
         }
 

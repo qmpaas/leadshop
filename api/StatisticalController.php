@@ -176,7 +176,9 @@ class StatisticalController extends BasicsModules implements Map
         $where       = ['is_recycle' => 0, 'merchant_id' => $merchant_id, 'AppID' => $AppID];
         $orderBy     = [];
         foreach ($sort as $key => $value) {
-            $orderBy[$key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+            if (!sql_check($key)) {
+                $orderBy[$key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+            }
         }
         $data = M('goods', 'Goods')::find()
             ->where($where)
@@ -206,7 +208,9 @@ class StatisticalController extends BasicsModules implements Map
         $where       = ['user.is_deleted' => 0, 'user.AppID' => $AppID];
         $orderBy     = [];
         foreach ($sort as $key => $value) {
-            $orderBy['statistical.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+            if (!sql_check($key)) {
+                $orderBy['statistical.' . $key] = $value === 'ASC' ? SORT_ASC : SORT_DESC;
+            }
         }
         $data = M('users', 'User')::find()
             ->alias('user')
