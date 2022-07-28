@@ -10,7 +10,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.fontSize = document.documentElement.clientWidth / 20 + 'px';
     });
-
+    
     let origin = window.location.origin;
     window.siteinfo = {
         "uniacid": "3",
@@ -32,7 +32,7 @@
     <?php if (!empty($tabBar)) {
         echo "window.siteinfo.tabBar = " . json_encode($tabBar);
     }?>
-
+    
     var coverSupport =
         'CSS' in window &&
         typeof CSS.supports === 'function' &&
@@ -44,14 +44,14 @@
     );
 
     </script>
-    <link rel="stylesheet" href="/assets/wechat/static/index.a5c69d49.css">
+    <link rel="stylesheet" href="/assets/wechat/static/index.2772579d.css">
 </head>
 
 <body><noscript><strong>Please enable JavaScript to continue.</strong></noscript>
     <div id="app"></div>
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-    <script src="/assets/wechat/static/js/chunk-vendors.7eebe30b.js"></script>
-    <script src="/assets/wechat/static/js/index.3c9e6d46.js"></script>
+    <script src="/assets/wechat/static/js/chunk-vendors.49ea917b.js"></script>
+    <script src="/assets/wechat/static/js/index.49baa039.js"></script>
 </body>
 
 </html>

@@ -33,7 +33,11 @@
             "serviceMchid": "",
             "serviceKey": "",
             "serviceCertPem": "",
-            "serviceKeyPem": ""
+            "serviceKeyPem": "",
+            "publicPem": "",
+            "serial": "",
+            "pay_version": "common",
+            "api_version": "v2"
         },
         "wechat": {
             "isService": 0,
@@ -47,7 +51,10 @@
             "serviceMchid": "",
             "serviceKey": "",
             "serviceCertPem": "",
-            "serviceKeyPem": ""
+            "serviceKeyPem": "",
+            "publicPem": "",
+            "serial": "",
+            "api_version": "v2"
         },
         "alipay": {
             "alipayAppid": "",

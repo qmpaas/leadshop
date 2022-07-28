@@ -22,6 +22,8 @@
     "leadmall/app/login/create",
     "leadmall/app/sms/create",
     "leadmall/app/pay/create",
+    "leadmall/app/msg/index",
+    "leadmall/app/msg/create",
     "leadmall/app/setting/index",
     "leadmall/app/pages/index",
     "leadmall/app/pages/view",

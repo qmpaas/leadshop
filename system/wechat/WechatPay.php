@@ -40,6 +40,9 @@ class WechatPay
     public $errMsg;
     public $errCode;
 
+    public $pay_version = 'common';
+    public $api_version = 'v2';
+
     /**
      * WechatPay constructor.
      * @param array $options

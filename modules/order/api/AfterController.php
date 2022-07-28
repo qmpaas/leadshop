@@ -579,7 +579,7 @@ class AfterController extends BasicController
             'source'     => $order_info['source'],
         ];
         $return_sn = get_sn('rsn');
-
+        \Yii::$app->params['AppType'] = $return_order['source'];
         return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
             $time                 = time();
             $model->actual_refund = $actual_refund;
@@ -740,6 +740,7 @@ class AfterController extends BasicController
             'source'     => $order_info['source'],
         ];
         $return_sn = get_sn('rsn');
+        \Yii::$app->params['AppType'] = $return_order['source'];
         return Yii::$app->payment->refund($return_order, $return_sn, $actual_refund, function () use ($model, $actual_refund, $actual_score, $return_sn) {
             $time                 = time();
             $model->actual_refund = $actual_refund;

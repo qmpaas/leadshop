@@ -186,6 +186,9 @@ class Tools
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, self::_buildPost($data));
         list($content, $status) = array(curl_exec($curl), curl_getinfo($curl), curl_close($curl));
+        \Yii::error($data);
+        \Yii::error($content);
+        \Yii::error($status);
         return (intval($status["http_code"]) === 200) ? $content : false;
     }
 

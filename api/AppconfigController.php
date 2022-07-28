@@ -8,6 +8,7 @@
 namespace leadmall\api;
 
 use basics\api\BasicsController as BasicsModules;
+use framework\common\CertificateDownloader;
 use framework\wechat\WechatAccesstoken;
 use leadmall\Map;
 use Yii;
@@ -36,6 +37,13 @@ class AppconfigController extends BasicsModules implements Map
             $arr['apply']['wechat']['url']            = Yii::$app->request->hostInfo;
             $arr['apply']['wechat']['token']          = $arr['apply']['wechat']['token'] ? $arr['apply']['wechat']['token'] : get_random(6);
             $arr['apply']['wechat']['encodingAesKey'] = $arr['apply']['wechat']['encodingAesKey'] ? $arr['apply']['wechat']['token'] : get_random(43);
+            $arr['appPay']['weapp']['pay_version'] = $arr['appPay']['weapp']['pay_version'] ?? 'common';
+            $arr['appPay']['weapp']['api_version'] = $arr['appPay']['weapp']['api_version'] ?? 'v2';
+            $arr['appPay']['wechat']['api_version'] = $arr['appPay']['wechat']['api_version'] ?? 'v2';
+            $arr['appPay']['weapp']['serial'] = $arr['appPay']['weapp']['serial'] ?? '';
+            $arr['appPay']['wechat']['serial'] = $arr['appPay']['wechat']['serial'] ?? '';
+            $arr['appPay']['weapp']['publicPem'] = $arr['appPay']['weapp']['publicPem'] ?? '';
+            $arr['appPay']['wechat']['publicPem'] = $arr['appPay']['wechat']['publicPem'] ?? '';
             return $arr;
         } else {
             Error('文件不存在');
@@ -77,10 +85,12 @@ class AppconfigController extends BasicsModules implements Map
             } else {
                 Error('配置不存在');
             }
-            $data = to_json($data);
             if ($key[0] == 'apply') {
                 $this->check($key[1]);
+            } elseif ($key[0] == 'appPay') {
+                $this->checkPay($key[1], $data);
             }
+            $data = to_json($data);
             return to_mkdir($url, $data, true, true);
         } else {
             Error('文件不存在');
@@ -135,4 +145,16 @@ class AppconfigController extends BasicsModules implements Map
         }
     }
 
+    private function checkPay($type, &$data)
+    {
+        try {
+            if ($data['appPay'][$type]['api_version'] == 'v3' && $data['appPay'][$type]['pay_version'] == 'common') {
+                list($pem, $serial) = (new CertificateDownloader())->getCert($data['appPay'][$type]);
+                $data['appPay'][$type]['publicPem'] = $pem;
+                $data['appPay'][$type]['serial'] = $serial;
+            }
+        } catch (\UnexpectedValueException $unexpectedValueException) {
+            Error($unexpectedValueException->getMessage());
+        }
+    }
 }
