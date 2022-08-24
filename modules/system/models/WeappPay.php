@@ -3,6 +3,8 @@
 namespace system\models;
 
 use framework\common\CommonModels;
+use order\models\Order;
+use users\models\Oauth;
 use Yii;
 
 /**
@@ -15,6 +17,9 @@ use Yii;
 * @property string $order_sn 订单号
 * @property string $pay_sn 支付号
 * @property string $transaction_id 小程序支付交易单号
+* @property string $profit_id 分账单号
+* @property string error_msg 分账错误信息
+* @property Order $order
 */
 class WeappPay extends CommonModels
 {
@@ -22,6 +27,8 @@ class WeappPay extends CommonModels
     const order_sn          = ['varchar' => 50, 'notNull', 'default' => '', 'comment' => '订单号'];
     const pay_sn            = ['varchar' => 50, 'notNull', 'default' => '', 'comment' => '支付号'];
     const transaction_id    = ['varchar' => 64, 'notNull', 'default' => '', 'comment' => '小程序支付交易单号'];
+    const profit_id         = ['varchar' => 50, 'notNull', 'default' => '', 'comment' => '分账单号'];
+    const error_msg         = ['varchar' => 256, 'notNull', 'default' => '', 'comment' => '分账错误信息'];
     const created_time      = ['bigint' => 10, 'comment' => '创建时间'];
     const updated_time      = ['bigint' => 10, 'comment' => '修改时间'];
     const deleted_time      = ['bigint' => 10, 'comment' => '删除时间'];
@@ -43,7 +50,8 @@ class WeappPay extends CommonModels
         return [
             [['created_time', 'updated_time', 'deleted_time', 'is_deleted'], 'integer'],
             [['order_sn', 'pay_sn'], 'string', 'max' => 50],
-            [['transaction_id'], 'string', 'max' => 64],
+            [['transaction_id', 'profit_id'], 'string', 'max' => 64],
+            [['error_msg'], 'string', 'max' => 256],
         ];
     }
 
@@ -61,5 +69,10 @@ class WeappPay extends CommonModels
             'deleted_time' => 'Deleted Time',
             'is_deleted' => 'Is Deleted',
         ];
+    }
+
+    public function getOrder()
+    {
+        return $this->hasOne('order\models\Order', ['order_sn' => 'order_sn']);
     }
 }

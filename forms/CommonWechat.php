@@ -196,7 +196,7 @@ class CommonWechat extends BaseObject
                 $paymentOrder->openid,
                 mb_substr($paymentOrder->title, 0, 20),
                 $wxpsn,
-                $paymentOrder->amount * 100
+                intval(strval($paymentOrder->amount * 100))
             );
             if ($res === false) {
                 Error($pay->errMsg);
@@ -214,7 +214,7 @@ class CommonWechat extends BaseObject
                 }
             }
             $payData = $res['payment_params'];
-            $payData['order'] = [];
+            $payData['orderInfo'] = [];
             return $payData;
         } elseif ($this->payVersion == 'common') {
             if ($this->apiVersion == 'v3') {
@@ -231,7 +231,7 @@ class CommonWechat extends BaseObject
                                 'description' => $paymentOrder->title,
                                 'notify_url' => $paymentOrder->notify,
                                 'amount' => [
-                                    'total' => intval($paymentOrder->amount * 100),
+                                    'total' => intval(strval($paymentOrder->amount * 100)),
                                     'currency' => 'CNY'
                                 ],
                                 'attach' => $paymentOrder->attach,
@@ -416,9 +416,9 @@ class CommonWechat extends BaseObject
                                 'out_refund_no' => $outRefundNo,
                                 'amount' => [
                                     // 退款金额
-                                    'refund' => $refund * 100,
+                                    'refund' => intval(strval($refund * 100)),
                                     // 原订单金额
-                                    'total' => $total * 100,
+                                    'total' => intval(strval($total * 100)),
                                     // 退款币种
                                     'currency' => 'CNY'
                                 ]
@@ -550,5 +550,34 @@ class CommonWechat extends BaseObject
                 }
             }
         }
+    }
+
+    /**
+     * 分账
+     * @param WeappPay $order
+     * @param String $share
+     * @return bool
+     * @throws \Exception
+     */
+    public function profitsharingorder($order, $share)
+    {
+        $pay = $this->getWechatPay();
+        if (!$pay) {
+            Error('请联系管理员配置支付信息');
+        }
+        if ($this->payVersion != 'wx') {
+            Error('当前未选择支付管理');
+        }
+        /**@var WechatWxpay $pay */
+        $res = $pay->profitSharingOrder(
+            $order->order->oauth->oauthID,
+            $order->pay_sn,
+            $order->transaction_id,
+            $share
+        );
+        if ($res === false) {
+            return $pay->errMsg;
+        }
+        return $res;
     }
 }

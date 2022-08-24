@@ -260,4 +260,28 @@ class WechatWxpay
         Error('暂不支持');
     }
 
+    /**
+     * 分账
+     * @param $openid
+     * @param $trade_no
+     * @param $transaction_id
+     * @param $profit_sharing_no
+     * @return false|mixed
+     */
+    public function profitSharingOrder($openid, $trade_no, $transaction_id, $profit_sharing_no)
+    {
+        $data = [
+            'openid' => $openid,
+            'mchid' => $this->mch_id,
+            'trade_no' => $trade_no,
+            'transaction_id' => $transaction_id,
+            'profit_sharing_no' => $profit_sharing_no
+        ];
+        $result = $this->getArrayResult(json_encode($data, JSON_UNESCAPED_UNICODE), self::MCH_BASE_URL . '/shop/pay/profitsharingorder?access_token=' . $this->access_token);
+        $result = json_decode($result, true);
+        if (false === $this->_parseResult($result)) {
+            return false;
+        }
+        return $result;
+    }
 }
