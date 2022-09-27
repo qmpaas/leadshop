@@ -388,12 +388,12 @@ class CommonWechat extends BaseObject
      * @param string $type 渠道
      * @param string $orderSn 商户订单号
      * @param string $outRefundNo 商户退款订单号
-     * @param int $total 商户订单总金额
      * @param int $refund 退款金额，不可大于订单总金额
+     * @param int $total 商户订单总金额
      * @return bool|void
      * @throws \Exception
      */
-    public function refund($type, $orderSn, $outRefundNo, $total, $refund)
+    public function refund($type, $orderSn, $outRefundNo, $refund, $total)
     {
         $pay = $this->getWechatPay([], $type);
         if (!$pay) {
