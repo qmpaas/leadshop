@@ -1291,3 +1291,40 @@ CREATE TABLE `heshop_initialize_prefix_finance`  (
   `is_deleted` tinyint(100) NULL DEFAULT 0 COMMENT '是否删除',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+CREATE TABLE `heshop_initialize_prefix_evaluate` (
+  `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT,
+  `repository_id` BIGINT ( 11 ) NOT NULL COMMENT '评论库id',
+  `star` INT ( 11 ) NOT NULL COMMENT '星级',
+  `content` text NOT NULL COMMENT '评论内容',
+  `images` text COMMENT '评论图片',
+  `created_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `updated_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `deleted_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `is_deleted` TINYINT ( 1 ) NOT NULL DEFAULT '0',
+  PRIMARY KEY ( `id` ),
+  KEY `repository_id` ( `repository_id` )
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `heshop_initialize_prefix_evaluate_goods` (
+  `id` BIGINT ( 20 ) NOT NULL AUTO_INCREMENT,
+  `goods_id` BIGINT ( 20 ) NOT NULL COMMENT '商品ID',
+  `created_time` INT ( 10 ) NOT NULL DEFAULT '0',
+  `updated_time` INT ( 10 ) NOT NULL DEFAULT '0',
+  `deleted_time` INT ( 10 ) NOT NULL DEFAULT '0',
+  `is_deleted` TINYINT ( 1 ) NOT NULL DEFAULT '0',
+  PRIMARY KEY ( `id` ),
+  KEY `goods_id` ( `goods_id` )
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
+CREATE TABLE `heshop_initialize_prefix_evaluate_repository` (
+  `id` BIGINT ( 11 ) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR ( 20 ) NOT NULL COMMENT '评论库名称',
+  `created_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `updated_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `deleted_time` INT ( 11 ) NOT NULL DEFAULT '0',
+  `is_deleted` INT ( 11 ) NOT NULL DEFAULT '0',
+  PRIMARY KEY ( `id` )
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8mb4;
+
+ALTER TABLE `heshop_initialize_prefix_user` ADD COLUMN `is_edit` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0:未编辑 1:已编辑' AFTER `wechat`;
+ALTER TABLE `heshop_initialize_prefix_order_evaluate` ADD COLUMN `ai_avatar`  varchar(4096) NOT NULL DEFAULT '' COMMENT '虚拟头像' AFTER `show_goods_param`, ADD COLUMN `ai_nickname`  varchar(16) NOT NULL DEFAULT '' COMMENT '虚拟昵称' AFTER `ai_avatar`, ADD COLUMN `ai_type`  tinyint(1) NOT NULL DEFAULT 0 COMMENT '1:评论库抓取  2:api抓取' AFTER `ai_nickname`;

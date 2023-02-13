@@ -47,6 +47,7 @@ abstract class LoginController extends BasicController
         if (!$user) {
             $register           = true;
             $user               = new User();
+            $user->is_edit      = 0;
             $user->mobile       = null;
             $user->created_time = time();
             $user->updated_time = time();
@@ -56,9 +57,13 @@ abstract class LoginController extends BasicController
         } else {
             $oauth = $user->oauth;
         }
-        $user->nickname = $userInfo->nickname;
-        $user->avatar   = $userInfo->avatar;
-        $user->gender   = $userInfo->gender;
+        if (!$user->nickname) {
+            $user->nickname = '用户_' . mt_rand(10000,99999);
+        }
+        if (!$user->avatar) {
+            $user->avatar = \Yii::$app->request->hostInfo . \Yii::$app->request->baseUrl . '/static/images/user-default-avatar.png';
+        }
+        $user->gender   = 0;
         $user->AppID    = \Yii::$app->params['AppID'];
         if (!$user->save()) {
             Error($user->getFirstErrors());

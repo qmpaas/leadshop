@@ -25,7 +25,7 @@ class LoginUserInfo extends BaseObject
      * auth_info 用户授权
      * auth_base 静默授权
      */
-    public $scope = 'auth_info';
+    public $scope = 'auth_base';
     public $openId = '';
     public $unionId = '';
     public $password = '';

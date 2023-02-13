@@ -1,0 +1,1 @@
+ALTER TABLE `heshop_initialize_prefix_user` ADD COLUMN `is_edit` tinyint(1) NOT NULL DEFAULT 1 COMMENT '0:未编辑 1:已编辑' AFTER `wechat`;

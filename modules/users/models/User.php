@@ -25,6 +25,7 @@ use promoter\models\Promoter;
  * @property int parent_id 上级id
  * @property int $status 帐号状态 0正常  1禁用
  * @property string $AppID 应用ID
+ * @property int $is_edit 0:未编辑 1:已编辑
  * @property int $is_deleted 是否删除
  * @property int $created_time 创建时间
  * @property int $updated_time 更新时间
@@ -48,6 +49,7 @@ class User extends CommonModels implements \yii\web\IdentityInterface
     const status       = ['tinyint' => 1, 'notNull', 'default' => 0, 'comment' => '帐号状态 0正常  1禁用'];
     const AppID        = ['varchar' => 32, 'notNull', 'comment' => '应用ID'];
     const bind_time    = ['bigint' => 10, 'comment' => '绑定父级时间'];
+    const is_edit      = ['tinyint' => 1,  'notNull', 'default' => 1, 'comment' => '0:未编辑 1:已编辑'];
     const created_time = ['bigint' => 10, 'comment' => '创建时间'];
     const updated_time = ['bigint' => 10, 'comment' => '修改时间'];
     const deleted_time = ['bigint' => 10, 'comment' => '删除时间'];
@@ -94,7 +96,7 @@ class User extends CommonModels implements \yii\web\IdentityInterface
     public function scenarios()
     {
         $scenarios            = parent::scenarios();
-        $scenarios['setting'] = ['mobile', 'realname', 'wechat', 'birthday', 'area', 'gender'];
+        $scenarios['setting'] = ['avatar', 'nickname', 'mobile', 'realname', 'wechat', 'birthday', 'area', 'gender'];
 
         return $scenarios;
     }

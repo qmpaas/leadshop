@@ -196,6 +196,7 @@ class IndexController extends BasicController
         $model = M('users', 'User')::findOne($UID);
         $model->setScenario('setting');
         $model->setAttributes($post);
+        $model->is_edit = 1;
         $this->plugins("task", ["score", ["perfect", 1, $UID]]);
         return $model->save();
     }

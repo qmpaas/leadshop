@@ -45,11 +45,11 @@ class WeappController extends LoginController
     {
         $res                = $this->actionWeapp();
         $userInfo           = new LoginUserInfo();
-        $userInfo->unionId  = $res['userinfo']['unionId'] ?? '';
-        $userInfo->openId   = $res['userinfo']['openId'] ?? '';
-        $userInfo->gender   = $res['userinfo']['gender'];
-        $userInfo->avatar   = $res['userinfo']['avatarUrl'];
-        $userInfo->nickname = $res['userinfo']['nickName'];
+        $userInfo->unionId  = $res['unionId'] ?? '';
+        $userInfo->openId   = $res['openId'] ?? '';
+        $userInfo->gender   = $res['gender'] ?? '';
+        $userInfo->avatar   = $res['avatarUrl'] ?? '';
+        $userInfo->nickname = $res['nickName'] ?? '';
         return $userInfo;
     }
 
@@ -66,9 +66,11 @@ class WeappController extends LoginController
         ]);
         $post = Yii::$app->request->post();
         // 执行接口操作
-        $result = $oauth->getUserInfo($post['code'], $post['encryptedData'], $post['iv']);
-        // 数据查询接口
-        return $result;
+
+        $data = $oauth->getCode2Session($post['code']);
+        $openId = $data['openid'];
+        $unionId = $data['unionid'] ?? '';
+        return compact('openId', 'unionId');
     }
 
 }
