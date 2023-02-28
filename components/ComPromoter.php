@@ -201,10 +201,12 @@ class ComPromoter
         if (!empty($check_list)) {
             $level1_data = [];
             foreach ($check_list as $value) {
-                array_push($level1_data, $value['UID']);
-                if ($value['level'] != 1) {
-                    $type = 2;
-                    array_push($log_row, [$value['UID'],$value['level'],$level_name[$value['level']]['name'],1,$level_name[1]['name'],$type,$time]);
+                if ($value['start_level'] == 1) {
+                    array_push($level1_data, $value['UID']);
+                    if ($value['level'] != 1) {
+                        $type = 2;
+                        array_push($log_row, [$value['UID'],$value['level'],$level_name[$value['level']]['name'],1,$level_name[1]['name'],$type,$time]);
+                    }
                 }
             }
             //最后都没有找到符合的,等级归为初始1级

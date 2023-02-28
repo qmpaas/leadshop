@@ -50,8 +50,12 @@ class IndexController extends BasicController
     public function actionIndex()
     {
         $data = StoreSetting();
+        $privateKey = ['sms_setting', 'crontab_access_token', 'apikey_99', 'kb_express_setting', 'storage_setting', 'mysql_version', 'leadshop_identified_by'];
         $new_data = [];
-        foreach ($data as $value) {
+        foreach ($data as $key => $value) {
+            if (in_array($key, $privateKey)) {
+                continue;
+            }
             $new_data[$value['keyword']] = str2url($value['content']);
         }
         return $new_data;

@@ -60,8 +60,14 @@ abstract class LoginController extends BasicController
         if (!$user->nickname) {
             $user->nickname = '用户_' . mt_rand(10000,99999);
         }
+        if (isset($userInfo->nickname) && !empty($userInfo->nickname)) {
+            $user->nickname = $userInfo->nickname;
+        }
         if (!$user->avatar) {
             $user->avatar = \Yii::$app->request->hostInfo . \Yii::$app->request->baseUrl . '/static/images/user-default-avatar.png';
+        }
+        if (isset($userInfo->avatar) && !empty($userInfo->avatar)) {
+            $user->avatar = $userInfo->avatar;
         }
         $user->gender   = 0;
         $user->AppID    = \Yii::$app->params['AppID'];
