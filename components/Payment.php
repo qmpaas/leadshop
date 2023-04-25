@@ -75,7 +75,7 @@ class Payment extends Component
     {
         try {
             $wechat = new CommonWechat(['AppID' => \Yii::$app->params['AppID']]);
-            $res  = $wechat->transfers($user->oauth->type, $user->oauth->oauthID, $finance->price * 100, $finance->order_sn, $desc);
+            $res  = $wechat->transfers($user->oauth->type, $user->oauth->oauthID, $finance->price, $finance->order_sn, $desc);
             if ($res) {
                 $res = $callback();
                 return $res;
